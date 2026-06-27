@@ -10,14 +10,23 @@ it('returns success when run without path', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([]);
-    // Можно протестировать только Options
+    // Можно протестировать только Arguments
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('Arguments:');
 });
 
 it('fails when path does not exist', function () {
     $tester = new CommandTester(new AnalyseCommand);
-    $code = $tester->execute(['path' => '/tmp/no-such-file.php']);
+    $code = $tester->execute(['path' => '/tmp/laravel-ready-missing-'.uniqid().'.php']);
     expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('File not found');
+});
+
+it('returns invalid when path is not a php file', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute(['path' => fixture('not-php.txt')]);
+
+    expect($code)->toBe(Command::INVALID)
+        ->and($tester->getDisplay())->toContain('Expected a PHP file');
 });

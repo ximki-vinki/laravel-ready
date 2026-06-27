@@ -32,6 +32,16 @@ final class AnalyseCommand extends Command
             return Command::SUCCESS;
         }
 
+        if (! is_string($path)) {
+            return Command::INVALID;
+        }
+
+        if (! str_ends_with($path, '.php')) {
+            $output->writeln('<error>Expected a PHP file.</error>');
+
+            return Command::INVALID;
+        }
+
         if (! is_file($path)) {
             $output->writeln(sprintf('<error>File not found: %s</error>', $path));
 
