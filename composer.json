@@ -10,14 +10,26 @@
         "symfony/console": "^8.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^13.2",
+        "laravel/pint": "^1.29",
         "phpstan/phpstan": "^2.2",
-        "laravel/pint": "^1.29"
+        "phpunit/phpunit": "^13.2"
     },
     "autoload": {
         "psr-4": {
             "LaravelReady\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaravelReady\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "hooks": "bash .git_hooks/install.sh",
+        "phpstan": "phpstan analyse",
+        "pint": "pint",
+        "pint:test": "pint --test",
+        "test": "phpunit"
     },
     "bin": [
         "bin/laravel-ready"
