@@ -9,7 +9,10 @@ use Symfony\Component\Console\Tester\CommandTester;
 it('returns success when run without path', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
-    expect($tester->execute([]))->toBe(Command::SUCCESS);
+    $code = $tester->execute([]);
+    // Можно протестировать только Options
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('Arguments:');
 });
 
 it('fails when path does not exist', function () {
