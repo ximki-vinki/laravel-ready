@@ -1,0 +1,6 @@
+services:
+  laravel-ready:
+    build: .
+    volumes:
+      - .:/app
+    entrypoint: ["php", "bin/laravel-ready"]

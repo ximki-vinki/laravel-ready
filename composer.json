@@ -1,0 +1,18 @@
+{
+    "name": "laravel-ready/tool",
+    "description": "CLI: уровень готовности PHP-файлов к миграции в Laravel",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": "^8.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "LaravelReady\\": "src/"
+        }
+    },
+    "bin": [
+        "bin/laravel-ready"
+    ],
+    "minimum-stability": "stable"
+}
