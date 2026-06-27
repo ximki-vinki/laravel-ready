@@ -11,8 +11,8 @@
     },
     "require-dev": {
         "laravel/pint": "^1.29",
-        "phpstan/phpstan": "^2.2",
-        "phpunit/phpunit": "^13.2"
+        "pestphp/pest": "^4.0",
+        "phpstan/phpstan": "^2.2"
     },
     "autoload": {
         "psr-4": {
@@ -29,7 +29,12 @@
         "phpstan": "phpstan analyse",
         "pint": "pint",
         "pint:test": "pint --test",
-        "test": "phpunit"
+        "test": "pest"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     },
     "bin": [
         "bin/laravel-ready"

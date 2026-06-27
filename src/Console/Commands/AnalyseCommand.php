@@ -23,8 +23,10 @@ final class AnalyseCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $output->writeln('<info>ok</info>');
+        if ($input->getArgument('path') === null) {
+            return Command::SUCCESS;
+        }
 
-        return Command::SUCCESS;
+        return Command::FAILURE;
     }
 }
