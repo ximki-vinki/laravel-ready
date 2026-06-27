@@ -3,8 +3,12 @@
 
 declare(strict_types=1);
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require dirname(__DIR__).'/vendor/autoload.php';
 
 use LaravelReady\Console\Application;
 
-exit(Application::run($_SERVER['argv']));
+try {
+    exit(Application::run());
+} catch (Exception $e) {
+
+}
