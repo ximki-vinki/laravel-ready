@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelReady\Analysis;
 
+use Illuminate\Support\Collection;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Stmt\Expression;
@@ -11,12 +12,13 @@ use PhpParser\ParserFactory;
 
 final class LegacyDetector
 {
-    public function isLegacy(string $path): ?string
+    /** @return Collection<array-key, SuperglobalFinding> */
+    public function analyse(string $path): Collection
     {
         return $path
             |> $this->readCode(...)
             |> $this->parseCode(...)
-            |> $this->findBlocker(...);
+            |> $this->findSuperglobals(...);
     }
 
     private function readCode(string $path): ?string
@@ -44,12 +46,15 @@ final class LegacyDetector
 
     /**
      * @param  array<Node\Stmt>|null  $ast
+     * @return Collection<array-key, SuperglobalFinding>
      */
-    private function findBlocker(?array $ast): ?string
+    private function findSuperglobals(?array $ast): Collection
     {
         if ($ast === null) {
-            return null;
+            return collect();
         }
+
+        $findings = collect();
 
         foreach ($ast as $node) {
             if (! $node instanceof Expression) {
@@ -58,10 +63,13 @@ final class LegacyDetector
 
             if ($node->expr instanceof Variable
                 && $node->expr->name === SuperglobalName::Globals->value) {
-                return SuperglobalName::Globals->value;
+                $findings->push(new SuperglobalFinding(
+                    SuperglobalName::Globals,
+                    $node->expr->getStartLine(),
+                ));
             }
         }
 
-        return null;
+        return $findings;
     }
 }

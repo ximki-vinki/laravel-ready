@@ -13,7 +13,7 @@ function runLaravelReadyBin(string ...$args): int
     );
     $process->run();
 
-    return $process->getExitCode();
+    return $process->getExitCode() ?? Command::FAILURE;
 }
 
 it('exits success when run without arguments', function () {

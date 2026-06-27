@@ -48,10 +48,10 @@ final class AnalyseCommand extends Command
             return Command::FAILURE;
         }
 
-        $blocker = (new LegacyDetector)->isLegacy($path);
+        $findings = (new LegacyDetector)->analyse($path);
 
-        if ($blocker !== null) {
-            (new LegacyOutput)->write($output, $blocker);
+        if ($findings->isNotEmpty()) {
+            (new LegacyOutput)->write($output, $findings);
         } else {
             (new LaravelReadyOutput)->write($output);
         }
