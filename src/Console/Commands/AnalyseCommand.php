@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace LaravelReady\Console\Commands;
 
+use LaravelReady\Analysis\LegacyDetector;
+use LaravelReady\Console\Output\LaravelReadyOutput;
+use LaravelReady\Console\Output\LegacyOutput;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\DescriptorHelper;
@@ -43,6 +46,14 @@ final class AnalyseCommand extends Command
             $output->writeln(sprintf('<error>File not found: %s</error>', $path));
 
             return Command::FAILURE;
+        }
+
+        $blocker = (new LegacyDetector)->isLegacy($path);
+
+        if ($blocker !== null) {
+            (new LegacyOutput)->write($output, $blocker);
+        } else {
+            (new LaravelReadyOutput)->write($output);
         }
 
         return Command::SUCCESS;

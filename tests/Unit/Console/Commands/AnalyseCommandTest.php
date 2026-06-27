@@ -10,7 +10,7 @@ it('returns success when run without path', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([]);
-    // Можно протестировать только Arguments
+    // Можно протестировать только через Arguments
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('Arguments:');
 });
@@ -29,4 +29,23 @@ it('returns invalid when path is not a php file', function () {
 
     expect($code)->toBe(Command::INVALID)
         ->and($tester->getDisplay())->toContain('Expected a PHP file');
+});
+
+it('prints legacy level and finding for globals fixture', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute(['path' => fixture('Legacy/globals.php')]);
+
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('Legacy')
+        ->and($tester->getDisplay())->toContain('$GLOBALS');
+});
+
+it('prints laravel ready level for clean fixture', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $tester->execute(['path' => fixture('Legacy/empty.php')]);
+
+    expect($tester->getDisplay())->toContain('LaravelReady')
+        ->and($tester->getDisplay())->not->toContain('$GLOBALS');
 });
