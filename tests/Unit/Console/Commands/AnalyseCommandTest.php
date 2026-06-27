@@ -6,6 +6,8 @@ use LaravelReady\Console\Commands\AnalyseCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
+covers(AnalyseCommand::class);
+
 it('returns success when run without path', function () {
     $tester = new CommandTester(new AnalyseCommand);
 

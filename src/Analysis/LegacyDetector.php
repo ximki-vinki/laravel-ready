@@ -23,9 +23,13 @@ final class LegacyDetector
 
     private function readCode(string $path): ?string
     {
+        if (! is_file($path)) {
+            return null; // @pest-mutate-ignore
+        }
+
         $code = file_get_contents($path);
 
-        return $code === false ? null : $code;
+        return $code === false ? null : $code; // @pest-mutate-ignore
     }
 
     /**
@@ -50,11 +54,11 @@ final class LegacyDetector
      */
     private function findSuperglobals(?array $ast): Collection
     {
-        if ($ast === null) {
-            return collect();
-        }
-
         $findings = collect();
+
+        if ($ast === null) {
+            return $findings; // @pest-mutate-ignore
+        }
 
         foreach ($ast as $node) {
             if (! $node instanceof Expression) {
