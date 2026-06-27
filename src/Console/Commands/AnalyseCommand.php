@@ -23,10 +23,18 @@ final class AnalyseCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($input->getArgument('path') === null) {
+        $path = $input->getArgument('path');
+
+        if ($path === null) {
             return Command::SUCCESS;
         }
 
-        return Command::FAILURE;
+        if (! is_file($path)) {
+            $output->writeln(sprintf('<error>File not found: %s</error>', $path));
+
+            return Command::FAILURE;
+        }
+
+        return Command::SUCCESS;
     }
 }

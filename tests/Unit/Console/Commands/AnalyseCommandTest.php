@@ -11,3 +11,10 @@ it('returns success when run without path', function () {
 
     expect($tester->execute([]))->toBe(Command::SUCCESS);
 });
+
+it('fails when path does not exist', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+    $code = $tester->execute(['path' => '/tmp/no-such-file.php']);
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('File not found');
+});
