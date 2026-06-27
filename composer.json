@@ -1,44 +1,45 @@
 {
-    "name": "laravel-ready/tool",
-    "description": "CLI: уровень готовности PHP-файлов к миграции в Laravel",
-    "type": "project",
-    "license": "MIT",
-    "require": {
-        "php": "^8.5",
-        "illuminate/support": "^13.0",
-        "nikic/php-parser": "^5.7",
-        "symfony/console": "^8.1"
-    },
-    "require-dev": {
-        "laravel/pint": "^1.29",
-        "pestphp/pest": "^4.0",
-        "phpstan/phpstan": "^2.2",
-        "symfony/var-dumper": "^8.1"
-    },
-    "autoload": {
-        "psr-4": {
-            "LaravelReady\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "LaravelReady\\Tests\\": "tests/"
-        }
-    },
-    "scripts": {
-        "hooks": "bash .git_hooks/install.sh",
-        "phpstan": "phpstan analyse",
-        "pint": "pint",
-        "pint:test": "pint --test",
-        "test": "pest"
-    },
-    "config": {
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
-    },
-    "bin": [
-        "bin/laravel-ready"
-    ],
-    "minimum-stability": "stable"
+  "name": "laravel-ready/tool",
+  "description": "CLI: уровень готовности PHP-файлов к миграции в Laravel",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": "^8.5",
+    "illuminate/support": "^13.0",
+    "nikic/php-parser": "^5.7",
+    "symfony/console": "^8.1"
+  },
+  "require-dev": {
+    "laravel/pint": "^1.29",
+    "pestphp/pest": "^4.0",
+    "phpstan/phpstan": "^2.2",
+    "symfony/var-dumper": "^8.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "LaravelReady\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "LaravelReady\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "hooks": "bash .git_hooks/install.sh",
+    "phpstan": "phpstan analyse",
+    "pint": "pint",
+    "pint:test": "pint --test",
+    "test": "pest",
+    "test-cov": "docker run --rm -v \"$PWD\":/app -w /app laravel-ready-dev composer test -- --coverage-html build/coverage"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "bin": [
+    "bin/laravel-ready"
+  ],
+  "minimum-stability": "stable"
 }
