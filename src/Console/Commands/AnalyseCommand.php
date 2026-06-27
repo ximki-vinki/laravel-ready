@@ -24,16 +24,13 @@ final class AnalyseCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        /** @var ?string $path */
         $path = $input->getArgument('path');
 
         if ($path === null) {
             (new DescriptorHelper)->describe($output, $this);
 
             return Command::SUCCESS;
-        }
-
-        if (! is_string($path)) {
-            return Command::INVALID;
         }
 
         if (! str_ends_with($path, '.php')) {

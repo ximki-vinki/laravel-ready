@@ -29,7 +29,7 @@ fi
 echo "using \"$EXECUTABLE_NAME\" located at $EXECUTABLE"
 "$EXECUTABLE" --version
 
-FILES=$(git diff-index --cached --name-only --diff-filter=ACMR HEAD | grep '\.php$' | tr '\n' ' ' | sed 's/ *$//g')
+FILES=$(git diff-index --cached --name-only --diff-filter=ACMR HEAD | grep '\.php$' | grep -v '^tests/Fixtures/' | tr '\n' ' ' | sed 's/ *$//g')
 
 if [ -z "$FILES" ]; then
     echo "No php files staged to fix."
