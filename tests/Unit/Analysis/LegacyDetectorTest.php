@@ -8,8 +8,8 @@ use LaravelReady\Analysis\SuperglobalName;
 
 covers(LegacyDetector::class);
 
-it('detects legacy in globals fixture', function () {
-    $file = fixture('Legacy/globals.php');
+it('detects legacy in bare fixture', function () {
+    $file = fixture('Legacy/Superglobals/bare.php');
     $globals = new SuperglobalFinding(SuperglobalName::Globals, 3);
     $cookie = new SuperglobalFinding(SuperglobalName::Cookie, 4);
 
@@ -18,6 +18,16 @@ it('detects legacy in globals fixture', function () {
     expect($findings)
         ->toHaveCount(2)
         ->toContainEqual($globals, $cookie);
+});
+
+it('detects globals in assign fixture', function () {
+    $file = fixture('Legacy/Superglobals/assign.php');
+
+    $findings = (new LegacyDetector)->analyse($file);
+
+    expect($findings)
+        ->toHaveCount(1)
+        ->toContainEqual(new SuperglobalFinding(SuperglobalName::Globals, 3));
 });
 
 it('detects no findings in empty fixture', function () {

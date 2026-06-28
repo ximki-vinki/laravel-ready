@@ -36,7 +36,7 @@ it('returns invalid when path is not a php file', function () {
 it('prints legacy level and finding for globals fixture', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
-    $code = $tester->execute(['path' => fixture('Legacy/globals.php')]);
+    $code = $tester->execute(['path' => fixture('Legacy/Superglobals/bare.php')]);
 
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('Legacy')
