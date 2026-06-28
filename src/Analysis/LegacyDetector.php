@@ -7,7 +7,7 @@ namespace LaravelReady\Analysis;
 use Illuminate\Support\Collection;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Stmt\Expression;
+use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
 
 final class LegacyDetector
@@ -60,23 +60,21 @@ final class LegacyDetector
             return $findings; // @pest-mutate-ignore
         }
 
-        foreach ($ast as $node) {
-            if (! $node instanceof Expression) {
-                continue;
-            }
+        $variables = (new NodeFinder)->findInstanceOf($ast, Variable::class);
 
-            if (! $node->expr instanceof Variable) {
+        foreach ($variables as $variable) {
+            if (! is_string($variable->name)) {
                 continue;
             }
 
             foreach (SuperglobalName::cases() as $superglobal) {
-                if ($node->expr->name !== $superglobal->value) {
+                if ($variable->name !== $superglobal->value) {
                     continue;
                 }
 
                 $findings->push(new SuperglobalFinding(
                     $superglobal,
-                    $node->expr->getStartLine(),
+                    $variable->getStartLine(),
                 ));
 
                 break;

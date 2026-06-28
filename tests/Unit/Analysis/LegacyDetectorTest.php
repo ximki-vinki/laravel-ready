@@ -20,14 +20,37 @@ it('detects legacy in bare fixture', function () {
         ->toContainEqual($globals, $cookie);
 });
 
-it('detects globals in assign fixture', function () {
-    $file = fixture('Legacy/Superglobals/assign.php');
+it('detects legacy in superglobal shapes', function (string $fixture, int $line) {
+    $file = fixture('Legacy/Superglobals/'.$fixture);
+    $expected = new SuperglobalFinding(SuperglobalName::Globals, $line);
 
     $findings = (new LegacyDetector)->analyse($file);
 
     expect($findings)
         ->toHaveCount(1)
-        ->toContainEqual(new SuperglobalFinding(SuperglobalName::Globals, 3));
+        ->toContainEqual($expected);
+})->with([
+    'assign' => ['assign.php', 3],
+    'array-access' => ['array-access.php', 3],
+    'as-argument' => ['as-argument.php', 3],
+    'isset' => ['isset.php', 3],
+    'in-function' => ['in-function.php', 5],
+    'return' => ['return.php', 5],
+]);
+
+it('detects legacy in mixed fixture', function () {
+    $file = fixture('Legacy/Superglobals/mixed.php');
+    $globalsBare = new SuperglobalFinding(SuperglobalName::Globals, 3);
+    $cookieAssign = new SuperglobalFinding(SuperglobalName::Cookie, 4);
+    $globalsInFunction = new SuperglobalFinding(SuperglobalName::Globals, 8);
+
+    $findings = (new LegacyDetector)->analyse($file);
+
+    expect($findings->values()->all())->toEqualCanonicalizing([
+        $globalsBare,
+        $cookieAssign,
+        $globalsInFunction,
+    ]);
 });
 
 it('detects no findings in empty fixture', function () {
