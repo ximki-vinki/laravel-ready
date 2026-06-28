@@ -15,7 +15,7 @@
 | **Рефакторинг** | Меняем форму, не поведение. Тесты зелёные. Stan + Pint. |
 
 Один тест — один шаг. Не прыгаем сразу к парсеру, строке `Legacy` и CLI.
-
+7
 ## Пример: `$GLOBALS`
 
 Фикстура: `tests/Fixtures/Legacy/globals.php`. Пока достаточно `LegacyDetector::isLegacy(string $path): bool`.

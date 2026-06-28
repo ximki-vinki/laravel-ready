@@ -2,11 +2,24 @@
 
 declare(strict_types=1);
 
+use LaravelReady\Analysis\BlockedFunction;
+use LaravelReady\Analysis\FunctionCallFinding;
 use LaravelReady\Analysis\LegacyDetector;
 use LaravelReady\Analysis\SuperglobalFinding;
 use LaravelReady\Analysis\SuperglobalName;
 
 covers(LegacyDetector::class);
+
+it('detects legacy define in bare fixture', function () {
+    $file = fixture('Legacy/Functions/bare.php');
+    $expected = new FunctionCallFinding(BlockedFunction::Define, 3);
+
+    $findings = (new LegacyDetector)->analyse($file);
+
+    expect($findings)
+        ->toHaveCount(1)
+        ->toContainEqual($expected);
+});
 
 it('detects legacy in bare fixture', function () {
     $file = fixture('Legacy/Superglobals/bare.php');

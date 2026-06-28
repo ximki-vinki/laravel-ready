@@ -49,9 +49,21 @@ Legacy ──┤
 
 ### Блокеры
 
-- `$GLOBALS`, `Registry::get()`, `container('legacy')`
+**Общие** — валидный PHP 8.2, но не Laravel-way; простой AST:
+
+| Паттерн | PHP 8.2 | Laravel-ready |
+|---------|---------|---------------|
+| Суперглобали (`$GLOBALS`, `$_GET`, `$_POST`, …) | Работают | не Laravel-way |
+| `define()` | Работает | не Laravel-way |
+| `global $x` | Работает | не Laravel-way |
+| `eval()`, `extract()` | Работают | не Laravel-way |
+| `mysqli_*` | Работает | не Laravel-way (процедурная БД) |
+
+**Дополнительно** (project-specific или сложнее AST):
+
+- `container('legacy')`
 - `legacy_config()`, `db_legacy_query()`
-- `mysqli_*`, `mysql_connect`, сырой SQL с конкатенацией
+- `mysql_connect`, сырой SQL с конкатенацией
 
 Slim, свой фреймворк — метка **legacy**.
 

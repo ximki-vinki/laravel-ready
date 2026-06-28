@@ -32,7 +32,8 @@
     "pint:test": "pint --test",
     "test": "pest",
     "test-cov": "docker run --rm -v \"$PWD\":/app -w /app laravel-ready-dev composer test -- --coverage-html build/coverage",
-    "test-mut": "docker run --rm -v \"$PWD\":/app -w /app laravel-ready-dev \\\n  vendor/bin/pest --mutate --covered-only"
+    "test-mut": "docker run --rm -v \"$PWD\":/app -w /app laravel-ready-dev \\\n  vendor/bin/pest --mutate --covered-only",
+    "test-mut-all": "docker run --rm -v \"$PWD\":/app -w /app laravel-ready-dev \\\n  vendor/bin/pest --mutate"
   },
   "config": {
     "allow-plugins": {

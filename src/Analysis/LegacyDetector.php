@@ -5,20 +5,21 @@ declare(strict_types=1);
 namespace LaravelReady\Analysis;
 
 use Illuminate\Support\Collection;
+use LaravelReady\Analysis\Visitors\BlockedFunctionVisitor;
+use LaravelReady\Analysis\Visitors\SuperglobalVisitor;
 use PhpParser\Node;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\NodeFinder;
+use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
 
 final class LegacyDetector
 {
-    /** @return Collection<array-key, SuperglobalFinding> */
+    /** @return Collection<array-key, Finding> */
     public function analyse(string $path): Collection
     {
         return $path
             |> $this->readCode(...)
             |> $this->parseCode(...)
-            |> $this->findSuperglobals(...);
+            |> $this->findFindings(...);
     }
 
     private function readCode(string $path): ?string
@@ -50,34 +51,21 @@ final class LegacyDetector
 
     /**
      * @param  array<Node\Stmt>|null  $ast
-     * @return Collection<array-key, SuperglobalFinding>
+     * @return Collection<array-key, Finding>
      */
-    private function findSuperglobals(?array $ast): Collection
+    private function findFindings(?array $ast): Collection
     {
+        /** @var Collection<array-key, Finding> $findings */
         $findings = collect();
 
         if ($ast === null) {
             return $findings; // @pest-mutate-ignore
         }
 
-        $variables = (new NodeFinder)->findInstanceOf($ast, Variable::class);
-
-        foreach ($variables as $variable) {
-            if (! is_string($variable->name)) {
-                continue;
-            }
-
-            $superglobal = SuperglobalName::tryFrom($variable->name);
-
-            if ($superglobal === null) {
-                continue;
-            }
-
-            $findings->push(new SuperglobalFinding(
-                $superglobal,
-                $variable->getStartLine(),
-            ));
-        }
+        $traverser = new NodeTraverser;
+        $traverser->addVisitor(new SuperglobalVisitor($findings));
+        $traverser->addVisitor(new BlockedFunctionVisitor($findings));
+        $traverser->traverse($ast);
 
         return $findings;
     }
