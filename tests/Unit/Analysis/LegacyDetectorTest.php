@@ -10,11 +10,14 @@ covers(LegacyDetector::class);
 
 it('detects legacy in globals fixture', function () {
     $file = fixture('Legacy/globals.php');
+    $globals = new SuperglobalFinding(SuperglobalName::Globals, 3);
+    $cookie = new SuperglobalFinding(SuperglobalName::Cookie, 4);
 
     $findings = (new LegacyDetector)->analyse($file);
 
-    expect($findings)->toHaveCount(1)
-        ->and($findings->first())->toEqual(new SuperglobalFinding(SuperglobalName::Globals, 3));
+    expect($findings)
+        ->toHaveCount(2)
+        ->toContainEqual($globals, $cookie);
 });
 
 it('detects no findings in empty fixture', function () {

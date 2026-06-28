@@ -7,4 +7,5 @@ namespace LaravelReady\Analysis;
 enum SuperglobalName: string
 {
     case Globals = 'GLOBALS';
+    case Cookie = '_COOKIE';
 }

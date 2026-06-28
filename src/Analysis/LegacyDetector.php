@@ -65,12 +65,21 @@ final class LegacyDetector
                 continue;
             }
 
-            if ($node->expr instanceof Variable
-                && $node->expr->name === SuperglobalName::Globals->value) {
+            if (! $node->expr instanceof Variable) {
+                continue;
+            }
+
+            foreach (SuperglobalName::cases() as $superglobal) {
+                if ($node->expr->name !== $superglobal->value) {
+                    continue;
+                }
+
                 $findings->push(new SuperglobalFinding(
-                    SuperglobalName::Globals,
+                    $superglobal,
                     $node->expr->getStartLine(),
                 ));
+
+                break;
             }
         }
 
