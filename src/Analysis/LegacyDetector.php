@@ -67,18 +67,16 @@ final class LegacyDetector
                 continue;
             }
 
-            foreach (SuperglobalName::cases() as $superglobal) {
-                if ($variable->name !== $superglobal->value) {
-                    continue;
-                }
+            $superglobal = SuperglobalName::tryFrom($variable->name);
 
-                $findings->push(new SuperglobalFinding(
-                    $superglobal,
-                    $variable->getStartLine(),
-                ));
-
-                break;
+            if ($superglobal === null) {
+                continue;
             }
+
+            $findings->push(new SuperglobalFinding(
+                $superglobal,
+                $variable->getStartLine(),
+            ));
         }
 
         return $findings;

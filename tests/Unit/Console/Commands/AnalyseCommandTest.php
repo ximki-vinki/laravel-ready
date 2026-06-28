@@ -40,13 +40,14 @@ it('prints legacy level and finding for globals fixture', function () {
 
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('Legacy')
-        ->and($tester->getDisplay())->toContain('$GLOBALS');
+        ->and($tester->getDisplay())->toContain('$GLOBALS (line 3)')
+        ->and($tester->getDisplay())->toContain('$_COOKIE (line 4)');
 });
 
 it('prints laravel ready level for clean fixture', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
-    $tester->execute(['path' => fixture('Legacy/empty.php')]);
+    $tester->execute(['path' => fixture('Legacy/Clean/empty.php')]);
 
     expect($tester->getDisplay())->toContain('LaravelReady')
         ->and($tester->getDisplay())->not->toContain('$GLOBALS');
