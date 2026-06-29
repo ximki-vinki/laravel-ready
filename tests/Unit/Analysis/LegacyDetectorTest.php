@@ -21,6 +21,17 @@ it('detects legacy define in bare fixture', function () {
         ->toContainEqual($expected);
 });
 
+it('detects only legacy patterns in mixed superglobal, blocked function and clean function fixture', function () {
+    $file = fixture('Legacy/Mixed/rules.php');
+
+    $findings = (new LegacyDetector)->analyse($file);
+
+    expect($findings->values()->all())->toEqualCanonicalizing([
+        new SuperglobalFinding(SuperglobalName::Get, 3),
+        new FunctionCallFinding(BlockedFunction::Define, 4),
+    ]);
+});
+
 it('detects legacy in bare fixture', function () {
     $file = fixture('Legacy/Superglobals/bare.php');
     $globals = new SuperglobalFinding(SuperglobalName::Globals, 3);
