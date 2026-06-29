@@ -7,6 +7,7 @@ namespace LaravelReady\Console\Output;
 use Illuminate\Support\Collection;
 use LaravelReady\Analysis\Finding;
 use LaravelReady\Analysis\FunctionCallFinding;
+use LaravelReady\Analysis\GlobalFinding;
 use LaravelReady\Analysis\ReadinessLevel;
 use LaravelReady\Analysis\SuperglobalFinding;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -38,6 +39,15 @@ final class LegacyOutput
 
         if ($superglobals !== []) {
             $lines[] = 'var: '.implode(', ', $superglobals);
+        }
+
+        $globals = $findings
+            ->filter(fn (Finding $finding): bool => $finding instanceof GlobalFinding)
+            ->map(fn (Finding $finding): string => $finding->display())
+            ->all();
+
+        if ($globals !== []) {
+            $lines[] = 'global: '.implode(', ', $globals);
         }
 
         $functions = $findings

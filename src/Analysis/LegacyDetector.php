@@ -6,6 +6,7 @@ namespace LaravelReady\Analysis;
 
 use Illuminate\Support\Collection;
 use LaravelReady\Analysis\Visitors\BlockedFunctionVisitor;
+use LaravelReady\Analysis\Visitors\GlobalVisitor;
 use LaravelReady\Analysis\Visitors\SuperglobalVisitor;
 use PhpParser\Node;
 use PhpParser\NodeTraverser;
@@ -64,6 +65,7 @@ final class LegacyDetector
 
         $traverser = new NodeTraverser;
         $traverser->addVisitor(new SuperglobalVisitor($findings));
+        $traverser->addVisitor(new GlobalVisitor($findings));
         $traverser->addVisitor(new BlockedFunctionVisitor($findings));
         $traverser->traverse($ast);
 

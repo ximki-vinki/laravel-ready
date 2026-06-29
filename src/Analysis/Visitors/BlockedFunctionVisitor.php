@@ -9,6 +9,7 @@ use LaravelReady\Analysis\BlockedFunction;
 use LaravelReady\Analysis\Finding;
 use LaravelReady\Analysis\FunctionCallFinding;
 use PhpParser\Node;
+use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Eval_;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Name;
@@ -63,6 +64,8 @@ final class BlockedFunctionVisitor extends NodeVisitorAbstract
             return false;
         }
 
-        return $node->args[0]->value instanceof String_;
+        $firstArg = $node->args[0];
+
+        return $firstArg instanceof Arg && $firstArg->value instanceof String_;
     }
 }

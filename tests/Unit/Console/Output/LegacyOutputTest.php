@@ -18,6 +18,19 @@ it('prints superglobals in var group', function () {
         ->and($tester->getDisplay())->not->toContain('func:');
 });
 
+it('prints global variables in global group', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute(['path' => fixture('Legacy/Global/bare.php')]);
+
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('bare.php')
+        ->and($tester->getDisplay())->toContain('Legacy')
+        ->and($tester->getDisplay())->toContain('global: $foo (line 3)')
+        ->and($tester->getDisplay())->not->toContain('var:')
+        ->and($tester->getDisplay())->not->toContain('func:');
+});
+
 it('prints blocked functions in func group', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
