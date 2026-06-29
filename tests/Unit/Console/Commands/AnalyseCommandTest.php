@@ -39,6 +39,7 @@ it('analyses directory path', function () {
     $code = $tester->execute(['path' => fixture('Legacy/Mixed')]);
 
     expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('rules.php')
         ->and($tester->getDisplay())->toContain('Legacy')
         ->and($tester->getDisplay())->toContain('$_GET (line 3)')
         ->and($tester->getDisplay())->toContain('define() (line 4)');
@@ -50,6 +51,7 @@ it('prints legacy level and findings for mixed fixture', function () {
     $code = $tester->execute(['path' => fixture('Legacy/Mixed/rules.php')]);
 
     expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('rules.php')
         ->and($tester->getDisplay())->toContain('Legacy')
         ->and($tester->getDisplay())->toContain('$_GET (line 3)')
         ->and($tester->getDisplay())->toContain('define() (line 4)');
@@ -60,6 +62,7 @@ it('prints laravel ready level for clean fixture', function () {
 
     $tester->execute(['path' => fixture('Legacy/Clean/empty.php')]);
 
-    expect($tester->getDisplay())->toContain('LaravelReady')
+    expect($tester->getDisplay())->toContain('empty.php')
+        ->and($tester->getDisplay())->toContain('LaravelReady')
         ->and($tester->getDisplay())->not->toContain('$GLOBALS');
 });

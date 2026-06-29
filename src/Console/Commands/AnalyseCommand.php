@@ -54,17 +54,23 @@ final class AnalyseCommand extends Command
         }
 
         $files = $filesystem->isFile($path)
-            ? collect([$path])
+            ? collect([[
+                'absolute' => $path,
+                'relative' => basename($path),
+            ]])
             : collect($filesystem->files($path))
-                ->map(fn (SplFileInfo $file): string => $file->getPathname());
+                ->map(fn (SplFileInfo $file): array => [
+                    'absolute' => $file->getPathname(),
+                    'relative' => $file->getRelativePathname(),
+                ]);
 
-        $files->each(function (string $file) use ($output): void {
-            $findings = (new LegacyDetector)->analyse($file);
+        $files->each(function (array $file) use ($output): void {
+            $findings = (new LegacyDetector)->analyse($file['absolute']);
 
             if ($findings->isNotEmpty()) {
-                (new LegacyOutput)->write($output, $findings);
+                (new LegacyOutput)->write($output, $findings, $file['relative']);
             } else {
-                (new LaravelReadyOutput)->write($output);
+                (new LaravelReadyOutput)->write($output, $file['relative']);
             }
         });
 

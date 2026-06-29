@@ -9,8 +9,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class LaravelReadyOutput
 {
-    public function write(OutputInterface $output): void
+    public function write(OutputInterface $output, string $relativePath): void
     {
+        $output->writeln($relativePath);
         $output->writeln('<comment>'.ReadinessLevel::LaravelReady->value.'</comment>');
     }
 }

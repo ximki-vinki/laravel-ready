@@ -14,9 +14,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class LegacyOutput
 {
     /** @param  Collection<array-key, Finding>  $findings */
-    public function write(OutputInterface $output, Collection $findings): void
+    public function write(OutputInterface $output, Collection $findings, string $relativePath): void
     {
-        $output->writeln('<fg=red>'.ReadinessLevel::Legacy->value.'</>');
+        $output->writeln($relativePath);
+        $output->writeln('<fg=red>'.$relativePath.' : '.ReadinessLevel::Legacy->value.'</>');
 
         foreach ($this->groupedLines($findings) as $line) {
             $output->writeln('  '.$line);
