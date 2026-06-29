@@ -59,7 +59,7 @@ final class LegacyDetector
         $findings = collect();
 
         if ($ast === null) {
-            return $findings; // @pest-mutate-ignore
+            return $findings;
         }
 
         $traverser = new NodeTraverser;
