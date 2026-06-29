@@ -41,7 +41,40 @@ it('detects legacy define in all blocked functions fixture', function () {
     expect($findings->values()->all())->toEqualCanonicalizing([
         new FunctionCallFinding(BlockedFunction::Define, 3),
         new FunctionCallFinding(BlockedFunction::Extract, 4),
+        new FunctionCallFinding(BlockedFunction::Compact, 5),
+        new FunctionCallFinding(BlockedFunction::Eval, 6),
+        new FunctionCallFinding(BlockedFunction::Utf8Encode, 7),
+        new FunctionCallFinding(BlockedFunction::Utf8Decode, 8),
+        new FunctionCallFinding(BlockedFunction::ParseStr, 9),
+        new FunctionCallFinding(BlockedFunction::SessionStart, 10),
+        new FunctionCallFinding(BlockedFunction::Setcookie, 11),
+        new FunctionCallFinding(BlockedFunction::Header, 12),
+        new FunctionCallFinding(BlockedFunction::Mail, 13),
+        new FunctionCallFinding(BlockedFunction::Strftime, 14),
+        new FunctionCallFinding(BlockedFunction::Putenv, 15),
+        new FunctionCallFinding(BlockedFunction::Getenv, 16),
+        new FunctionCallFinding(BlockedFunction::Assert, 17),
     ]);
+});
+
+it('detects legacy assert only with string argument', function () {
+    $legacy = fixture('Legacy/Functions/assert.php');
+    $clean = fixture('Legacy/Clean/assert.php');
+
+    expect((new LegacyDetector)->analyse($legacy)->values()->all())->toEqualCanonicalizing([
+        new FunctionCallFinding(BlockedFunction::Assert, 3),
+    ]);
+    expect((new LegacyDetector)->analyse($clean))->toBeEmpty();
+});
+
+it('detects legacy parse_str only without result argument', function () {
+    $legacy = fixture('Legacy/Functions/parse-str.php');
+    $clean = fixture('Legacy/Clean/parse-str.php');
+
+    expect((new LegacyDetector)->analyse($legacy)->values()->all())->toEqualCanonicalizing([
+        new FunctionCallFinding(BlockedFunction::ParseStr, 3),
+    ]);
+    expect((new LegacyDetector)->analyse($clean))->toBeEmpty();
 });
 
 it('detects legacy in blocked function shapes', function (string $fixture, int $line) {
@@ -178,6 +211,9 @@ it('detects no legacy in clean fixtures', function (string $fixture) {
     'comment' => ['comment.php'],
     'string' => ['string.php'],
     'variable' => ['variable.php'],
+    'namesake' => ['namesake.php'],
+    'parse-str' => ['parse-str.php'],
+    'assert' => ['assert.php'],
     'empty' => ['empty.php'],
 ]);
 

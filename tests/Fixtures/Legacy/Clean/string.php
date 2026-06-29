@@ -1,3 +1,3 @@
 <?php
 
-echo '$GLOBALS';
+echo '$GLOBALS', ' define()', ' extract()';

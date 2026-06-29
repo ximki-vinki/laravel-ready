@@ -9,8 +9,10 @@ use LaravelReady\Analysis\BlockedFunction;
 use LaravelReady\Analysis\Finding;
 use LaravelReady\Analysis\FunctionCallFinding;
 use PhpParser\Node;
+use PhpParser\Node\Expr\Eval_;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Name;
+use PhpParser\Node\Scalar\String_;
 use PhpParser\NodeVisitorAbstract;
 
 final class BlockedFunctionVisitor extends NodeVisitorAbstract
@@ -20,6 +22,15 @@ final class BlockedFunctionVisitor extends NodeVisitorAbstract
 
     public function enterNode(Node $node): ?int
     {
+        if ($node instanceof Eval_) {
+            $this->findings->push(new FunctionCallFinding(
+                BlockedFunction::Eval,
+                $node->getStartLine(),
+            ));
+
+            return null;
+        }
+
         if (! $node instanceof FuncCall || ! $node->name instanceof Name) {
             return null;
         }
@@ -30,11 +41,28 @@ final class BlockedFunctionVisitor extends NodeVisitorAbstract
             return null;
         }
 
+        if ($function === BlockedFunction::ParseStr && count($node->args) !== 1) {
+            return null;
+        }
+
+        if ($function === BlockedFunction::Assert && ! $this->assertHasStringArgument($node)) {
+            return null;
+        }
+
         $this->findings->push(new FunctionCallFinding(
             $function,
             $node->getStartLine(),
         ));
 
         return null;
+    }
+
+    private function assertHasStringArgument(FuncCall $node): bool
+    {
+        if ($node->args === []) {
+            return false;
+        }
+
+        return $node->args[0]->value instanceof String_;
     }
 }
