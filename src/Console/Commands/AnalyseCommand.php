@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace LaravelReady\Console\Commands;
 
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 use LaravelReady\Analysis\LegacyDetector;
 use LaravelReady\Console\Output\LaravelReadyOutput;
 use LaravelReady\Console\Output\LegacyOutput;
@@ -13,6 +15,7 @@ use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\SplFileInfo;
 
 #[AsCommand(
     name: 'laravel-ready',
@@ -36,25 +39,34 @@ final class AnalyseCommand extends Command
             return Command::SUCCESS;
         }
 
-        if (! str_ends_with($path, '.php')) {
-            $output->writeln('<error>Expected a PHP file.</error>');
+        $filesystem = new Filesystem;
 
-            return Command::INVALID;
-        }
-
-        if (! is_file($path)) {
+        if ($filesystem->missing($path)) {
             $output->writeln(sprintf('<error>File not found: %s</error>', $path));
 
             return Command::FAILURE;
         }
 
-        $findings = (new LegacyDetector)->analyse($path);
+        if ($filesystem->isFile($path) && ! Str::endsWith($path, '.php')) {
+            $output->writeln('<error>Expected a PHP file.</error>');
 
-        if ($findings->isNotEmpty()) {
-            (new LegacyOutput)->write($output, $findings);
-        } else {
-            (new LaravelReadyOutput)->write($output);
+            return Command::INVALID;
         }
+
+        $files = $filesystem->isFile($path)
+            ? collect([$path])
+            : collect($filesystem->files($path))
+                ->map(fn (SplFileInfo $file): string => $file->getPathname());
+
+        $files->each(function (string $file) use ($output): void {
+            $findings = (new LegacyDetector)->analyse($file);
+
+            if ($findings->isNotEmpty()) {
+                (new LegacyOutput)->write($output, $findings);
+            } else {
+                (new LaravelReadyOutput)->write($output);
+            }
+        });
 
         return Command::SUCCESS;
     }

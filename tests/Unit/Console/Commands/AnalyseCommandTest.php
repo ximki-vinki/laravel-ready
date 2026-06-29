@@ -33,6 +33,17 @@ it('returns invalid when path is not a php file', function () {
         ->and($tester->getDisplay())->toContain('Expected a PHP file');
 });
 
+it('analyses directory path', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute(['path' => fixture('Legacy/Mixed')]);
+
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('Legacy')
+        ->and($tester->getDisplay())->toContain('$_GET (line 3)')
+        ->and($tester->getDisplay())->toContain('define() (line 4)');
+});
+
 it('prints legacy level and findings for mixed fixture', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
