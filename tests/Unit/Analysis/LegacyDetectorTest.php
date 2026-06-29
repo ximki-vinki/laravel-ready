@@ -21,6 +21,64 @@ it('detects legacy define in bare fixture', function () {
         ->toContainEqual($expected);
 });
 
+it('detects legacy define in same-line fixture', function () {
+    $file = fixture('Legacy/Functions/same-line.php');
+    $define = new FunctionCallFinding(BlockedFunction::Define, 3);
+    $extract = new FunctionCallFinding(BlockedFunction::Extract, 3);
+
+    $findings = (new LegacyDetector)->analyse($file);
+
+    expect($findings)
+        ->toHaveCount(2)
+        ->toContainEqual($define, $extract);
+});
+
+it('detects legacy define in all blocked functions fixture', function () {
+    $file = fixture('Legacy/Functions/all.php');
+
+    $findings = (new LegacyDetector)->analyse($file);
+
+    expect($findings->values()->all())->toEqualCanonicalizing([
+        new FunctionCallFinding(BlockedFunction::Define, 3),
+        new FunctionCallFinding(BlockedFunction::Extract, 4),
+    ]);
+});
+
+it('detects legacy in blocked function shapes', function (string $fixture, int $line) {
+    $file = fixture('Legacy/Functions/'.$fixture);
+    $expected = new FunctionCallFinding(BlockedFunction::Define, $line);
+
+    $findings = (new LegacyDetector)->analyse($file);
+
+    expect($findings)
+        ->toHaveCount(1)
+        ->toContainEqual($expected);
+})->with([
+    'assign' => ['assign.php', 3],
+    'as-argument' => ['as-argument.php', 3],
+    'condition' => ['condition.php', 3],
+    'namespaced-call' => ['namespaced-call.php', 3],
+    'in-function' => ['in-function.php', 5],
+    'return' => ['return.php', 5],
+    'in-class' => ['in-class.php', 7],
+    'closure' => ['closure.php', 3],
+]);
+
+it('detects legacy in functions mixed fixture', function () {
+    $file = fixture('Legacy/Functions/mixed.php');
+    $bare = new FunctionCallFinding(BlockedFunction::Define, 3);
+    $assign = new FunctionCallFinding(BlockedFunction::Define, 4);
+    $inFunction = new FunctionCallFinding(BlockedFunction::Define, 8);
+
+    $findings = (new LegacyDetector)->analyse($file);
+
+    expect($findings->values()->all())->toEqualCanonicalizing([
+        $bare,
+        $assign,
+        $inFunction,
+    ]);
+});
+
 it('detects only legacy patterns in mixed superglobal, blocked function and clean function fixture', function () {
     $file = fixture('Legacy/Mixed/rules.php');
 

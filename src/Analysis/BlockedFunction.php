@@ -7,4 +7,5 @@ namespace LaravelReady\Analysis;
 enum BlockedFunction: string
 {
     case Define = 'define';
+    case Extract = 'extract';
 }
