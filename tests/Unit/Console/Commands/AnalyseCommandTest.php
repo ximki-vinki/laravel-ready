@@ -33,6 +33,16 @@ it('returns invalid when path is not a php file', function () {
         ->and($tester->getDisplay())->toContain('Expected a PHP file');
 });
 
+it('analyses php files in subdirectories', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute(['path' => fixture('Legacy')]);
+
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('Superglobals/bare.php')
+        ->and($tester->getDisplay())->toContain('Clean/empty.php');
+});
+
 it('analyses directory path', function () {
     $tester = new CommandTester(new AnalyseCommand);
 

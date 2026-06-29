@@ -16,7 +16,6 @@ final class LegacyOutput
     /** @param  Collection<array-key, Finding>  $findings */
     public function write(OutputInterface $output, Collection $findings, string $relativePath): void
     {
-        $output->writeln($relativePath);
         $output->writeln('<fg=red>'.$relativePath.' : '.ReadinessLevel::Legacy->value.'</>');
 
         foreach ($this->groupedLines($findings) as $line) {

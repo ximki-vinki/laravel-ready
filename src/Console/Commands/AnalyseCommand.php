@@ -58,7 +58,7 @@ final class AnalyseCommand extends Command
                 'absolute' => $path,
                 'relative' => basename($path),
             ]])
-            : collect($filesystem->files($path))
+            : collect($filesystem->allFiles($path))
                 ->map(fn (SplFileInfo $file): array => [
                     'absolute' => $file->getPathname(),
                     'relative' => $file->getRelativePathname(),
