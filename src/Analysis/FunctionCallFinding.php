@@ -13,6 +13,6 @@ final readonly class FunctionCallFinding implements Finding
 
     public function display(): string
     {
-        return '$'.$this->function->value.' (line '.$this->line.')';
+        return $this->function->value.'() (line '.$this->line.')';
     }
 }

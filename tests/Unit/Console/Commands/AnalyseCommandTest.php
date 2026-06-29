@@ -33,15 +33,15 @@ it('returns invalid when path is not a php file', function () {
         ->and($tester->getDisplay())->toContain('Expected a PHP file');
 });
 
-it('prints legacy level and finding for globals fixture', function () {
+it('prints legacy level and findings for mixed fixture', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
-    $code = $tester->execute(['path' => fixture('Legacy/Superglobals/bare.php')]);
+    $code = $tester->execute(['path' => fixture('Legacy/Mixed/rules.php')]);
 
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('Legacy')
-        ->and($tester->getDisplay())->toContain('$GLOBALS (line 3)')
-        ->and($tester->getDisplay())->toContain('$_COOKIE (line 4)');
+        ->and($tester->getDisplay())->toContain('$_GET (line 3)')
+        ->and($tester->getDisplay())->toContain('define() (line 4)');
 });
 
 it('prints laravel ready level for clean fixture', function () {
