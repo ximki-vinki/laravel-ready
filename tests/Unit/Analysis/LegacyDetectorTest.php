@@ -8,14 +8,14 @@ use LaravelReady\Analysis\GlobalFinding;
 use LaravelReady\Analysis\LegacyDetector;
 use LaravelReady\Analysis\SuperglobalFinding;
 use LaravelReady\Analysis\SuperglobalName;
+use LaravelReady\Analysis\Tag;
 
 covers(LegacyDetector::class);
 
 it('detects legacy define in bare fixture', function () {
     $file = fixture('Legacy/Functions/bare.php');
     $expected = new FunctionCallFinding(BlockedFunction::Define, 3);
-
-    $findings = (new LegacyDetector)->analyse($file);
+    $findings = (new LegacyDetector)->analyse($file)->findings;
 
     expect($findings)
         ->toHaveCount(1)
@@ -26,8 +26,7 @@ it('detects legacy define in same-line fixture', function () {
     $file = fixture('Legacy/Functions/same-line.php');
     $define = new FunctionCallFinding(BlockedFunction::Define, 3);
     $extract = new FunctionCallFinding(BlockedFunction::Extract, 3);
-
-    $findings = (new LegacyDetector)->analyse($file);
+    $findings = (new LegacyDetector)->analyse($file)->findings;
 
     expect($findings)
         ->toHaveCount(2)
@@ -36,10 +35,9 @@ it('detects legacy define in same-line fixture', function () {
 
 it('detects legacy define in all blocked functions fixture', function () {
     $file = fixture('Legacy/Functions/all.php');
+    $findings = (new LegacyDetector)->analyse($file)->findings->values()->all();
 
-    $findings = (new LegacyDetector)->analyse($file);
-
-    expect($findings->values()->all())->toEqualCanonicalizing([
+    expect($findings)->toEqualCanonicalizing([
         new FunctionCallFinding(BlockedFunction::Define, 3),
         new FunctionCallFinding(BlockedFunction::Extract, 4),
         new FunctionCallFinding(BlockedFunction::Compact, 5),
@@ -61,28 +59,31 @@ it('detects legacy define in all blocked functions fixture', function () {
 it('detects legacy assert only with string argument', function () {
     $legacy = fixture('Legacy/Functions/assert.php');
     $clean = fixture('Legacy/Clean/assert.php');
+    $legacyFindings = (new LegacyDetector)->analyse($legacy)->findings->values()->all();
+    $cleanFindings = (new LegacyDetector)->analyse($clean)->findings;
 
-    expect((new LegacyDetector)->analyse($legacy)->values()->all())->toEqualCanonicalizing([
+    expect($legacyFindings)->toEqualCanonicalizing([
         new FunctionCallFinding(BlockedFunction::Assert, 3),
     ])
-        ->and((new LegacyDetector)->analyse($clean))->toBeEmpty();
+        ->and($cleanFindings)->toBeEmpty();
 });
 
 it('detects legacy parse_str only without result argument', function () {
     $legacy = fixture('Legacy/Functions/parse-str.php');
     $clean = fixture('Legacy/Clean/parse-str.php');
+    $legacyFindings = (new LegacyDetector)->analyse($legacy)->findings->values()->all();
+    $cleanFindings = (new LegacyDetector)->analyse($clean)->findings;
 
-    expect((new LegacyDetector)->analyse($legacy)->values()->all())->toEqualCanonicalizing([
+    expect($legacyFindings)->toEqualCanonicalizing([
         new FunctionCallFinding(BlockedFunction::ParseStr, 3),
     ])
-        ->and((new LegacyDetector)->analyse($clean))->toBeEmpty();
+        ->and($cleanFindings)->toBeEmpty();
 });
 
 it('detects legacy in blocked function shapes', function (string $fixture, int $line) {
     $file = fixture('Legacy/Functions/'.$fixture);
     $expected = new FunctionCallFinding(BlockedFunction::Define, $line);
-
-    $findings = (new LegacyDetector)->analyse($file);
+    $findings = (new LegacyDetector)->analyse($file)->findings;
 
     expect($findings)
         ->toHaveCount(1)
@@ -103,10 +104,9 @@ it('detects legacy in functions mixed fixture', function () {
     $bare = new FunctionCallFinding(BlockedFunction::Define, 3);
     $assign = new FunctionCallFinding(BlockedFunction::Define, 4);
     $inFunction = new FunctionCallFinding(BlockedFunction::Define, 8);
+    $findings = (new LegacyDetector)->analyse($file)->findings->values()->all();
 
-    $findings = (new LegacyDetector)->analyse($file);
-
-    expect($findings->values()->all())->toEqualCanonicalizing([
+    expect($findings)->toEqualCanonicalizing([
         $bare,
         $assign,
         $inFunction,
@@ -115,10 +115,9 @@ it('detects legacy in functions mixed fixture', function () {
 
 it('detects only legacy patterns in mixed superglobal, blocked function and clean function fixture', function () {
     $file = fixture('Legacy/Mixed/rules.php');
+    $findings = (new LegacyDetector)->analyse($file)->findings->values()->all();
 
-    $findings = (new LegacyDetector)->analyse($file);
-
-    expect($findings->values()->all())->toEqualCanonicalizing([
+    expect($findings)->toEqualCanonicalizing([
         new SuperglobalFinding(SuperglobalName::Get, 3),
         new FunctionCallFinding(BlockedFunction::Define, 4),
     ]);
@@ -128,8 +127,7 @@ it('detects legacy in bare fixture', function () {
     $file = fixture('Legacy/Superglobals/bare.php');
     $globals = new SuperglobalFinding(SuperglobalName::Globals, 3);
     $cookie = new SuperglobalFinding(SuperglobalName::Cookie, 4);
-
-    $findings = (new LegacyDetector)->analyse($file);
+    $findings = (new LegacyDetector)->analyse($file)->findings;
 
     expect($findings)
         ->toHaveCount(2)
@@ -140,8 +138,7 @@ it('detects legacy in same-line fixture', function () {
     $file = fixture('Legacy/Superglobals/same-line.php');
     $globals = new SuperglobalFinding(SuperglobalName::Globals, 3);
     $cookie = new SuperglobalFinding(SuperglobalName::Cookie, 3);
-
-    $findings = (new LegacyDetector)->analyse($file);
+    $findings = (new LegacyDetector)->analyse($file)->findings;
 
     expect($findings)
         ->toHaveCount(2)
@@ -150,10 +147,9 @@ it('detects legacy in same-line fixture', function () {
 
 it('detects legacy in all superglobals fixture', function () {
     $file = fixture('Legacy/Superglobals/all.php');
+    $findings = (new LegacyDetector)->analyse($file)->findings->values()->all();
 
-    $findings = (new LegacyDetector)->analyse($file);
-
-    expect($findings->values()->all())->toEqualCanonicalizing([
+    expect($findings)->toEqualCanonicalizing([
         new SuperglobalFinding(SuperglobalName::Globals, 3),
         new SuperglobalFinding(SuperglobalName::Server, 4),
         new SuperglobalFinding(SuperglobalName::Get, 5),
@@ -169,8 +165,7 @@ it('detects legacy in all superglobals fixture', function () {
 it('detects legacy in superglobal shapes', function (string $fixture, int $line) {
     $file = fixture('Legacy/Superglobals/'.$fixture);
     $expected = new SuperglobalFinding(SuperglobalName::Globals, $line);
-
-    $findings = (new LegacyDetector)->analyse($file);
+    $findings = (new LegacyDetector)->analyse($file)->findings;
 
     expect($findings)
         ->toHaveCount(1)
@@ -192,10 +187,9 @@ it('detects legacy in mixed fixture', function () {
     $globalsBare = new SuperglobalFinding(SuperglobalName::Globals, 3);
     $cookieAssign = new SuperglobalFinding(SuperglobalName::Cookie, 4);
     $globalsInFunction = new SuperglobalFinding(SuperglobalName::Globals, 8);
+    $findings = (new LegacyDetector)->analyse($file)->findings->values()->all();
 
-    $findings = (new LegacyDetector)->analyse($file);
-
-    expect($findings->values()->all())->toEqualCanonicalizing([
+    expect($findings)->toEqualCanonicalizing([
         $globalsBare,
         $cookieAssign,
         $globalsInFunction,
@@ -205,8 +199,7 @@ it('detects legacy in mixed fixture', function () {
 it('detects legacy global in bare fixture', function () {
     $file = fixture('Legacy/Global/bare.php');
     $expected = new GlobalFinding('foo', 3);
-
-    $findings = (new LegacyDetector)->analyse($file);
+    $findings = (new LegacyDetector)->analyse($file)->findings;
 
     expect($findings)
         ->toHaveCount(1)
@@ -217,8 +210,7 @@ it('detects legacy global in same-line fixture', function () {
     $file = fixture('Legacy/Global/same-line.php');
     $foo = new GlobalFinding('foo', 3);
     $bar = new GlobalFinding('bar', 3);
-
-    $findings = (new LegacyDetector)->analyse($file);
+    $findings = (new LegacyDetector)->analyse($file)->findings;
 
     expect($findings)
         ->toHaveCount(2)
@@ -228,8 +220,7 @@ it('detects legacy global in same-line fixture', function () {
 it('detects legacy in global shapes', function (string $fixture, int $line) {
     $file = fixture('Legacy/Global/'.$fixture);
     $expected = new GlobalFinding('foo', $line);
-
-    $findings = (new LegacyDetector)->analyse($file);
+    $findings = (new LegacyDetector)->analyse($file)->findings;
 
     expect($findings)
         ->toHaveCount(1)
@@ -243,10 +234,9 @@ it('detects legacy in global mixed fixture', function () {
     $file = fixture('Legacy/Global/mixed.php');
     $bare = new GlobalFinding('foo', 3);
     $inFunction = new GlobalFinding('baz', 8);
+    $findings = (new LegacyDetector)->analyse($file)->findings->values()->all();
 
-    $findings = (new LegacyDetector)->analyse($file);
-
-    expect($findings->values()->all())->toEqualCanonicalizing([
+    expect($findings)->toEqualCanonicalizing([
         $bare,
         $inFunction,
     ]);
@@ -254,8 +244,7 @@ it('detects legacy in global mixed fixture', function () {
 
 it('detects no legacy in clean fixtures', function (string $fixture) {
     $file = fixture('Legacy/Clean/'.$fixture);
-
-    $findings = (new LegacyDetector)->analyse($file);
+    $findings = (new LegacyDetector)->analyse($file)->findings;
 
     expect($findings)->toBeEmpty();
 })->with([
@@ -270,8 +259,38 @@ it('detects no legacy in clean fixtures', function (string $fixture) {
 
 it('returns no findings when file cannot be read', function () {
     $file = '/tmp/laravel-ready-missing-'.uniqid().'.php';
-
-    $findings = (new LegacyDetector)->analyse($file);
+    $findings = (new LegacyDetector)->analyse($file)->findings;
 
     expect($findings)->toBeEmpty();
+});
+
+it('detects tag on clean fixture', function (Tag $expected, string $path) {
+    $result = (new LegacyDetector)->analyse(fixture($path));
+
+    expect($result->tag)->toBe($expected)
+        ->and($result->findings)->toBeEmpty();
+})->with([
+    'legacy-code on class' => [Tag::Legacy, 'Tags/legacy-code/class.php'],
+    'legacy-code on function' => [Tag::Legacy, 'Tags/legacy-code/function.php'],
+    'legacy-code on method' => [Tag::Legacy, 'Tags/legacy-code/method.php'],
+    'legacy-perfect on class' => [Tag::LegacyPerfect, 'Tags/legacy-perfect/class.php'],
+]);
+
+it('detects no tag in clean fixtures', function (string $fixture) {
+    $result = (new LegacyDetector)->analyse(fixture('Tags/Clean/'.$fixture));
+
+    expect($result->tag)->toBeNull()
+        ->and($result->findings)->toBeEmpty();
+})->with([
+    'empty' => ['empty.php'],
+    'no-tag' => ['no-tag.php'],
+    'line-comment' => ['line-comment.php'],
+    'similar-tag' => ['similar-tag.php'],
+]);
+
+it('detects tag alongside blockers in mixed fixture', function () {
+    $result = (new LegacyDetector)->analyse(fixture('Tags/Mixed/tag-and-blocker.php'));
+
+    expect($result->tag)->toBe(Tag::Legacy)
+        ->and($result->findings)->toContainEqual(new SuperglobalFinding(SuperglobalName::Get, 8));
 });

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace LaravelReady\Console\Commands;
 
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use LaravelReady\Analysis\LegacyDetector;
+use LaravelReady\Console\AnalysableFile;
 use LaravelReady\Console\Output\LaravelReadyOutput;
 use LaravelReady\Console\Output\LegacyOutput;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -25,22 +27,48 @@ final class AnalyseCommand extends Command
 {
     protected function configure(): void
     {
-        $this->addArgument('path', InputArgument::OPTIONAL, 'Path to analyse');
+        $this->addArgument('path', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, 'Path to analyse');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var ?string $path */
-        $path = $input->getArgument('path');
+        /** @var list<string> $paths */
+        $paths = $input->getArgument('path');
 
-        if ($path === null) {
+        if ($paths === []) {
             (new DescriptorHelper)->describe($output, $this);
 
             return Command::SUCCESS;
         }
 
         $filesystem = new Filesystem;
+        $files = collect();
 
+        foreach ($paths as $path) {
+            $exitCode = $this->validatePath($filesystem, $output, $path);
+
+            if ($exitCode !== null) {
+                return $exitCode;
+            }
+
+            $files = $files->merge($this->resolveFiles($filesystem, $path));
+        }
+
+        $files->each(function (AnalysableFile $file) use ($output): void {
+            $result = (new LegacyDetector)->analyse($file->absolutePath);
+
+            if ($result->findings->isNotEmpty()) {
+                (new LegacyOutput)->write($output, $result->findings, $file->relativePath);
+            } else {
+                (new LaravelReadyOutput)->write($output, $file->relativePath);
+            }
+        });
+
+        return Command::SUCCESS;
+    }
+
+    private function validatePath(Filesystem $filesystem, OutputInterface $output, string $path): ?int
+    {
         if ($filesystem->missing($path)) {
             $output->writeln(sprintf('<error>File not found: %s</error>', $path));
 
@@ -53,27 +81,19 @@ final class AnalyseCommand extends Command
             return Command::INVALID;
         }
 
-        $files = $filesystem->isFile($path)
-            ? collect([[
-                'absolute' => $path,
-                'relative' => basename($path),
-            ]])
-            : collect($filesystem->allFiles($path))
-                ->map(fn (SplFileInfo $file): array => [
-                    'absolute' => $file->getPathname(),
-                    'relative' => $file->getRelativePathname(),
-                ]);
+        return null;
+    }
 
-        $files->each(function (array $file) use ($output): void {
-            $findings = (new LegacyDetector)->analyse($file['absolute']);
+    /**
+     * @return Collection<int, AnalysableFile>
+     */
+    private function resolveFiles(Filesystem $filesystem, string $path): Collection
+    {
+        if ($filesystem->isFile($path)) {
+            return collect([AnalysableFile::fromExplicitFile($path)]);
+        }
 
-            if ($findings->isNotEmpty()) {
-                (new LegacyOutput)->write($output, $findings, $file['relative']);
-            } else {
-                (new LaravelReadyOutput)->write($output, $file['relative']);
-            }
-        });
-
-        return Command::SUCCESS;
+        return collect($filesystem->allFiles($path))
+            ->map(fn (SplFileInfo $file): AnalysableFile => AnalysableFile::fromDirectoryEntry($file));
     }
 }

@@ -19,7 +19,7 @@ it('returns success when run without path', function () {
 
 it('fails when path does not exist', function () {
     $tester = new CommandTester(new AnalyseCommand);
-    $code = $tester->execute(['path' => '/tmp/laravel-ready-missing-'.uniqid().'.php']);
+    $code = $tester->execute(['path' => ['/tmp/laravel-ready-missing-'.uniqid().'.php']]);
     expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('File not found');
 });
@@ -27,7 +27,7 @@ it('fails when path does not exist', function () {
 it('returns invalid when path is not a php file', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
-    $code = $tester->execute(['path' => fixture('not-php.txt')]);
+    $code = $tester->execute(['path' => [fixture('not-php.txt')]]);
 
     expect($code)->toBe(Command::INVALID)
         ->and($tester->getDisplay())->toContain('Expected a PHP file');
@@ -36,7 +36,7 @@ it('returns invalid when path is not a php file', function () {
 it('analyses php files in subdirectories', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
-    $code = $tester->execute(['path' => fixture('Legacy')]);
+    $code = $tester->execute(['path' => [fixture('Legacy')]]);
 
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('Superglobals/bare.php')
@@ -46,7 +46,7 @@ it('analyses php files in subdirectories', function () {
 it('analyses directory path', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
-    $code = $tester->execute(['path' => fixture('Legacy/Mixed')]);
+    $code = $tester->execute(['path' => [fixture('Legacy/Mixed')]]);
 
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('rules.php')
@@ -58,7 +58,7 @@ it('analyses directory path', function () {
 it('prints legacy level and findings for mixed fixture', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
-    $code = $tester->execute(['path' => fixture('Legacy/Mixed/rules.php')]);
+    $code = $tester->execute(['path' => [fixture('Legacy/Mixed/rules.php')]]);
 
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('rules.php')
@@ -70,9 +70,57 @@ it('prints legacy level and findings for mixed fixture', function () {
 it('prints laravel ready level for clean fixture', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
-    $tester->execute(['path' => fixture('Legacy/Clean/empty.php')]);
+    $tester->execute(['path' => [fixture('Legacy/Clean/empty.php')]]);
 
     expect($tester->getDisplay())->toContain('empty.php')
         ->and($tester->getDisplay())->toContain('LaravelReady')
         ->and($tester->getDisplay())->not->toContain('$GLOBALS');
+});
+
+it('analyses multiple file paths passed as separate arguments', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [
+            fixture('Legacy/Superglobals/bare.php'),
+            fixture('Legacy/Clean/empty.php'),
+        ],
+    ]);
+
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('bare.php')
+        ->and($tester->getDisplay())->toContain('empty.php')
+        ->and($tester->getDisplay())->toContain('LaravelReady');
+});
+
+it('analyses multiple directory paths', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [
+            fixture('Legacy/Superglobals'),
+            fixture('Legacy/Clean'),
+        ],
+    ]);
+
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('bare.php')
+        ->and($tester->getDisplay())->toContain('empty.php')
+        ->and($tester->getDisplay())->toContain('LaravelReady');
+});
+
+it('analyses directory and file path together', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [
+            fixture('Legacy/Superglobals'),
+            fixture('Legacy/Clean/empty.php'),
+        ],
+    ]);
+
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('bare.php')
+        ->and($tester->getDisplay())->toContain('empty.php')
+        ->and($tester->getDisplay())->toContain('LaravelReady');
 });

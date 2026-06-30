@@ -8,19 +8,19 @@ use Illuminate\Support\Collection;
 use LaravelReady\Analysis\Visitors\BlockedFunctionVisitor;
 use LaravelReady\Analysis\Visitors\GlobalVisitor;
 use LaravelReady\Analysis\Visitors\SuperglobalVisitor;
+use LaravelReady\Analysis\Visitors\TagVisitor;
 use PhpParser\Node;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
 
 final class LegacyDetector
 {
-    /** @return Collection<array-key, Finding> */
-    public function analyse(string $path): Collection
+    public function analyse(string $path): AnalysisResult
     {
         return $path
             |> $this->readCode(...)
             |> $this->parseCode(...)
-            |> $this->findFindings(...);
+            |> $this->analyseAst(...);
     }
 
     private function readCode(string $path): ?string
@@ -52,23 +52,25 @@ final class LegacyDetector
 
     /**
      * @param  array<Node\Stmt>|null  $ast
-     * @return Collection<array-key, Finding>
      */
-    private function findFindings(?array $ast): Collection
+    private function analyseAst(?array $ast): AnalysisResult
     {
         /** @var Collection<array-key, Finding> $findings */
         $findings = collect();
+        $tagVisitor = new TagVisitor;
 
-        if ($ast === null) {
-            return $findings;
+        if ($ast !== null) {
+            $traverser = new NodeTraverser;
+            $traverser->addVisitor($tagVisitor);
+            $traverser->addVisitor(new SuperglobalVisitor($findings));
+            $traverser->addVisitor(new GlobalVisitor($findings));
+            $traverser->addVisitor(new BlockedFunctionVisitor($findings));
+            $traverser->traverse($ast);
         }
 
-        $traverser = new NodeTraverser;
-        $traverser->addVisitor(new SuperglobalVisitor($findings));
-        $traverser->addVisitor(new GlobalVisitor($findings));
-        $traverser->addVisitor(new BlockedFunctionVisitor($findings));
-        $traverser->traverse($ast);
-
-        return $findings;
+        return new AnalysisResult(
+            findings: $findings,
+            tag: $tagVisitor->tag(),
+        );
     }
 }

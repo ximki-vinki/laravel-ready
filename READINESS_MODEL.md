@@ -2,7 +2,7 @@
 
 ## Уровни
 
-**`Legacy`** — плохо: блокеры или метка `legacy`. Нужна работа.
+**`Legacy`** — плохо: блокеры или метка `legacy-code`. Нужна работа.
 
 Из `Legacy` файл может прийти в **два** разных исхода:
 
@@ -24,8 +24,8 @@ Legacy ──┤
 
 Где файл **сейчас**:
 
-1. Метка **legacy** или **блокер** → `Legacy`
-2. Блокеров нет + **adapter** / **for-legacy** → `LegacyPerfect`
+1. Метка **legacy-code** или **блокер** → `Legacy`
+2. Блокеров нет + **legacy-perfect** / **adapter** / **for-legacy** → `LegacyPerfect`
 3. Иначе deps ок → `LaravelReady`
 4. На шаге 3 + идиомы → `LaravelPerfect`
 
@@ -37,7 +37,8 @@ Legacy ──┤
 
 | Метка | Где |
 |-------|-----|
-| **legacy** | файл → `Legacy` |
+| **legacy-code** | файл → `Legacy` |
+| **legacy-perfect** | файл → без блокеров `LegacyPerfect` |
 | **adapter** | файл / метод → без блокеров `LegacyPerfect` |
 | **for-legacy** | файл → без блокеров `LegacyPerfect` |
 
@@ -45,7 +46,7 @@ Legacy ──┤
 
 ## Legacy
 
-Блокер или метка **legacy**. Цель — `LaravelReady` **или** `LegacyPerfect`.
+Блокер или метка **legacy-code**. Цель — `LaravelReady` **или** `LegacyPerfect`.
 
 ### Блокеры
 
@@ -65,7 +66,7 @@ Legacy ──┤
 - `legacy_config()`, `db_legacy_query()`
 - `mysql_connect`, сырой SQL с конкатенацией
 
-Slim, свой фреймворк — метка **legacy**.
+Slim, свой фреймворк — метка **legacy-code**.
 
 ---
 
@@ -77,7 +78,7 @@ Slim, свой фреймворк — метка **legacy**.
 
 ## LaravelReady
 
-Был `Legacy`, убрали блокеры и метку **legacy**, deps ок. В Laravel.
+Был `Legacy`, убрали блокеры и метку **legacy-code**, deps ок. В Laravel.
 
 Зависимость от **adapter** — ок. От `Legacy` / **for-legacy** — нет.
 
