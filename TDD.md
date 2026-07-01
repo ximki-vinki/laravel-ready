@@ -14,8 +14,19 @@
 | **Зелёный** | Минимум, чтобы **этот** тест прошёл. `return true` — нормально. |
 | **Рефакторинг** | Меняем форму, не поведение. Тесты зелёные. Stan + Pint. |
 
-Один тест — один шаг. Не прыгаем сразу к парсеру, строке `Legacy` и CLI.
-7
+Один тест — один шаг. Не прыгаем сразу к парсеру, resolver и guard.
+
+## Пример: guard (фаза 1)
+
+Цель продукта — `MANIFEST.md`. Тест фиксирует **exit code**, не только вывод.
+
+| # | Тест | Ожидание |
+|---|------|----------|
+| 1 | `@laravel-ready`, без блокеров | exit `0`, `LaravelReady` |
+| 2 | `@laravel-ready`, `$_GET` | exit `1`, `Legacy` + причины |
+| 3 | без метки, `$_GET` | exit `0` (не guarded) |
+| 4 | `@laravel-ready`, `@legacy-code` | exit `1`, `tag: @legacy-code` |
+
 ## Пример: `$GLOBALS`
 
 Фикстура: `tests/Fixtures/Legacy/globals.php`. Пока достаточно `LegacyDetector::isLegacy(string $path): bool`.
@@ -36,7 +47,7 @@ expect((new LegacyDetector)->isLegacy(fixture('Legacy/globals.php')))->toBeTrue(
 
 **Шаг 5 — рефакторинг:** правило `$GLOBALS` → `GlobalsBlockerRule`, обход AST → `AstWalker`. Заглушку убирает шаг 3, не рефакторинг.
 
-Дальше по той же схеме: `'Legacy'` вместо `bool`, CLI, следующий блокер.
+Дальше по той же схеме: resolver, guard, `use` (фаза 2), следующий блокер.
 
 ## Источник правды
 
