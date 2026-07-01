@@ -32,11 +32,6 @@
     "pint": "pint",
     "pint:test": "pint --test",
     "test": "pest",
-    "test-dock": "docker run --rm -v .:/app -w /app laravel-ready-dev composer test",
-    "phpstan-dock": "docker run --rm -v .:/app -w /app laravel-ready-dev composer phpstan",
-    "pint-dock": "docker run --rm -v .:/app -w /app laravel-ready-dev composer pint",
-    "pint-test-dock": "docker run --rm -v .:/app -w /app laravel-ready-dev composer pint:test",
-    "check-dock": "docker run --rm -v .:/app -w /app laravel-ready-dev sh -c \"composer phpstan && composer pint:test && composer test\"",
     "test-cov": "docker run --rm -v .:/app -w /app laravel-ready-dev composer test -- --coverage-html build/coverage",
     "test-mut": "docker run --rm -v .:/app -w /app laravel-ready-dev vendor/bin/pest --mutate --covered-only",
     "test-mut-all": "docker run --rm -v .:/app -w /app laravel-ready-dev vendor/bin/pest --mutate"
