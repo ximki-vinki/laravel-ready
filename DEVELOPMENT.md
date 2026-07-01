@@ -12,14 +12,30 @@ CLI — **Symfony Console** (без `illuminate/console`): меньше bootstra
 
 ## Команды
 
+**Локально** (нужен PHP 8.5+):
+
 ```bash
 composer install
-vendor/bin/phpunit          # тесты
-vendor/bin/phpstan analyse  # статический анализ
-vendor/bin/pint             # стиль (Laravel preset)
-vendor/bin/pint --test      # проверка без правок
-php bin/laravel-ready       # CLI
+composer test               # pest
+composer phpstan
+composer pint
+composer pint:test
+php bin/laravel-ready
 ```
+
+**Через Docker** (если на машине другая версия PHP):
+
+```bash
+composer dock-build        # один раз: docker build -f Dockerfile.dev -t laravel-ready-dev .
+composer install-dock
+composer test-dock
+composer phpstan-dock
+composer pint-dock
+composer pint-test-dock
+composer check-dock
+```
+
+Образ `laravel-ready-dev` (`Dockerfile.dev`, PHP 8.5, pcov, zip). Каждый `*-dock` — `docker run --rm` с монтированием проекта в `/app`.
 
 `composer.lock` коммитим — воспроизводимые сборки.
 
@@ -36,14 +52,28 @@ php bin/laravel-ready       # CLI
 ## Перед коммитом
 
 ```bash
-vendor/bin/phpstan analyse
-vendor/bin/phpunit
-vendor/bin/pint --test
+composer phpstan
+composer pint:test
+composer test
 ```
+
+Или в Docker: `composer check-dock`.
 
 ## Порядок фич
 
-1. Тест-кейс из модели готовности
-2. Правило / парсер / команда
-3. Stan + Pint
-4. Прогон на своём легаси
+Согласован с `ARCHITECTURE.md` (фазы 0–4). Сначала охрана периметра, не полная миграция.
+
+**Фаза 1 (guard):**
+
+1. Тест: `@laravel-ready` + блокер → exit `1`
+2. `Tag::LaravelReady`, `ReadinessResolver`
+3. Guard в `AnalyseCommand`, exit code
+4. Stan + Pint
+
+**Фаза 2 (use):**
+
+1. Тест: guarded-файл + `use` на легаси → exit `1`
+2. `UseVisitor`, резолв FQCN, `UseFinding`
+3. Прогон на реальном файле в легаси-проекте
+
+**Параллельно с легаси:** один файл → CLI → метка → хук. Пакет дописываем только под реальную боль.
