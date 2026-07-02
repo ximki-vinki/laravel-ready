@@ -10,10 +10,18 @@ final class ReadinessResolver
     {
         return new ReadinessResult(
             actual: $this->actual($result),
-            pledged: null,
+            pledged: $this->pledged($result),
             guardFailed: false,
             findings: $result->findings,
         );
+    }
+
+    private function pledged(AnalysisResult $result): ?ReadinessLevel
+    {
+        return match ($result->tag) {
+            Tag::LaravelReady => ReadinessLevel::LaravelReady,
+            default => null,
+        };
     }
 
     private function actual(AnalysisResult $result): ReadinessLevel

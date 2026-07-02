@@ -49,7 +49,16 @@ composer check-dock
 
 Тесты — источник правды для правил анализа; документация не дублирует детали реализации.
 
+## Git hooks
+
+Установка: `composer hooks` (см. `GIT_HOOKS.md`).
+
+- **pre-commit** — синтаксис staged `.php`, автоформат Pint
+- **pre-push** — `composer validate`, PHPStan, тесты
+
 ## Перед коммитом
+
+Вручную (если хуки не установлены):
 
 ```bash
 composer phpstan

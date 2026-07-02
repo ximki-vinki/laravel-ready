@@ -32,6 +32,15 @@ it('has no pledged and no guard failed for clean analysis result without tag', f
         ->and($readiness->guardFailed)->toBeFalse();
 });
 
+it('sets pledged laravel ready for laravel-ready tag without legacy findings', function () {
+    $result = new AnalysisResult(collect(), Tag::LaravelReady);
+
+    $readiness = (new ReadinessResolver)->resolve($result);
+
+    expect($readiness->pledged)->toBe(ReadinessLevel::LaravelReady)
+        ->and($readiness->guardFailed)->toBeFalse();
+});
+
 it('resolves legacy when analysis result has legacy finding', function () {
     $findings = collect([new SuperglobalFinding(SuperglobalName::Get, 3)]);
     $result = new AnalysisResult($findings);
