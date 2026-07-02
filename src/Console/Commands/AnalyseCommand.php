@@ -7,7 +7,7 @@ namespace LaravelReady\Console\Commands;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use LaravelReady\Analysis\LegacyDetector;
+use LaravelReady\Analysis\Detector;
 use LaravelReady\Console\AnalysableFile;
 use LaravelReady\Console\Output\LaravelReadyOutput;
 use LaravelReady\Console\Output\LegacyOutput;
@@ -55,7 +55,7 @@ final class AnalyseCommand extends Command
         }
 
         $files->each(function (AnalysableFile $file) use ($output): void {
-            $result = (new LegacyDetector)->analyse($file->absolutePath);
+            $result = (new Detector)->analyse($file->absolutePath);
 
             if ($result->findings->isNotEmpty()) {
                 (new LegacyOutput)->write($output, $result->findings, $file->relativePath);

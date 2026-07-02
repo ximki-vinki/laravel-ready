@@ -13,7 +13,7 @@ use PhpParser\Node;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
 
-final class LegacyDetector
+final class Detector
 {
     public function analyse(string $path): AnalysisResult
     {
