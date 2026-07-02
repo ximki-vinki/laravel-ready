@@ -14,21 +14,13 @@ use LaravelReady\Analysis\TagFinding;
 
 covers(ReadinessResolver::class);
 
-it('resolves laravel ready for clean analysis result', function () {
+it('resolves untagged for clean analysis result without tag', function () {
     $result = new AnalysisResult(collect());
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
-    expect($readiness->actual)->toBe(ReadinessLevel::LaravelReady)
-        ->and($readiness->findings)->toBeEmpty();
-});
-
-it('has no pledged and pledge not applicable for clean analysis result without tag', function () {
-    $result = new AnalysisResult(collect());
-
-    $readiness = (new ReadinessResolver)->resolve($result);
-
-    expect($readiness->actual)->toBe(ReadinessLevel::LaravelReady)
+    expect($readiness->actual)->toBe(ReadinessLevel::Untagged)
+        ->and($readiness->findings)->toBeEmpty()
         ->and($readiness->pledged)->toBeNull()
         ->and($readiness->pledgeViolated)->toBeNull();
 });
@@ -38,31 +30,47 @@ it('sets pledged laravel ready for laravel-ready tag without legacy findings', f
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
-    expect($readiness->pledged)->toBe(ReadinessLevel::LaravelReady)
+    expect($readiness->actual)->toBe(ReadinessLevel::LaravelReady)
+        ->and($readiness->pledged)->toBe(ReadinessLevel::LaravelReady)
         ->and($readiness->pledgeViolated)->toBeFalse();
 });
 
-it('resolves legacy when analysis result has legacy finding', function () {
+it('resolves untagged when analysis result has only legacy finding', function () {
     $findings = collect([new SuperglobalFinding(SuperglobalName::Get, 3)]);
     $result = new AnalysisResult($findings);
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
-    expect($readiness->actual)->toBe(ReadinessLevel::Legacy)
+    expect($readiness->actual)->toBe(ReadinessLevel::Untagged)
         ->and($readiness->findings)->toBe($findings)
+        ->and($readiness->pledged)->toBeNull()
         ->and($readiness->pledgeViolated)->toBeNull();
 });
 
-it('resolves laravel ready when analysis result has laravel-ready tag without legacy findings', function () {
-    $result = new AnalysisResult(collect([new TagFinding(Tag::LaravelReady, 3)]));
+it('resolves legacy when analysis result has legacy-code tag', function () {
+    $result = new AnalysisResult(collect([new TagFinding(Tag::Legacy, 4)]));
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
-    expect($readiness->actual)->toBe(ReadinessLevel::LaravelReady);
+    expect($readiness->actual)->toBe(ReadinessLevel::Legacy)
+        ->and($readiness->pledged)->toBeNull()
+        ->and($readiness->pledgeViolated)->toBeNull();
+});
+
+it('resolves untagged when analysis result has multiple tags', function () {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LaravelReady, 3),
+        new TagFinding(Tag::Legacy, 10),
+    ]));
+
+    $readiness = (new ReadinessResolver)->resolve($result);
+
+    expect($readiness->actual)->toBe(ReadinessLevel::Untagged)
+        ->and($readiness->pledged)->toBe(ReadinessLevel::LaravelReady)
+        ->and($readiness->pledgeViolated)->toBeFalse();
 });
 
 it('violates pledge when laravel-ready tag is paired with legacy finding', function () {
-    $findings = collect([new FunctionCallFinding(BlockedFunction::Define, 4)]);
     $result = new AnalysisResult(collect([
         new FunctionCallFinding(BlockedFunction::Define, 4),
         new TagFinding(Tag::LaravelReady, 3),
@@ -70,7 +78,20 @@ it('violates pledge when laravel-ready tag is paired with legacy finding', funct
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
-    expect($readiness->actual)->toBe(ReadinessLevel::Legacy)
+    expect($readiness->actual)->toBe(ReadinessLevel::LaravelReady)
         ->and($readiness->pledged)->toBe(ReadinessLevel::LaravelReady)
         ->and($readiness->pledgeViolated)->toBeTrue();
+});
+
+it('does not violate pledge for legacy-code tag with legacy finding', function () {
+    $result = new AnalysisResult(collect([
+        new SuperglobalFinding(SuperglobalName::Get, 5),
+        new TagFinding(Tag::Legacy, 4),
+    ]));
+
+    $readiness = (new ReadinessResolver)->resolve($result);
+
+    expect($readiness->actual)->toBe(ReadinessLevel::Legacy)
+        ->and($readiness->pledged)->toBeNull()
+        ->and($readiness->pledgeViolated)->toBeNull();
 });

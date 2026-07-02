@@ -51,7 +51,7 @@ it('returns failure when laravel-ready fixture has legacy blocker', function () 
 
     expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('with-blocker.php')
-        ->and($tester->getDisplay())->toContain('Legacy')
+        ->and($tester->getDisplay())->toContain('LaravelReady')
         ->and($tester->getDisplay())->toContain('@laravel-ready')
         ->and($tester->getDisplay())->toContain('$_GET');
 });
@@ -63,7 +63,7 @@ it('returns success for legacy fixture without tag', function () {
 
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('bare.php')
-        ->and($tester->getDisplay())->toContain('Legacy');
+        ->and($tester->getDisplay())->toContain('Untagged');
 });
 
 it('analyses php files in subdirectories', function () {
@@ -83,7 +83,7 @@ it('analyses directory path', function () {
 
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('rules.php')
-        ->and($tester->getDisplay())->toContain('Legacy')
+        ->and($tester->getDisplay())->toContain('Untagged')
         ->and($tester->getDisplay())->toContain('$_GET (line 3)')
         ->and($tester->getDisplay())->toContain('define() (line 4)');
 });
@@ -95,7 +95,7 @@ it('prints legacy level and findings for mixed fixture', function () {
 
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('rules.php')
-        ->and($tester->getDisplay())->toContain('Legacy')
+        ->and($tester->getDisplay())->toContain('Untagged')
         ->and($tester->getDisplay())->toContain('$_GET (line 3)')
         ->and($tester->getDisplay())->toContain('define() (line 4)');
 });
@@ -106,7 +106,7 @@ it('prints laravel ready level for clean fixture', function () {
     $tester->execute(['path' => [fixture('Legacy/Clean/empty.php')]]);
 
     expect($tester->getDisplay())->toContain('empty.php')
-        ->and($tester->getDisplay())->toContain('LaravelReady')
+        ->and($tester->getDisplay())->toContain('Untagged')
         ->and($tester->getDisplay())->toContain('untagged')
         ->and($tester->getDisplay())->not->toContain('$GLOBALS');
 });
@@ -124,7 +124,7 @@ it('analyses multiple file paths passed as separate arguments', function () {
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('bare.php')
         ->and($tester->getDisplay())->toContain('empty.php')
-        ->and($tester->getDisplay())->toContain('LaravelReady');
+        ->and($tester->getDisplay())->toContain('Untagged');
 });
 
 it('analyses multiple directory paths', function () {
@@ -140,7 +140,7 @@ it('analyses multiple directory paths', function () {
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('bare.php')
         ->and($tester->getDisplay())->toContain('empty.php')
-        ->and($tester->getDisplay())->toContain('LaravelReady');
+        ->and($tester->getDisplay())->toContain('Untagged');
 });
 
 it('analyses directory and file path together', function () {
@@ -156,5 +156,5 @@ it('analyses directory and file path together', function () {
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('bare.php')
         ->and($tester->getDisplay())->toContain('empty.php')
-        ->and($tester->getDisplay())->toContain('LaravelReady');
+        ->and($tester->getDisplay())->toContain('Untagged');
 });
