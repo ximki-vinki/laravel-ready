@@ -8,12 +8,25 @@ final class ReadinessResolver
 {
     public function resolve(AnalysisResult $result): ReadinessResult
     {
+        $actual = $this->actual($result);
+        $pledged = $this->pledged($result);
+
         return new ReadinessResult(
-            actual: $this->actual($result),
-            pledged: $this->pledged($result),
-            guardFailed: false,
+            actual: $actual,
+            pledged: $pledged,
+            pledgeViolated: $this->pledgeViolated($actual, $pledged),
             findings: $result->findings,
         );
+    }
+
+    private function pledgeViolated(ReadinessLevel $actual, ?ReadinessLevel $pledged): ?bool
+    {
+        if ($pledged === null) {
+            return null;
+        }
+
+        return $pledged === ReadinessLevel::LaravelReady
+            && $actual === ReadinessLevel::Legacy;
     }
 
     private function pledged(AnalysisResult $result): ?ReadinessLevel

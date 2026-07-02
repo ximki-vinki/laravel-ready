@@ -22,14 +22,14 @@ it('resolves laravel ready for clean analysis result', function () {
         ->and($readiness->findings)->toBeEmpty();
 });
 
-it('has no pledged and no guard failed for clean analysis result without tag', function () {
+it('has no pledged and pledge not applicable for clean analysis result without tag', function () {
     $result = new AnalysisResult(collect());
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::LaravelReady)
         ->and($readiness->pledged)->toBeNull()
-        ->and($readiness->guardFailed)->toBeFalse();
+        ->and($readiness->pledgeViolated)->toBeNull();
 });
 
 it('sets pledged laravel ready for laravel-ready tag without legacy findings', function () {
@@ -38,7 +38,7 @@ it('sets pledged laravel ready for laravel-ready tag without legacy findings', f
     $readiness = (new ReadinessResolver)->resolve($result);
 
     expect($readiness->pledged)->toBe(ReadinessLevel::LaravelReady)
-        ->and($readiness->guardFailed)->toBeFalse();
+        ->and($readiness->pledgeViolated)->toBeFalse();
 });
 
 it('resolves legacy when analysis result has legacy finding', function () {
@@ -48,7 +48,8 @@ it('resolves legacy when analysis result has legacy finding', function () {
     $readiness = (new ReadinessResolver)->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::Legacy)
-        ->and($readiness->findings)->toBe($findings);
+        ->and($readiness->findings)->toBe($findings)
+        ->and($readiness->pledgeViolated)->toBeNull();
 });
 
 it('resolves laravel ready when analysis result has laravel-ready tag without legacy findings', function () {
@@ -59,11 +60,13 @@ it('resolves laravel ready when analysis result has laravel-ready tag without le
     expect($readiness->actual)->toBe(ReadinessLevel::LaravelReady);
 });
 
-it('resolves legacy when laravel-ready tag is paired with legacy finding', function () {
+it('violates pledge when laravel-ready tag is paired with legacy finding', function () {
     $findings = collect([new FunctionCallFinding(BlockedFunction::Define, 4)]);
     $result = new AnalysisResult($findings, Tag::LaravelReady);
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
-    expect($readiness->actual)->toBe(ReadinessLevel::Legacy);
+    expect($readiness->actual)->toBe(ReadinessLevel::Legacy)
+        ->and($readiness->pledged)->toBe(ReadinessLevel::LaravelReady)
+        ->and($readiness->pledgeViolated)->toBeTrue();
 });

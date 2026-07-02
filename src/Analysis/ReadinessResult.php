@@ -14,7 +14,7 @@ final readonly class ReadinessResult
     public function __construct(
         public ReadinessLevel $actual,
         public ?ReadinessLevel $pledged,
-        public bool $guardFailed,
+        public ?bool $pledgeViolated,
         public Collection $findings,
     ) {}
 }
