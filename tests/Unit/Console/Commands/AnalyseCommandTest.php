@@ -33,6 +33,16 @@ it('returns invalid when path is not a php file', function () {
         ->and($tester->getDisplay())->toContain('Expected a PHP file');
 });
 
+it('returns success for laravel-ready fixture without blockers', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute(['path' => [fixture('Tags/laravel-ready/class.php')]]);
+
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('class.php')
+        ->and($tester->getDisplay())->toContain('LaravelReady');
+});
+
 it('analyses php files in subdirectories', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
