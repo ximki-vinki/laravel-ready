@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelReady\Analysis;
 
-final readonly class FunctionCallFinding implements Finding
+final readonly class FunctionCallFinding implements LegacyFinding
 {
     public function __construct(
         public BlockedFunction $function,

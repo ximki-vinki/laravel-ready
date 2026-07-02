@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 enum Tag: string
 {
     case Legacy = 'legacy-code';
-    case LegacyPerfect = 'legacy-perfect';
+    case LaravelReady = 'laravel-ready';
 
     public static function tryFromDocComment(string $docComment): ?self
     {

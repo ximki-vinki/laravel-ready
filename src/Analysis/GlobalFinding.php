@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelReady\Analysis;
 
-final readonly class GlobalFinding implements Finding
+final readonly class GlobalFinding implements LegacyFinding
 {
     public function __construct(
         public string $variable,

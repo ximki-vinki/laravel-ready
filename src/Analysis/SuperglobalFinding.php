@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelReady\Analysis;
 
-final readonly class SuperglobalFinding implements Finding
+final readonly class SuperglobalFinding implements LegacyFinding
 {
     public function __construct(
         public SuperglobalName $name,

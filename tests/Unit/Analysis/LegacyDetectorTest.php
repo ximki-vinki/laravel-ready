@@ -273,7 +273,7 @@ it('detects tag on clean fixture', function (Tag $expected, string $path) {
     'legacy-code on class' => [Tag::Legacy, 'Tags/legacy-code/class.php'],
     'legacy-code on function' => [Tag::Legacy, 'Tags/legacy-code/function.php'],
     'legacy-code on method' => [Tag::Legacy, 'Tags/legacy-code/method.php'],
-    'legacy-perfect on class' => [Tag::LegacyPerfect, 'Tags/legacy-perfect/class.php'],
+    'laravel-ready on class' => [Tag::LaravelReady, 'Tags/laravel-ready/class.php'],
 ]);
 
 it('detects no tag in clean fixtures', function (string $fixture) {
