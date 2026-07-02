@@ -14,7 +14,9 @@ final class LegacyOutput
     /** @param  Collection<array-key, Finding>  $findings */
     public function write(OutputInterface $output, Collection $findings, string $relativePath): void
     {
-        $output->writeln('<fg=red>'.$relativePath.' : '.ReadinessLevel::Legacy->value.'</>');
+        $tags = TagStatus::fromFindings($findings);
+
+        $output->writeln('<fg=red>'.$relativePath.' : '.ReadinessLevel::Legacy->value.' '.$tags->display().'</>');
 
         foreach ((new FindingSectionBuilder)->build($findings) as $section) {
             $output->writeln('  '.$this->format($section));

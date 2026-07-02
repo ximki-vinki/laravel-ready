@@ -18,7 +18,7 @@ final class ReadinessPresenter
         if ($readiness->actual === ReadinessLevel::Legacy) {
             (new LegacyOutput)->write($output, $readiness->findings, $relativePath);
         } else {
-            (new LaravelReadyOutput)->write($output, $relativePath);
+            (new LaravelReadyOutput)->write($output, $readiness->findings, $relativePath);
         }
 
         return $readiness->pledgeViolated === true

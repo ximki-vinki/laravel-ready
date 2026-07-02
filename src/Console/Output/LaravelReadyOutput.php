@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace LaravelReady\Console\Output;
 
+use Illuminate\Support\Collection;
+use LaravelReady\Analysis\Finding;
 use LaravelReady\Analysis\ReadinessLevel;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class LaravelReadyOutput
 {
-    public function write(OutputInterface $output, string $relativePath): void
+    /** @param  Collection<array-key, Finding>  $findings */
+    public function write(OutputInterface $output, Collection $findings, string $relativePath): void
     {
-        $output->writeln($relativePath);
-        $output->writeln('<comment>'.$relativePath.':'.ReadinessLevel::LaravelReady->value.'</comment>');
+        $tags = TagStatus::fromFindings($findings);
+
+        $output->writeln('<comment>'.$relativePath.' : '.ReadinessLevel::LaravelReady->value.' '.$tags->display().'</comment>');
     }
 }
