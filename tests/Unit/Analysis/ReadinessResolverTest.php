@@ -10,6 +10,7 @@ use LaravelReady\Analysis\ReadinessResolver;
 use LaravelReady\Analysis\SuperglobalFinding;
 use LaravelReady\Analysis\SuperglobalName;
 use LaravelReady\Analysis\Tag;
+use LaravelReady\Analysis\TagFinding;
 
 covers(ReadinessResolver::class);
 
@@ -33,7 +34,7 @@ it('has no pledged and pledge not applicable for clean analysis result without t
 });
 
 it('sets pledged laravel ready for laravel-ready tag without legacy findings', function () {
-    $result = new AnalysisResult(collect(), Tag::LaravelReady);
+    $result = new AnalysisResult(collect([new TagFinding(Tag::LaravelReady, 3)]));
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
@@ -53,7 +54,7 @@ it('resolves legacy when analysis result has legacy finding', function () {
 });
 
 it('resolves laravel ready when analysis result has laravel-ready tag without legacy findings', function () {
-    $result = new AnalysisResult(collect(), Tag::LaravelReady);
+    $result = new AnalysisResult(collect([new TagFinding(Tag::LaravelReady, 3)]));
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
@@ -62,7 +63,10 @@ it('resolves laravel ready when analysis result has laravel-ready tag without le
 
 it('violates pledge when laravel-ready tag is paired with legacy finding', function () {
     $findings = collect([new FunctionCallFinding(BlockedFunction::Define, 4)]);
-    $result = new AnalysisResult($findings, Tag::LaravelReady);
+    $result = new AnalysisResult(collect([
+        new FunctionCallFinding(BlockedFunction::Define, 4),
+        new TagFinding(Tag::LaravelReady, 3),
+    ]));
 
     $readiness = (new ReadinessResolver)->resolve($result);
 

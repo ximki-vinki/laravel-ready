@@ -4,27 +4,26 @@ declare(strict_types=1);
 
 namespace LaravelReady\Analysis\Visitors;
 
+use Illuminate\Support\Collection;
+use LaravelReady\Analysis\Finding;
 use LaravelReady\Analysis\Tag;
+use LaravelReady\Analysis\TagFinding;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
 final class TagVisitor extends NodeVisitorAbstract
 {
-    private ?Tag $tag = null;
-
-    public function tag(): ?Tag
-    {
-        return $this->tag;
-    }
+    /** @param  Collection<array-key, Finding>  $findings */
+    public function __construct(private readonly Collection $findings) {}
 
     public function enterNode(Node $node): ?int
     {
-        if ($this->tag !== null) {
-            return null;
-        }
-
         $docComment = $node->getDocComment()?->getText();
-        $this->tag = $docComment !== null ? Tag::tryFromDocComment($docComment) : null;
+        $tag = $docComment !== null ? Tag::tryFromDocComment($docComment) : null;
+
+        if ($tag !== null) {
+            $this->findings->push(new TagFinding($tag, $node->getStartLine()));
+        }
 
         return null;
     }

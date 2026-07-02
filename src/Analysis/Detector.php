@@ -57,11 +57,10 @@ final class Detector
     {
         /** @var Collection<array-key, Finding> $findings */
         $findings = collect();
-        $tagVisitor = new TagVisitor;
 
         if ($ast !== null) {
             $traverser = new NodeTraverser;
-            $traverser->addVisitor($tagVisitor);
+            $traverser->addVisitor(new TagVisitor($findings));
             $traverser->addVisitor(new SuperglobalVisitor($findings));
             $traverser->addVisitor(new GlobalVisitor($findings));
             $traverser->addVisitor(new BlockedFunctionVisitor($findings));
@@ -70,7 +69,6 @@ final class Detector
 
         return new AnalysisResult(
             findings: $findings,
-            tag: $tagVisitor->tag(),
         );
     }
 }

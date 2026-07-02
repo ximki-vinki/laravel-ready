@@ -43,6 +43,27 @@ it('returns success for laravel-ready fixture without blockers', function () {
         ->and($tester->getDisplay())->toContain('LaravelReady');
 });
 
+it('returns failure when laravel-ready fixture has legacy blocker', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute(['path' => [fixture('Tags/laravel-ready/with-blocker.php')]]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('with-blocker.php')
+        ->and($tester->getDisplay())->toContain('Legacy')
+        ->and($tester->getDisplay())->toContain('$_GET');
+});
+
+it('returns success for legacy fixture without tag', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute(['path' => [fixture('Legacy/Superglobals/bare.php')]]);
+
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('bare.php')
+        ->and($tester->getDisplay())->toContain('Legacy');
+});
+
 it('analyses php files in subdirectories', function () {
     $tester = new CommandTester(new AnalyseCommand);
 

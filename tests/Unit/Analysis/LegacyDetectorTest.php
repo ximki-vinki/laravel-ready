@@ -3,12 +3,13 @@
 declare(strict_types=1);
 
 use LaravelReady\Analysis\BlockedFunction;
+use LaravelReady\Analysis\Detector;
 use LaravelReady\Analysis\FunctionCallFinding;
 use LaravelReady\Analysis\GlobalFinding;
-use LaravelReady\Analysis\Detector;
 use LaravelReady\Analysis\SuperglobalFinding;
 use LaravelReady\Analysis\SuperglobalName;
 use LaravelReady\Analysis\Tag;
+use LaravelReady\Analysis\TagFinding;
 
 covers(Detector::class);
 
@@ -264,23 +265,23 @@ it('returns no findings when file cannot be read', function () {
     expect($findings)->toBeEmpty();
 });
 
-it('detects tag on clean fixture', function (Tag $expected, string $path) {
+it('detects tag on clean fixture', function (Tag $expected, string $path, int $line) {
     $result = (new Detector)->analyse(fixture($path));
 
-    expect($result->tag)->toBe($expected)
-        ->and($result->findings)->toBeEmpty();
+    expect($result->findings)->toContainEqual(new TagFinding($expected, $line));
 })->with([
-    'legacy-code on class' => [Tag::Legacy, 'Tags/legacy-code/class.php'],
-    'legacy-code on function' => [Tag::Legacy, 'Tags/legacy-code/function.php'],
-    'legacy-code on method' => [Tag::Legacy, 'Tags/legacy-code/method.php'],
-    'laravel-ready on class' => [Tag::LaravelReady, 'Tags/laravel-ready/class.php'],
+    'legacy-code on class' => [Tag::Legacy, 'Tags/legacy-code/class.php', 4],
+    'legacy-code on function' => [Tag::Legacy, 'Tags/legacy-code/function.php', 4],
+    'legacy-code on method' => [Tag::Legacy, 'Tags/legacy-code/method.php', 6],
+    'laravel-ready on class' => [Tag::LaravelReady, 'Tags/laravel-ready/class.php', 4],
 ]);
 
 it('detects no tag in clean fixtures', function (string $fixture) {
     $result = (new Detector)->analyse(fixture('Tags/Clean/'.$fixture));
 
-    expect($result->tag)->toBeNull()
-        ->and($result->findings)->toBeEmpty();
+    expect($result->findings->filter(
+        fn ($finding): bool => $finding instanceof TagFinding,
+    ))->toBeEmpty();
 })->with([
     'empty' => ['empty.php'],
     'no-tag' => ['no-tag.php'],
@@ -291,6 +292,6 @@ it('detects no tag in clean fixtures', function (string $fixture) {
 it('detects tag alongside blockers in mixed fixture', function () {
     $result = (new Detector)->analyse(fixture('Tags/Mixed/tag-and-blocker.php'));
 
-    expect($result->tag)->toBe(Tag::Legacy)
+    expect($result->findings)->toContainEqual(new TagFinding(Tag::Legacy, 4))
         ->and($result->findings)->toContainEqual(new SuperglobalFinding(SuperglobalName::Get, 8));
 });

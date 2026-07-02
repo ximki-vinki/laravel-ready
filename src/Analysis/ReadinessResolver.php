@@ -31,16 +31,19 @@ final class ReadinessResolver
 
     private function pledged(AnalysisResult $result): ?ReadinessLevel
     {
-        return match ($result->tag) {
-            Tag::LaravelReady => ReadinessLevel::LaravelReady,
-            default => null,
-        };
+        $hasLaravelReadyTag = $result->findings->contains(
+            fn (Finding $finding): bool => $finding instanceof TagFinding
+                && $finding->tag === Tag::LaravelReady,
+        );
+
+        return $hasLaravelReadyTag ? ReadinessLevel::LaravelReady : null;
     }
 
     private function actual(AnalysisResult $result): ReadinessLevel
     {
         if ($result->findings->contains(
-            fn (Finding $finding): bool => $finding instanceof LegacyFinding,
+            fn (Finding $finding): bool => $finding instanceof LegacyFinding
+                || ($finding instanceof TagFinding && $finding->tag === Tag::Legacy),
         )) {
             return ReadinessLevel::Legacy;
         }
