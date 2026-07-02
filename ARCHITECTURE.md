@@ -64,6 +64,8 @@
 | `AnalyseCommand` | CLI, guard, exit code |
 | `*Output` | Форматирование для человека |
 
+Подробнее про resolver, guard, pledged/actual и presenter — `RESOLUTION_AND_OUTPUT.md` (**на уточнении**).
+
 Уровень считает **resolver**, не отдельные правила.
 
 **Правила** — в коде пакета (`*Visitor`, per-rule enum). Инфраструктура: `nikic/php-parser`. Внешний rule-pack не подключаем — см. обзор ниже.
