@@ -6,10 +6,7 @@ namespace LaravelReady\Console\Output;
 
 use Illuminate\Support\Collection;
 use LaravelReady\Analysis\Finding;
-use LaravelReady\Analysis\FunctionCallFinding;
-use LaravelReady\Analysis\GlobalFinding;
 use LaravelReady\Analysis\ReadinessLevel;
-use LaravelReady\Analysis\SuperglobalFinding;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class LegacyOutput
@@ -19,46 +16,17 @@ final class LegacyOutput
     {
         $output->writeln('<fg=red>'.$relativePath.' : '.ReadinessLevel::Legacy->value.'</>');
 
-        foreach ($this->groupedLines($findings) as $line) {
-            $output->writeln('  '.$line);
+        foreach ((new FindingSectionBuilder)->build($findings) as $section) {
+            $output->writeln('  '.$this->format($section));
         }
     }
 
-    /**
-     * @param  Collection<array-key, Finding>  $findings
-     * @return list<string>
-     */
-    private function groupedLines(Collection $findings): array
+    private function format(FindingSection $section): string
     {
-        $lines = [];
-
-        $superglobals = $findings
-            ->filter(fn (Finding $finding): bool => $finding instanceof SuperglobalFinding)
+        $items = $section->findings
             ->map(fn (Finding $finding): string => $finding->display())
             ->all();
 
-        if ($superglobals !== []) {
-            $lines[] = 'var: '.implode(', ', $superglobals);
-        }
-
-        $globals = $findings
-            ->filter(fn (Finding $finding): bool => $finding instanceof GlobalFinding)
-            ->map(fn (Finding $finding): string => $finding->display())
-            ->all();
-
-        if ($globals !== []) {
-            $lines[] = 'global: '.implode(', ', $globals);
-        }
-
-        $functions = $findings
-            ->filter(fn (Finding $finding): bool => $finding instanceof FunctionCallFinding)
-            ->map(fn (Finding $finding): string => $finding->display())
-            ->all();
-
-        if ($functions !== []) {
-            $lines[] = 'func: '.implode(', ', $functions);
-        }
-
-        return $lines;
+        return $section->label->value.': '.implode(', ', $items);
     }
 }
