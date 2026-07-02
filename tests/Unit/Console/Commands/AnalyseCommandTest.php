@@ -40,8 +40,7 @@ it('returns success for laravel-ready fixture without blockers', function () {
 
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('class.php')
-        ->and($tester->getDisplay())->toContain('LaravelReady')
-        ->and($tester->getDisplay())->toContain('@laravel-ready');
+        ->and($tester->getDisplay())->toContain('LaravelReady');
 });
 
 it('returns failure when laravel-ready fixture has legacy blocker', function () {
@@ -52,8 +51,17 @@ it('returns failure when laravel-ready fixture has legacy blocker', function () 
     expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('with-blocker.php')
         ->and($tester->getDisplay())->toContain('LaravelReady')
-        ->and($tester->getDisplay())->toContain('@laravel-ready')
         ->and($tester->getDisplay())->toContain('$_GET');
+});
+
+it('returns failure for file with multiple tags', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute(['path' => [fixture('Tags/Mixed/multi-tag.php')]]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('multi-tag.php')
+        ->and($tester->getDisplay())->toContain('MultiTag');
 });
 
 it('returns success for legacy fixture without tag', function () {
@@ -107,7 +115,6 @@ it('prints laravel ready level for clean fixture', function () {
 
     expect($tester->getDisplay())->toContain('empty.php')
         ->and($tester->getDisplay())->toContain('Untagged')
-        ->and($tester->getDisplay())->toContain('untagged')
         ->and($tester->getDisplay())->not->toContain('$GLOBALS');
 });
 

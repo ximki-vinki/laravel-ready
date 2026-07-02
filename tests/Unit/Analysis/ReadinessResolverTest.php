@@ -57,7 +57,7 @@ it('resolves legacy when analysis result has legacy-code tag', function () {
         ->and($readiness->pledgeViolated)->toBeNull();
 });
 
-it('resolves untagged when analysis result has multiple tags', function () {
+it('resolves multitag when analysis result has multiple tags', function () {
     $result = new AnalysisResult(collect([
         new TagFinding(Tag::LaravelReady, 3),
         new TagFinding(Tag::Legacy, 10),
@@ -65,9 +65,9 @@ it('resolves untagged when analysis result has multiple tags', function () {
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
-    expect($readiness->actual)->toBe(ReadinessLevel::Untagged)
-        ->and($readiness->pledged)->toBe(ReadinessLevel::LaravelReady)
-        ->and($readiness->pledgeViolated)->toBeFalse();
+    expect($readiness->actual)->toBe(ReadinessLevel::MultiTag)
+        ->and($readiness->pledged)->toBeNull()
+        ->and($readiness->pledgeViolated)->toBeNull();
 });
 
 it('violates pledge when laravel-ready tag is paired with legacy finding', function () {

@@ -27,9 +27,12 @@ final class ReadinessResolver
     private function actualFromTags(Collection $tags): ReadinessLevel
     {
         return match (true) {
-            $tags->isEmpty(), $tags->count() > 1 => ReadinessLevel::Untagged,
-            $tags->first() === Tag::LaravelReady => ReadinessLevel::LaravelReady,
-            $tags->first() === Tag::Legacy => ReadinessLevel::Legacy,
+            $tags->isEmpty() => ReadinessLevel::Untagged,
+            $tags->count() > 1 => ReadinessLevel::MultiTag,
+            default => match ($tags->first()) {
+                Tag::LaravelReady => ReadinessLevel::LaravelReady,
+                Tag::Legacy => ReadinessLevel::Legacy,
+            },
         };
     }
 
@@ -51,9 +54,13 @@ final class ReadinessResolver
 
     private function pledged(AnalysisResult $result): ?ReadinessLevel
     {
-        $hasLaravelReadyTag = $this->uniqueTags($result)->contains(Tag::LaravelReady);
+        $tags = $this->uniqueTags($result);
 
-        return $hasLaravelReadyTag ? ReadinessLevel::LaravelReady : null;
+        if ($tags->count() !== 1 || $tags->first() !== Tag::LaravelReady) {
+            return null;
+        }
+
+        return ReadinessLevel::LaravelReady;
     }
 
     /**

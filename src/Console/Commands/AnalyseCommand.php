@@ -57,11 +57,11 @@ final class AnalyseCommand extends Command
         $exitCode = Command::SUCCESS;
 
         $files->each(function (AnalysableFile $file) use ($output, &$exitCode): void {
-            $presenter = new ReadinessPresenter;
             $result = (new Detector)->analyse($file->absolutePath);
-            $readiness = (new ReadinessResolver)->resolve(
-                $result
-            );
+
+            $readiness = (new ReadinessResolver)->resolve($result);
+
+            $presenter = new ReadinessPresenter;
 
             $code = $presenter->present($readiness, $file->relativePath, $output);
 

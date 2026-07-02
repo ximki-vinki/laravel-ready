@@ -18,12 +18,16 @@ final class LaravelReadyOutput
         string $relativePath,
         ReadinessLevel $level,
     ): void {
-        $tags = TagStatus::fromFindings($findings);
-        $line = $relativePath.' : '.$level->value.' '.$tags->display();
+        $output->writeln($this->header($relativePath, $level));
+    }
 
-        $output->writeln(match ($level) {
+    private function header(string $relativePath, ReadinessLevel $level): string
+    {
+        $line = $relativePath.' : '.$level->value;
+
+        return match ($level) {
             ReadinessLevel::LaravelReady => '<comment>'.$line.'</>',
             default => $line,
-        });
+        };
     }
 }

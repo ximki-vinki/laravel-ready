@@ -18,22 +18,21 @@ final class LegacyOutput
         string $relativePath,
         ReadinessLevel $level,
     ): void {
-        $tags = TagStatus::fromFindings($findings);
-
-        $output->writeln($this->header($relativePath, $level, $tags));
+        $output->writeln($this->header($relativePath, $level));
 
         foreach ((new FindingSectionBuilder)->build($findings) as $section) {
             $output->writeln('  '.$this->format($section));
         }
     }
 
-    private function header(string $relativePath, ReadinessLevel $level, TagStatus $tags): string
+    private function header(string $relativePath, ReadinessLevel $level): string
     {
-        $line = $relativePath.' : '.$level->value.' '.$tags->display();
+        $line = $relativePath.' : '.$level->value;
 
         return match ($level) {
             ReadinessLevel::Legacy => '<fg=red>'.$line.'</>',
             ReadinessLevel::LaravelReady => '<comment>'.$line.'</>',
+            ReadinessLevel::MultiTag => '<fg=yellow>'.$line.'</>',
             default => $line,
         };
     }

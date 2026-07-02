@@ -23,6 +23,7 @@ final class ReadinessPresenter
         }
 
         return $readiness->pledgeViolated === true
+            || $readiness->actual === ReadinessLevel::MultiTag
             ? Command::FAILURE
             : Command::SUCCESS;
     }

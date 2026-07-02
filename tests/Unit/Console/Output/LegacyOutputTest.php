@@ -14,7 +14,6 @@ it('prints superglobals in var group', function () {
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('bare.php')
         ->and($tester->getDisplay())->toContain('Untagged')
-        ->and($tester->getDisplay())->toContain('untagged')
         ->and($tester->getDisplay())->toContain('var: $GLOBALS (line 3), $_COOKIE (line 4)')
         ->and($tester->getDisplay())->not->toContain('func:');
 });
