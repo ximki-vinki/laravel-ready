@@ -21,11 +21,7 @@ enum TagStatus: string
      */
     public static function fromFindings(Collection $findings): self
     {
-        $tags = $findings
-            ->filter(fn (Finding $finding): bool => $finding instanceof TagFinding)
-            ->map(fn (TagFinding $finding): Tag => $finding->tag)
-            ->unique()
-            ->values();
+        $tags = TagFinding::uniqueTags($findings);
 
         return match (true) {
             $tags->isEmpty() => self::Untagged,

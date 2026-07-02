@@ -4,21 +4,15 @@ declare(strict_types=1);
 
 namespace LaravelReady\Console\Output;
 
-use Illuminate\Support\Collection;
-use LaravelReady\Analysis\Finding;
 use LaravelReady\Analysis\ReadinessLevel;
+use LaravelReady\Analysis\ReadinessResult;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class LaravelReadyOutput
 {
-    /** @param  Collection<array-key, Finding>  $findings */
-    public function write(
-        OutputInterface $output,
-        Collection $findings,
-        string $relativePath,
-        ReadinessLevel $level,
-    ): void {
-        $output->writeln($this->header($relativePath, $level));
+    public function write(OutputInterface $output, ReadinessResult $readiness, string $relativePath): void
+    {
+        $output->writeln($this->header($relativePath, $readiness->actual));
     }
 
     private function header(string $relativePath, ReadinessLevel $level): string

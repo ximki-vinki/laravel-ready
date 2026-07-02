@@ -4,12 +4,26 @@ declare(strict_types=1);
 
 namespace LaravelReady\Analysis;
 
+use Illuminate\Support\Collection;
+
 final readonly class TagFinding implements Finding
 {
     public function __construct(
         public Tag $tag,
         public int $line,
     ) {}
+
+    /**
+     * @param  Collection<array-key, Finding>  $findings
+     * @return Collection<array-key, Tag>
+     */
+    public static function uniqueTags(Collection $findings): Collection
+    {
+        return $findings
+            ->flatMap(fn (Finding $finding): array => $finding instanceof self ? [$finding->tag] : [])
+            ->unique()
+            ->values();
+    }
 
     public function display(): string
     {

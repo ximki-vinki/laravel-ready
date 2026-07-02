@@ -21,18 +21,16 @@ it('resolves untagged for clean analysis result without tag', function () {
 
     expect($readiness->actual)->toBe(ReadinessLevel::Untagged)
         ->and($readiness->findings)->toBeEmpty()
-        ->and($readiness->pledged)->toBeNull()
-        ->and($readiness->pledgeViolated)->toBeNull();
+        ->and($readiness->hasBlockers)->toBeFalse();
 });
 
-it('sets pledged laravel ready for laravel-ready tag without legacy findings', function () {
+it('resolves laravel ready for laravel-ready tag without blockers', function () {
     $result = new AnalysisResult(collect([new TagFinding(Tag::LaravelReady, 3)]));
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::LaravelReady)
-        ->and($readiness->pledged)->toBe(ReadinessLevel::LaravelReady)
-        ->and($readiness->pledgeViolated)->toBeFalse();
+        ->and($readiness->hasBlockers)->toBeFalse();
 });
 
 it('resolves untagged when analysis result has only legacy finding', function () {
@@ -43,8 +41,7 @@ it('resolves untagged when analysis result has only legacy finding', function ()
 
     expect($readiness->actual)->toBe(ReadinessLevel::Untagged)
         ->and($readiness->findings)->toBe($findings)
-        ->and($readiness->pledged)->toBeNull()
-        ->and($readiness->pledgeViolated)->toBeNull();
+        ->and($readiness->hasBlockers)->toBeFalse();
 });
 
 it('resolves legacy when analysis result has legacy-code tag', function () {
@@ -53,8 +50,7 @@ it('resolves legacy when analysis result has legacy-code tag', function () {
     $readiness = (new ReadinessResolver)->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::Legacy)
-        ->and($readiness->pledged)->toBeNull()
-        ->and($readiness->pledgeViolated)->toBeNull();
+        ->and($readiness->hasBlockers)->toBeFalse();
 });
 
 it('resolves multitag when analysis result has multiple tags', function () {
@@ -66,11 +62,10 @@ it('resolves multitag when analysis result has multiple tags', function () {
     $readiness = (new ReadinessResolver)->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::MultiTag)
-        ->and($readiness->pledged)->toBeNull()
-        ->and($readiness->pledgeViolated)->toBeNull();
+        ->and($readiness->hasBlockers)->toBeTrue();
 });
 
-it('violates pledge when laravel-ready tag is paired with legacy finding', function () {
+it('detects blockers when laravel-ready tag is paired with legacy finding', function () {
     $result = new AnalysisResult(collect([
         new FunctionCallFinding(BlockedFunction::Define, 4),
         new TagFinding(Tag::LaravelReady, 3),
@@ -79,11 +74,10 @@ it('violates pledge when laravel-ready tag is paired with legacy finding', funct
     $readiness = (new ReadinessResolver)->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::LaravelReady)
-        ->and($readiness->pledged)->toBe(ReadinessLevel::LaravelReady)
-        ->and($readiness->pledgeViolated)->toBeTrue();
+        ->and($readiness->hasBlockers)->toBeTrue();
 });
 
-it('does not violate pledge for legacy-code tag with legacy finding', function () {
+it('does not block legacy-code tag with legacy finding', function () {
     $result = new AnalysisResult(collect([
         new SuperglobalFinding(SuperglobalName::Get, 5),
         new TagFinding(Tag::Legacy, 4),
@@ -92,6 +86,5 @@ it('does not violate pledge for legacy-code tag with legacy finding', function (
     $readiness = (new ReadinessResolver)->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::Legacy)
-        ->and($readiness->pledged)->toBeNull()
-        ->and($readiness->pledgeViolated)->toBeNull();
+        ->and($readiness->hasBlockers)->toBeFalse();
 });

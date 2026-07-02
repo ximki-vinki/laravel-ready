@@ -11,12 +11,10 @@ final class ReadinessResolver
     public function resolve(AnalysisResult $result): ReadinessResult
     {
         $actual = $this->actual($result);
-        $pledged = $this->pledged($result);
 
         return new ReadinessResult(
             actual: $actual,
-            pledged: $pledged,
-            pledgeViolated: $this->pledgeViolated($result, $pledged),
+            hasBlockers: $this->hasBlockers($result, $actual),
             findings: $result->findings,
         );
     }
@@ -38,40 +36,21 @@ final class ReadinessResolver
 
     private function actual(AnalysisResult $result): ReadinessLevel
     {
-        return $this->actualFromTags($this->uniqueTags($result));
+        return $this->actualFromTags(TagFinding::uniqueTags($result->findings));
     }
 
-    private function pledgeViolated(AnalysisResult $result, ?ReadinessLevel $pledged): ?bool
+    private function hasBlockers(AnalysisResult $result, ReadinessLevel $actual): bool
     {
-        if ($pledged === null) {
-            return null;
+        if ($actual === ReadinessLevel::MultiTag) {
+            return true;
+        }
+
+        if ($actual !== ReadinessLevel::LaravelReady) {
+            return false;
         }
 
         return $result->findings->contains(
             fn (Finding $finding): bool => $finding instanceof LegacyFinding,
         );
-    }
-
-    private function pledged(AnalysisResult $result): ?ReadinessLevel
-    {
-        $tags = $this->uniqueTags($result);
-
-        if ($tags->count() !== 1 || $tags->first() !== Tag::LaravelReady) {
-            return null;
-        }
-
-        return ReadinessLevel::LaravelReady;
-    }
-
-    /**
-     * @return Collection<array-key, Tag>
-     */
-    private function uniqueTags(AnalysisResult $result): Collection
-    {
-        return $result->findings
-            ->filter(fn (Finding $finding): bool => $finding instanceof TagFinding)
-            ->map(fn (TagFinding $finding): Tag => $finding->tag)
-            ->unique()
-            ->values();
     }
 }

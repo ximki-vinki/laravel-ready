@@ -4,23 +4,18 @@ declare(strict_types=1);
 
 namespace LaravelReady\Console\Output;
 
-use Illuminate\Support\Collection;
 use LaravelReady\Analysis\Finding;
 use LaravelReady\Analysis\ReadinessLevel;
+use LaravelReady\Analysis\ReadinessResult;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class LegacyOutput
 {
-    /** @param  Collection<array-key, Finding>  $findings */
-    public function write(
-        OutputInterface $output,
-        Collection $findings,
-        string $relativePath,
-        ReadinessLevel $level,
-    ): void {
-        $output->writeln($this->header($relativePath, $level));
+    public function write(OutputInterface $output, ReadinessResult $readiness, string $relativePath): void
+    {
+        $output->writeln($this->header($relativePath, $readiness->actual));
 
-        foreach ((new FindingSectionBuilder)->build($findings) as $section) {
+        foreach ((new FindingSectionBuilder)->build($readiness->findings) as $section) {
             $output->writeln('  '.$this->format($section));
         }
     }
