@@ -61,7 +61,7 @@ final class AnalyseCommand extends Command
                 (new Detector)->analyse($file->absolutePath),
             );
 
-            if ($readiness->level === ReadinessLevel::Legacy) {
+            if ($readiness->actual === ReadinessLevel::Legacy) {
                 (new LegacyOutput)->write($output, $readiness->findings, $file->relativePath);
             } else {
                 (new LaravelReadyOutput)->write($output, $file->relativePath);

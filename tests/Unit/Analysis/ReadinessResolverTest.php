@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use LaravelReady\Analysis\AnalysisResult;
-use LaravelReady\Analysis\FunctionCallFinding;
 use LaravelReady\Analysis\BlockedFunction;
+use LaravelReady\Analysis\FunctionCallFinding;
 use LaravelReady\Analysis\ReadinessLevel;
 use LaravelReady\Analysis\ReadinessResolver;
 use LaravelReady\Analysis\SuperglobalFinding;
@@ -18,8 +18,18 @@ it('resolves laravel ready for clean analysis result', function () {
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
-    expect($readiness->level)->toBe(ReadinessLevel::LaravelReady)
+    expect($readiness->actual)->toBe(ReadinessLevel::LaravelReady)
         ->and($readiness->findings)->toBeEmpty();
+});
+
+it('has no pledged and no guard failed for clean analysis result without tag', function () {
+    $result = new AnalysisResult(collect());
+
+    $readiness = (new ReadinessResolver)->resolve($result);
+
+    expect($readiness->actual)->toBe(ReadinessLevel::LaravelReady)
+        ->and($readiness->pledged)->toBeNull()
+        ->and($readiness->guardFailed)->toBeFalse();
 });
 
 it('resolves legacy when analysis result has legacy finding', function () {
@@ -28,7 +38,7 @@ it('resolves legacy when analysis result has legacy finding', function () {
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
-    expect($readiness->level)->toBe(ReadinessLevel::Legacy)
+    expect($readiness->actual)->toBe(ReadinessLevel::Legacy)
         ->and($readiness->findings)->toBe($findings);
 });
 
@@ -37,7 +47,7 @@ it('resolves laravel ready when analysis result has laravel-ready tag without le
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
-    expect($readiness->level)->toBe(ReadinessLevel::LaravelReady);
+    expect($readiness->actual)->toBe(ReadinessLevel::LaravelReady);
 });
 
 it('resolves legacy when laravel-ready tag is paired with legacy finding', function () {
@@ -46,5 +56,5 @@ it('resolves legacy when laravel-ready tag is paired with legacy finding', funct
 
     $readiness = (new ReadinessResolver)->resolve($result);
 
-    expect($readiness->level)->toBe(ReadinessLevel::Legacy);
+    expect($readiness->actual)->toBe(ReadinessLevel::Legacy);
 });

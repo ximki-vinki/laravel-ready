@@ -12,7 +12,9 @@ final readonly class ReadinessResult
      * @param  Collection<array-key, Finding>  $findings
      */
     public function __construct(
-        public ReadinessLevel $level,
+        public ReadinessLevel $actual,
+        public ?ReadinessLevel $pledged,
+        public bool $guardFailed,
         public Collection $findings,
     ) {}
 }

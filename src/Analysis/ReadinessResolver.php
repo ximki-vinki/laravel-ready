@@ -9,12 +9,14 @@ final class ReadinessResolver
     public function resolve(AnalysisResult $result): ReadinessResult
     {
         return new ReadinessResult(
-            level: $this->level($result),
+            actual: $this->actual($result),
+            pledged: null,
+            guardFailed: false,
             findings: $result->findings,
         );
     }
 
-    private function level(AnalysisResult $result): ReadinessLevel
+    private function actual(AnalysisResult $result): ReadinessLevel
     {
         if ($result->findings->contains(
             fn (Finding $finding): bool => $finding instanceof LegacyFinding,
