@@ -8,6 +8,8 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use LaravelReady\Analysis\Detector;
+use LaravelReady\Analysis\ReadinessLevel;
+use LaravelReady\Analysis\ReadinessResolver;
 use LaravelReady\Console\AnalysableFile;
 use LaravelReady\Console\Output\LaravelReadyOutput;
 use LaravelReady\Console\Output\LegacyOutput;
@@ -55,10 +57,12 @@ final class AnalyseCommand extends Command
         }
 
         $files->each(function (AnalysableFile $file) use ($output): void {
-            $result = (new Detector)->analyse($file->absolutePath);
+            $readiness = (new ReadinessResolver)->resolve(
+                (new Detector)->analyse($file->absolutePath),
+            );
 
-            if ($result->findings->isNotEmpty()) {
-                (new LegacyOutput)->write($output, $result->findings, $file->relativePath);
+            if ($readiness->level === ReadinessLevel::Legacy) {
+                (new LegacyOutput)->write($output, $readiness->findings, $file->relativePath);
             } else {
                 (new LaravelReadyOutput)->write($output, $file->relativePath);
             }
