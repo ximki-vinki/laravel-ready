@@ -10,6 +10,7 @@ use LaravelReady\Analysis\SuperglobalFinding;
 use LaravelReady\Analysis\SuperglobalName;
 use LaravelReady\Analysis\Tag;
 use LaravelReady\Analysis\TagFinding;
+use LaravelReady\Analysis\UseImportFinding;
 
 covers(Detector::class);
 
@@ -294,4 +295,10 @@ it('detects tag alongside blockers in mixed fixture', function () {
 
     expect($result->findings)->toContainEqual(new TagFinding(Tag::Legacy, 4))
         ->and($result->findings)->toContainEqual(new SuperglobalFinding(SuperglobalName::Get, 8));
+});
+
+it('collects use imports from ast', function () {
+    $result = (new Detector)->analyse(fixture('Use/src/Domain/Invoice.php'));
+
+    expect($result->findings)->toContainEqual(new UseImportFinding('App\Legacy\OldRepo', 5));
 });

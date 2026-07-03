@@ -9,6 +9,7 @@ use LaravelReady\Analysis\Visitors\BlockedFunctionVisitor;
 use LaravelReady\Analysis\Visitors\GlobalVisitor;
 use LaravelReady\Analysis\Visitors\SuperglobalVisitor;
 use LaravelReady\Analysis\Visitors\TagVisitor;
+use LaravelReady\Analysis\Visitors\UseVisitor;
 use PhpParser\Node;
 use PhpParser\NodeTraverser;
 use PhpParser\ParserFactory;
@@ -64,6 +65,7 @@ final class Detector
             $traverser->addVisitor(new SuperglobalVisitor($findings));
             $traverser->addVisitor(new GlobalVisitor($findings));
             $traverser->addVisitor(new BlockedFunctionVisitor($findings));
+            $traverser->addVisitor(new UseVisitor($findings));
             $traverser->traverse($ast);
         }
 
