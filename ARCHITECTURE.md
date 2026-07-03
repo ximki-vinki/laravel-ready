@@ -78,7 +78,7 @@
 | `GlobalFinding` | 0 | `global $x` |
 | `FunctionCallFinding` | 0 | `define()`, `eval()`, … |
 | `TagFinding` | 1 | `@legacy-code` как причина `Legacy` |
-| `UseFinding` | 2 | недопустимый `use` |
+| `UseFinding` | 2 | недопустимый `use` → `LegacyFinding`; создаёт **UseDependencyChecker**, не Detector |
 
 ---
 
@@ -143,18 +143,40 @@ src/Domain/Invoice.php : Legacy
 
 ## Зависимости (`use`) — фаза 2
 
-**Вход:** guarded-файл, base path / composer autoload целевого проекта.
+Реальный легаси (KDL.Site: `Wf\`, `.class.php`, `vendor-dir: libs`) — `LEGACY_PROJECTS.md`.
 
-**Шаги:**
+### Разделение слоёв
 
-1. `UseVisitor` — список FQCN из `use`.
-2. Резолв FQCN → путь к `.php` (PSR-4).
-3. Для каждого проектного файла — тот же pipeline (tag + findings), без рекурсии по всему графу.
-4. Нарушение → `UseFinding` → resolver → `Legacy`.
+**Detector** — только факты из AST. Не решает, допустим ли `use`.
 
-**Игнор:** `vendor/`, встроенные и сторонние namespace без файла в проекте.
+| Компонент | Роль |
+|-----------|------|
+| `UseVisitor` (в Detector) | `use` → сырой finding: FQCN + строка (`UseImportFinding` или аналог) |
+| `UseDependencyChecker` | политика: `Wf\` → блок; `App\` → резолв + метка; vendor → пропуск → `UseFinding` |
+| `ReadinessResolver` | `hasBlockers` по `LegacyFinding` (включая `UseFinding`); политику `use` **не применяет** |
 
-Транзитивные deps (A → B → C) — предупреждение позже; MVP — **только прямые `use`**.
+```text
+Detector.analyse(path)
+    → AnalysisResult (теги, блокеры AST, сырые use-импорты)
+
+UseDependencyChecker.check(result, path, projectRoot)   // только если @laravel-ready
+    → дополняет findings UseFinding при нарушении
+
+ReadinessResolver.resolve(result)
+    → hasBlockers = есть LegacyFinding
+```
+
+Политику `use` можно вызывать из `AnalyseCommand` между detector и resolver или вынести в отдельный шаг pipeline — **не внутри Detector**.
+
+### Политика (принято для KDL и по умолчанию)
+
+1. `use Wf\...` в guarded-файле → `UseFinding` (без резолва пути).
+2. `use App\...` → резолв через `composer.json` целевого проекта (+ `.class.php` для KDL).
+3. Остальное → если файл не в проекте (vendor) → пропуск.
+
+**Вход checker'а:** guarded-файл, `projectRoot` / `composer.json` целевого проекта (не `tests/Fixtures/Use/composer.json` на проде).
+
+Транзитивные deps (A → B → C) — позже; MVP — **только прямые `use`**.
 
 ---
 

@@ -42,11 +42,14 @@
 | Интерфейс / класс | Фаза | Влияние |
 |-------------------|------|---------|
 | `TagFinding` | 1 | `@legacy-code` как причина `Legacy` (синтез в resolver) |
-| `UseFinding` | 2 | недопустимый `use` → `Legacy` |
+| `UseFinding` | 2 | недопустимый `use`; создаёт **UseDependencyChecker**, не Detector |
+| `UseImportFinding` (план) | 2 | сырой `use` из AST; **не** `LegacyFinding` |
 | `LegacyPerfectFinding` | позже | находки для контура `LegacyPerfect` |
 | `LaravelPerfectFinding` | позже | подсказки по идиомам Laravel; **не ломает guard** |
 
 Resolver смотрит на **тип finding** (`instanceof LegacyFinding` и т.д.), а не на `findings->isNotEmpty()`.
+
+Политика зависимостей (`use Wf\`, резолв `App\`) — **UseDependencyChecker** (между Detector и Resolver). Resolver только учитывает уже готовые `UseFinding`.
 
 ---
 
@@ -94,7 +97,8 @@ ReadinessResult
 
 - не печатает в консоль;
 - не знает про exit code;
-- не содержит флаги вроде `notLaravelReadyIsLegacy` — это сценарий презентации, не домен.
+- не содержит флаги вроде `notLaravelReadyIsLegacy` — это сценарий презентации, не домен;
+- **не применяет политику `use`** — только реагирует на `UseFinding` как на `LegacyFinding`.
 
 ---
 
@@ -162,6 +166,7 @@ Output **не решает**, печатать ли guard-сообщение —
 ```text
 для каждого файла:
   analysis  = Detector.analyse(path)
+  analysis  = UseDependencyChecker.check(analysis, path, projectRoot)   // фаза 2
   readiness = ReadinessResolver.resolve(analysis)
   report    = Presenter.present(readiness, relativePath)
   report.write(console)
@@ -182,7 +187,7 @@ Output **не решает**, печатать ли guard-сообщение —
 | 3 | `ReadinessPresenter` + `ReportMode` | план |
 | 4 | `GuardFailedOutput`, exit `1` в команде | план |
 | 5 | `TagFinding`, `@legacy-code` в resolver | план |
-| 6 | `UseFinding`, зависимости | фаза 2 |
+| 6 | `UseImportFinding` в Detector, `UseDependencyChecker`, `UseFinding` | фаза 2 |
 | 7 | `LegacyPerfectFinding`, `LaravelPerfectFinding` | позже |
 
 ---
@@ -196,6 +201,8 @@ Output **не решает**, печатать ли guard-сообщение —
 | `kind` enum в каждом finding | дублирует смысл класса; лучше `LegacyFinding extends Finding` |
 | Логика выбора вывода в `AnalyseCommand` | разрастётся при `@legacy-perfect`, `@laravel-perfect` |
 | Логика guard в `LegacyOutput` | output должен оставаться тупым форматтером |
+| Политика `use` в `Detector` | Detector — факты AST; вердикт — UseDependencyChecker |
+| Политика `use` в `ReadinessResolver` | resolver только `hasBlockers` по готовым `LegacyFinding` |
 
 ---
 

@@ -70,6 +70,7 @@ Legacy ──┤
 | Блокеры в AST | да |
 | `@legacy-code` | да |
 | `use` на класс без `@laravel-ready` / `@adapter` | да |
+| `use Wf\...` в `@laravel-ready` | да (denylist по префиксу) |
 | `use` на `@for-legacy` / явный легаси | да |
 
 `vendor/`, стандартная библиотека PHP, фреймворк — **вне** проверки зависимостей.
@@ -82,13 +83,42 @@ Legacy ──┤
 
 Минимальный контракт (фаза 2):
 
-- Собрать все `use` в guarded-файле.
-- Сопоставить FQCN с файлом проекта (через autoload / base path).
-- Прочитать метку и уровень зависимого файла.
-- **Допустимо:** `@laravel-ready`, `@adapter`.
-- **Недопустимо:** без метки (пока не в периметре), `@legacy-code`, `@for-legacy`, `Legacy`.
+- Собрать все `use` в файле (факт в AST — **Detector**).
+- Применить **политику** допустимости (отдельный слой, **не Detector**).
+- Для guarded-файла (`@laravel-ready`) нарушение → `UseFinding` → `ReadinessResolver` → guard.
+
+### Политика (принято)
+
+| `use` | Правило |
+|-------|---------|
+| `Wf\...` | **сразу недопустимо** в `@laravel-ready` (denylist по префиксу; резолв `wfAutoLoad` не нужен) |
+| `App\...` | резолв в файл проекта → метка `@laravel-ready` или `@adapter` |
+| без метки, `@legacy-code`, `@for-legacy` | недопустимо |
+| `Illuminate\...`, `Psr\...`, прочий vendor | пропуск (вне периметра) |
+
+Легаси из `Wf\` — только в файлах с `@adapter`; guarded-файл зависит от адаптера через `App\`, не через `use Wf\`.
+
+### Как писать код
+
+```php
+/** @adapter */
+class WfOfficeTableGateway
+{
+    use Wf\Db\Table;  // ok здесь
+}
+
+/** @laravel-ready */
+class OfficeRepository
+{
+    public function __construct(
+        private WfOfficeTableGateway $gateway,  // use App\... — ok
+    ) {}
+}
+```
 
 Позже: `extends`, `new`, `require` — не в первой итерации.
+
+Подробнее про KDL.Site — `LEGACY_PROJECTS.md`.
 
 ---
 

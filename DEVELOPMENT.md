@@ -82,7 +82,10 @@ composer test
 **Фаза 2 (use):**
 
 1. Тест: guarded-файл + `use` на легаси → exit `1`
-2. `UseVisitor`, резолв FQCN, `UseFinding`
-3. Прогон на реальном файле в легаси-проекте
+2. `UseVisitor` (факты) → `UseDependencyChecker` (политика) → `UseFinding`
+3. `ReadinessResolver` — только `hasBlockers` по `LegacyFinding`
+4. Прогон на реальном файле в легаси-проекте
+
+Ограничения целевого проекта (KDL.Site), denylist `Wf\`, слои — `LEGACY_PROJECTS.md`, `ARCHITECTURE.md`.
 
 **Параллельно с легаси:** один файл → CLI → метка → хук. Пакет дописываем только под реальную боль.
