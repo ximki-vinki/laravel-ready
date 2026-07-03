@@ -10,6 +10,6 @@ final class ReadinessFooterOutput
 {
     public function write(OutputInterface $output, ReadinessFooter $footer): void
     {
-        $output->writeln($footer->value);
+        $output->writeln('<fg=red>'.$footer->value.'</>');
     }
 }
