@@ -45,6 +45,7 @@ final class ReadinessResolver
             return true;
         }
 
+        // TODO пока работаем только с LaravelReady, что бы можно уже было пользоваться
         if ($actual !== ReadinessLevel::LaravelReady) {
             return false;
         }

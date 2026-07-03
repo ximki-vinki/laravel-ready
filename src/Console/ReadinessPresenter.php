@@ -6,6 +6,7 @@ namespace LaravelReady\Console;
 
 use LaravelReady\Analysis\ReadinessLevel;
 use LaravelReady\Analysis\ReadinessResult;
+use LaravelReady\Console\Output\GuardFailedOutput;
 use LaravelReady\Console\Output\LaravelReadyOutput;
 use LaravelReady\Console\Output\LegacyOutput;
 use Symfony\Component\Console\Command\Command;
@@ -19,6 +20,11 @@ final class ReadinessPresenter
             (new LaravelReadyOutput)->write($output, $readiness, $relativePath);
         } else {
             (new LegacyOutput)->write($output, $readiness, $relativePath);
+
+            if ($readiness->actual === ReadinessLevel::LaravelReady && $readiness->hasBlockers) {
+                //TODO пока только для LaravelReady
+                (new GuardFailedOutput)->write($output);
+            }
         }
 
         return $readiness->hasBlockers

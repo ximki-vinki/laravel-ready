@@ -51,7 +51,8 @@ it('returns failure when laravel-ready fixture has legacy blocker', function () 
     expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('with-blocker.php')
         ->and($tester->getDisplay())->toContain('LaravelReady')
-        ->and($tester->getDisplay())->toContain('$_GET');
+        ->and($tester->getDisplay())->toContain('$_GET')
+        ->and($tester->getDisplay())->toContain('Guard failed: @laravel-ready file must stay LaravelReady.');
 });
 
 it('returns failure for file with multiple tags', function () {
