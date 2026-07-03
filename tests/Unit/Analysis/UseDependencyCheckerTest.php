@@ -79,3 +79,11 @@ it('detects wf import from detector output on guarded fixture', function () {
 
     expect($checked->findings)->toContainEqual(new UseFinding('Wf\Legacy\OldRepo', 5));
 });
+
+it('adds use finding when guarded file imports untagged app class', function () {
+    $result = (new Detector)->analyse(fixture('Use/src/Consumer/UsesUntagged.php'));
+
+    $checked = (new UseDependencyChecker(fixture('Use')))->check($result);
+
+    expect($checked->findings)->toContainEqual(new UseFinding('App\Domain\UntaggedService', 5));
+});

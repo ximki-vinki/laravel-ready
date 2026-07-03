@@ -10,6 +10,12 @@ final class UseDependencyChecker
 {
     private const string DENIED_NAMESPACE_PREFIX = 'Wf\\';
 
+    private const string PROJECT_NAMESPACE_PREFIX = 'App\\';
+
+    public function __construct(
+        private readonly ?string $projectRoot = null,
+    ) {}
+
     public function check(AnalysisResult $result): AnalysisResult
     {
         if (! $this->isGuarded($result)) {
@@ -37,16 +43,51 @@ final class UseDependencyChecker
      */
     private function violations(AnalysisResult $result): Collection
     {
-        /** @var Collection<array-key, UseImportFinding> $imports */
-        $imports = $result->findings->filter(
-            fn (Finding $finding): bool => $finding instanceof UseImportFinding
-                && str_starts_with($finding->fqcn, self::DENIED_NAMESPACE_PREFIX),
-        );
+        $violations = collect();
 
-        return $imports
-            ->map(fn (UseImportFinding $import): UseFinding => new UseFinding(
-                $import->fqcn,
-                $import->line,
-            ));
+        foreach ($result->findings as $finding) {
+            if (! $finding instanceof UseImportFinding) {
+                continue;
+            }
+
+            if ($this->isDeniedWfImport($finding)) {
+                $violations->push(new UseFinding($finding->fqcn, $finding->line));
+
+                continue;
+            }
+
+            if ($this->isDeniedAppImport($finding)) {
+                $violations->push(new UseFinding($finding->fqcn, $finding->line));
+            }
+        }
+
+        return $violations;
+    }
+
+    private function isDeniedWfImport(UseImportFinding $import): bool
+    {
+        return str_starts_with($import->fqcn, self::DENIED_NAMESPACE_PREFIX);
+    }
+
+    private function isDeniedAppImport(UseImportFinding $import): bool
+    {
+        if ($this->projectRoot === null) {
+            return false;
+        }
+
+        // TODO временная проверка что мы работаем только с папкой app
+        if (! str_starts_with($import->fqcn, self::PROJECT_NAMESPACE_PREFIX)) {
+            return false;
+        }
+
+        $path = new Psr4ClassResolver($this->projectRoot)->resolve($import->fqcn);
+
+        if ($path === null) {
+            return true;
+        }
+
+        $tags = TagFinding::uniqueTags((new Detector)->analyse($path)->findings);
+
+        return ! $tags->contains(Tag::LaravelReady);
     }
 }
