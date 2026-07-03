@@ -9,6 +9,7 @@ use LaravelReady\Analysis\SuperglobalFinding;
 use LaravelReady\Analysis\SuperglobalName;
 use LaravelReady\Analysis\Tag;
 use LaravelReady\Analysis\TagFinding;
+use LaravelReady\Analysis\UseFinding;
 use LaravelReady\Console\Output\FindingSectionBuilder;
 use LaravelReady\Console\Output\FindingSectionLabel;
 
@@ -40,8 +41,9 @@ it('groups globals and functions into separate sections', function () {
         ->and($sections->get(1)->label)->toBe(FindingSectionLabel::Func);
 });
 
-it('orders sections as var global func', function () {
+it('orders sections as var global func use', function () {
     $sections = (new FindingSectionBuilder)->build(collect([
+        new UseFinding('Wf\Legacy\OldRepo', 11),
         new FunctionCallFinding(BlockedFunction::Define, 9),
         new GlobalFinding('foo', 6),
         new SuperglobalFinding(SuperglobalName::Get, 3),
@@ -51,7 +53,18 @@ it('orders sections as var global func', function () {
         FindingSectionLabel::Var,
         FindingSectionLabel::Global,
         FindingSectionLabel::Func,
+        FindingSectionLabel::Use,
     ]);
+});
+
+it('groups use findings under use section', function () {
+    $sections = (new FindingSectionBuilder)->build(collect([
+        new UseFinding('Wf\Legacy\OldRepo', 5),
+    ]));
+
+    expect($sections)->toHaveCount(1)
+        ->and($sections->first()->label)->toBe(FindingSectionLabel::Use)
+        ->and($sections->first()->findings)->toHaveCount(1);
 });
 
 it('excludes tag findings from sections', function () {

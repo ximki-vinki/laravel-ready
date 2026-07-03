@@ -55,6 +55,18 @@ it('returns failure when laravel-ready fixture has legacy blocker', function () 
         ->and($tester->getDisplay())->toContain('Guard failed: @laravel-ready file must stay LaravelReady.');
 });
 
+it('prints denied use import for guarded file', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute(['path' => [fixture('Use/src/Domain/Invoice.php')]]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('Invoice.php')
+        ->and($tester->getDisplay())->toContain('LaravelReady')
+        ->and($tester->getDisplay())->toContain('use: Wf\Legacy\OldRepo (line 5)')
+        ->and($tester->getDisplay())->toContain('Guard failed: @laravel-ready file must stay LaravelReady.');
+});
+
 it('returns failure for file with multiple tags', function () {
     $tester = new CommandTester(new AnalyseCommand);
 

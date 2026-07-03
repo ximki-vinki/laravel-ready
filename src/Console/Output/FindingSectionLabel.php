@@ -8,12 +8,14 @@ use LaravelReady\Analysis\Finding;
 use LaravelReady\Analysis\FunctionCallFinding;
 use LaravelReady\Analysis\GlobalFinding;
 use LaravelReady\Analysis\SuperglobalFinding;
+use LaravelReady\Analysis\UseFinding;
 
 enum FindingSectionLabel: string
 {
     case Var = 'var';
     case Global = 'global';
     case Func = 'func';
+    case Use = 'use';
 
     /**
      * @return class-string<Finding>
@@ -24,6 +26,7 @@ enum FindingSectionLabel: string
             self::Var => SuperglobalFinding::class,
             self::Global => GlobalFinding::class,
             self::Func => FunctionCallFinding::class,
+            self::Use => UseFinding::class,
         };
     }
 
@@ -36,6 +39,7 @@ enum FindingSectionLabel: string
             self::Var,
             self::Global,
             self::Func,
+            self::Use,
         ];
     }
 }

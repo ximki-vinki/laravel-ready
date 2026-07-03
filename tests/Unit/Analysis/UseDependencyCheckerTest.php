@@ -30,9 +30,10 @@ it('does not add use finding for wf import in unguarded file', function () {
 
     $checked = (new UseDependencyChecker)->check($result);
 
-    expect($checked->findings->filter(
-        fn ($finding): bool => $finding instanceof UseFinding,
-    ))->toBeEmpty();
+    expect($checked)->toBe($result)
+        ->and($checked->findings->filter(
+            fn ($finding): bool => $finding instanceof UseFinding,
+        ))->toBeEmpty();
 });
 
 it('does not add use finding for non wf import in guarded file', function () {
@@ -43,9 +44,20 @@ it('does not add use finding for non wf import in guarded file', function () {
 
     $checked = (new UseDependencyChecker)->check($result);
 
-    expect($checked->findings->filter(
-        fn ($finding): bool => $finding instanceof UseFinding,
-    ))->toBeEmpty();
+    expect($checked)->toBe($result)
+        ->and($checked->findings->filter(
+            fn ($finding): bool => $finding instanceof UseFinding,
+        ))->toBeEmpty();
+});
+
+it('returns same result for guarded file without imports', function () {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LaravelReady, 3),
+    ]));
+
+    $checked = (new UseDependencyChecker)->check($result);
+
+    expect($checked)->toBe($result);
 });
 
 it('preserves original findings when adding use finding', function () {

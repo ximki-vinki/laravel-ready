@@ -13,6 +13,6 @@ final readonly class UseFinding implements LegacyFinding
 
     public function display(): string
     {
-        return 'use '.$this->fqcn.' (line '.$this->line.')';
+        return $this->fqcn.' (line '.$this->line.')';
     }
 }
