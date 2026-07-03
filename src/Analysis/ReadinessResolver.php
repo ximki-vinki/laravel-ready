@@ -10,6 +10,7 @@ final class ReadinessResolver
 {
     public function resolve(AnalysisResult $result): ReadinessResult
     {
+        $result = (new UseDependencyChecker)->check($result);
         $actual = $this->actual($result);
 
         return new ReadinessResult(
@@ -49,20 +50,9 @@ final class ReadinessResolver
         if ($actual !== ReadinessLevel::LaravelReady) {
             return false;
         }
-        if ($this->hasDeniedWfImport($result)) {
-            return true;
-        }
 
         return $result->findings->contains(
             fn (Finding $finding): bool => $finding instanceof LegacyFinding,
-        );
-    }
-
-    private function hasDeniedWfImport(AnalysisResult $result): bool
-    {
-        return $result->findings->contains(
-            fn (Finding $finding): bool => $finding instanceof UseImportFinding
-                && str_starts_with($finding->fqcn, 'Wf\\'),
         );
     }
 }

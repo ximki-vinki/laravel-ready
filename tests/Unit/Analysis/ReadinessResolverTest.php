@@ -12,6 +12,7 @@ use LaravelReady\Analysis\SuperglobalFinding;
 use LaravelReady\Analysis\SuperglobalName;
 use LaravelReady\Analysis\Tag;
 use LaravelReady\Analysis\TagFinding;
+use LaravelReady\Analysis\UseFinding;
 
 covers(ReadinessResolver::class);
 
@@ -96,5 +97,6 @@ it('detects blockers when guarded file imports wf namespace', function () {
     $result = (new Detector)->analyse($path);
     $readiness = (new ReadinessResolver)->resolve($result);
 
-    expect($readiness->hasBlockers)->toBeTrue();
+    expect($readiness->hasBlockers)->toBeTrue()
+        ->and($readiness->findings)->toContainEqual(new UseFinding('Wf\Legacy\OldRepo', 5));
 });
