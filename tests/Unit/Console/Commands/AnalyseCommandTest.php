@@ -67,12 +67,12 @@ it('returns failure for file with multiple tags', function () {
         ->and($tester->getDisplay())->not->toContain('Guard failed:');
 });
 
-it('returns success for legacy fixture without tag', function () {
+it('returns failure for legacy fixture without tag', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute(['path' => [fixture('Legacy/Superglobals/bare.php')]]);
 
-    expect($code)->toBe(Command::SUCCESS)
+    expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('bare.php')
         ->and($tester->getDisplay())->toContain('Untagged')
         ->and($tester->getDisplay())->toContain('Not guarded: file has no tag.');
@@ -83,7 +83,7 @@ it('analyses php files in subdirectories', function () {
 
     $code = $tester->execute(['path' => [fixture('Legacy')]]);
 
-    expect($code)->toBe(Command::SUCCESS)
+    expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('Superglobals/bare.php')
         ->and($tester->getDisplay())->toContain('Clean/empty.php');
 });
@@ -93,7 +93,7 @@ it('analyses directory path', function () {
 
     $code = $tester->execute(['path' => [fixture('Legacy/Mixed')]]);
 
-    expect($code)->toBe(Command::SUCCESS)
+    expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('rules.php')
         ->and($tester->getDisplay())->toContain('Untagged')
         ->and($tester->getDisplay())->toContain('$_GET (line 3)')
@@ -105,7 +105,7 @@ it('prints legacy level and findings for mixed fixture', function () {
 
     $code = $tester->execute(['path' => [fixture('Legacy/Mixed/rules.php')]]);
 
-    expect($code)->toBe(Command::SUCCESS)
+    expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('rules.php')
         ->and($tester->getDisplay())->toContain('Untagged')
         ->and($tester->getDisplay())->toContain('$_GET (line 3)')
@@ -132,7 +132,7 @@ it('analyses multiple file paths passed as separate arguments', function () {
         ],
     ]);
 
-    expect($code)->toBe(Command::SUCCESS)
+    expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('bare.php')
         ->and($tester->getDisplay())->toContain('empty.php')
         ->and($tester->getDisplay())->toContain('Untagged')
@@ -149,7 +149,7 @@ it('analyses multiple directory paths', function () {
         ],
     ]);
 
-    expect($code)->toBe(Command::SUCCESS)
+    expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('bare.php')
         ->and($tester->getDisplay())->toContain('empty.php')
         ->and($tester->getDisplay())->toContain('Untagged');
@@ -165,7 +165,7 @@ it('analyses directory and file path together', function () {
         ],
     ]);
 
-    expect($code)->toBe(Command::SUCCESS)
+    expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('bare.php')
         ->and($tester->getDisplay())->toContain('empty.php')
         ->and($tester->getDisplay())->toContain('Untagged');

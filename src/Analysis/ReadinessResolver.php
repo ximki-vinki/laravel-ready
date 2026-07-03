@@ -41,7 +41,7 @@ final class ReadinessResolver
 
     private function hasBlockers(AnalysisResult $result, ReadinessLevel $actual): bool
     {
-        if (in_array($actual, [ReadinessLevel::MultiTag, ReadinessLevel::Untagged], true)) {
+        if (in_array($actual, [ReadinessLevel::MultiTag, ReadinessLevel::Untagged])) {
             return true;
         }
 

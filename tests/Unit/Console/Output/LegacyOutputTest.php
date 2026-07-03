@@ -11,7 +11,7 @@ it('prints superglobals in var group', function () {
 
     $code = $tester->execute(['path' => [fixture('Legacy/Superglobals/bare.php')]]);
 
-    expect($code)->toBe(Command::SUCCESS)
+    expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('bare.php')
         ->and($tester->getDisplay())->toContain('Untagged')
         ->and($tester->getDisplay())->toContain('var: $GLOBALS (line 3), $_COOKIE (line 4)')
@@ -23,7 +23,7 @@ it('prints global variables in global group', function () {
 
     $code = $tester->execute(['path' => [fixture('Legacy/Global/bare.php')]]);
 
-    expect($code)->toBe(Command::SUCCESS)
+    expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('bare.php')
         ->and($tester->getDisplay())->toContain('Untagged')
         ->and($tester->getDisplay())->toContain('global: $foo (line 3)')
@@ -36,7 +36,7 @@ it('prints blocked functions in func group', function () {
 
     $code = $tester->execute(['path' => [fixture('Legacy/Functions/bare.php')]]);
 
-    expect($code)->toBe(Command::SUCCESS)
+    expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('bare.php')
         ->and($tester->getDisplay())->toContain('Untagged')
         ->and($tester->getDisplay())->toContain('func: define() (line 3)')
@@ -48,7 +48,7 @@ it('prints grouped legacy findings for mixed fixture', function () {
 
     $code = $tester->execute(['path' => [fixture('Legacy/Mixed/rules.php')]]);
 
-    expect($code)->toBe(Command::SUCCESS)
+    expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('rules.php')
         ->and($tester->getDisplay())->toContain('Untagged')
         ->and($tester->getDisplay())->toContain('var: $_GET (line 3)')

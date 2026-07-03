@@ -32,8 +32,8 @@ it('returns invalid when path is not a php file', function () {
     expect(runLaravelReadyBin($file))->toBe(Command::INVALID);
 });
 
-it('exits success when run with arguments', function () {
+it('exits failure when run with untagged file', function () {
     $file = fixture('Legacy/Superglobals/bare.php');
 
-    expect(runLaravelReadyBin($file))->toBe(Command::SUCCESS);
+    expect(runLaravelReadyBin($file))->toBe(Command::FAILURE);
 });

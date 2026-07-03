@@ -22,7 +22,7 @@ it('resolves untagged for clean analysis result without tag', function () {
 
     expect($readiness->actual)->toBe(ReadinessLevel::Untagged)
         ->and($readiness->findings)->toBeEmpty()
-        ->and($readiness->hasBlockers)->toBeFalse();
+        ->and($readiness->hasBlockers)->toBeTrue();
 });
 
 it('resolves laravel ready for laravel-ready tag without blockers', function () {
@@ -42,7 +42,7 @@ it('resolves untagged when analysis result has only legacy finding', function ()
 
     expect($readiness->actual)->toBe(ReadinessLevel::Untagged)
         ->and($readiness->findings)->toBe($findings)
-        ->and($readiness->hasBlockers)->toBeFalse();
+        ->and($readiness->hasBlockers)->toBeTrue();
 });
 
 it('resolves legacy when analysis result has legacy-code tag', function () {
