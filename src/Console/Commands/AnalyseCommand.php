@@ -56,7 +56,9 @@ final class AnalyseCommand extends Command
 
         $exitCode = Command::SUCCESS;
 
-        $files->each(function (AnalysableFile $file) use ($output, &$exitCode): void {
+        $files->values()->each(function (AnalysableFile $file) use ($output, &$exitCode): void {
+            $output->writeln('');
+
             $result = (new Detector)->analyse($file->absolutePath);
 
             $readiness = (new ReadinessResolver)->resolve($result);

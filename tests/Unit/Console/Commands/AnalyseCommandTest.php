@@ -51,7 +51,7 @@ it('returns failure when laravel-ready fixture has legacy blocker', function () 
     expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('with-blocker.php')
         ->and($tester->getDisplay())->toContain('LaravelReady')
-        ->and($tester->getDisplay())->toContain('$_GET')
+        ->and($tester->getDisplay())->toContain("LaravelReady\n  var: \$_GET")
         ->and($tester->getDisplay())->toContain('Guard failed: @laravel-ready file must stay LaravelReady.');
 });
 
@@ -62,7 +62,9 @@ it('returns failure for file with multiple tags', function () {
 
     expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('multi-tag.php')
-        ->and($tester->getDisplay())->toContain('MultiTag');
+        ->and($tester->getDisplay())->toContain('MultiTag')
+        ->and($tester->getDisplay())->toContain('MultiTag failed: file must have only one tag.')
+        ->and($tester->getDisplay())->not->toContain('Guard failed:');
 });
 
 it('returns success for legacy fixture without tag', function () {
@@ -72,7 +74,8 @@ it('returns success for legacy fixture without tag', function () {
 
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('bare.php')
-        ->and($tester->getDisplay())->toContain('Untagged');
+        ->and($tester->getDisplay())->toContain('Untagged')
+        ->and($tester->getDisplay())->toContain('Not guarded: file has no tag.');
 });
 
 it('analyses php files in subdirectories', function () {
@@ -132,7 +135,8 @@ it('analyses multiple file paths passed as separate arguments', function () {
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('bare.php')
         ->and($tester->getDisplay())->toContain('empty.php')
-        ->and($tester->getDisplay())->toContain('Untagged');
+        ->and($tester->getDisplay())->toContain('Untagged')
+        ->and($tester->getDisplay())->toContain("Not guarded: file has no tag.\n\nempty.php");
 });
 
 it('analyses multiple directory paths', function () {
