@@ -2,7 +2,7 @@
 
 namespace App\Domain;
 
-use App\Legacy\OldRepo;
+use Wf\Legacy\OldRepo;
 
 /** @laravel-ready */
 class Invoice

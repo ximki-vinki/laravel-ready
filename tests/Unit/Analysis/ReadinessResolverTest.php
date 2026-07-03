@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use LaravelReady\Analysis\AnalysisResult;
 use LaravelReady\Analysis\BlockedFunction;
+use LaravelReady\Analysis\Detector;
 use LaravelReady\Analysis\FunctionCallFinding;
 use LaravelReady\Analysis\ReadinessLevel;
 use LaravelReady\Analysis\ReadinessResolver;
@@ -87,4 +88,13 @@ it('does not block legacy-code tag with legacy finding', function () {
 
     expect($readiness->actual)->toBe(ReadinessLevel::Legacy)
         ->and($readiness->hasBlockers)->toBeFalse();
+});
+
+it('detects blockers when guarded file imports wf namespace', function () {
+    $path = fixture('Use/src/Domain/Invoice.php');
+
+    $result = (new Detector)->analyse($path);
+    $readiness = (new ReadinessResolver)->resolve($result);
+
+    expect($readiness->hasBlockers)->toBeTrue();
 });

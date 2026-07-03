@@ -41,7 +41,7 @@ final class ReadinessResolver
 
     private function hasBlockers(AnalysisResult $result, ReadinessLevel $actual): bool
     {
-        if ($actual === ReadinessLevel::MultiTag) {
+        if (in_array($actual, [ReadinessLevel::MultiTag, ReadinessLevel::Untagged], true)) {
             return true;
         }
 
@@ -49,9 +49,20 @@ final class ReadinessResolver
         if ($actual !== ReadinessLevel::LaravelReady) {
             return false;
         }
+        if ($this->hasDeniedWfImport($result)) {
+            return true;
+        }
 
         return $result->findings->contains(
             fn (Finding $finding): bool => $finding instanceof LegacyFinding,
+        );
+    }
+
+    private function hasDeniedWfImport(AnalysisResult $result): bool
+    {
+        return $result->findings->contains(
+            fn (Finding $finding): bool => $finding instanceof UseImportFinding
+                && str_starts_with($finding->fqcn, 'Wf\\'),
         );
     }
 }

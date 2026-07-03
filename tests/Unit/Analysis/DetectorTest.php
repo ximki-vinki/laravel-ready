@@ -300,5 +300,5 @@ it('detects tag alongside blockers in mixed fixture', function () {
 it('collects use imports from ast', function () {
     $result = (new Detector)->analyse(fixture('Use/src/Domain/Invoice.php'));
 
-    expect($result->findings)->toContainEqual(new UseImportFinding('App\Legacy\OldRepo', 5));
+    expect($result->findings)->toContainEqual(new UseImportFinding('Wf\Legacy\OldRepo', 5));
 });
