@@ -26,7 +26,7 @@ Legacy ──┤
 ```
 
 - **`LaravelReady`** — без блокеров, без `@legacy-code`, deps ок
-- **`LegacyPerfect`** — без блокеров, но осознанно остаётся мостом к легаси (`@adapter`, `@for-legacy`, …)
+- **`LegacyPerfect`** — без блокеров, но осознанно остаётся мостом к легаси (`@laravel-adapter`, `@legacy-adapter`, …)
 - **`LaravelPerfect`** — `LaravelReady` + идиомы Laravel (не для MVP охраны)
 
 `LegacyPerfect` и `LaravelReady` — **равные выходы из `Legacy`**, не ступени друг друга.
@@ -39,11 +39,11 @@ Legacy ──┤
 
 1. Метка **`@legacy-code`** или **блокер** → `Legacy`
 2. У guarded-файла (**`@laravel-ready`**): недопустимый **`use`** → `Legacy`
-3. Блокеров нет + **`@legacy-perfect`** / **`@adapter`** / **`@for-legacy`** → `LegacyPerfect`
+3. Блокеров нет + **`@legacy-perfect`** / **`@laravel-adapter`** / **`@legacy-adapter`** → `LegacyPerfect`
 4. Иначе → `LaravelReady`
 5. На шаге 4 + идиомы Laravel → `LaravelPerfect` (позже)
 
-**Серая зона** — файл без `@laravel-ready`: уровень можно показать, но **коммит не блокируется**.
+Без `@laravel-ready` guard **выключен** — коммит не блокируется (exit `0`).
 
 ---
 
@@ -54,10 +54,11 @@ Legacy ──┤
 | **`laravel-ready`** | Файл под охраной; при правке не должен стать `Legacy` |
 | **`legacy-code`** | Явно легаси → всегда `Legacy` |
 | **`legacy-perfect`** | Почищен, но остаётся в легаси-контуре → `LegacyPerfect` |
-| **`adapter`** | Мост к легаси; для guarded-файла **допустимая** зависимость |
-| **`for-legacy`** | Код только для легаси; **недопустимая** зависимость для `@laravel-ready` |
+| **`laravel-adapter`** | Мост к легаси; для guarded-файла **допустимая** зависимость |
+| **`legacy-adapter`** | Код только для легаси-контура; **недопустимая** зависимость для `@laravel-ready` |
 
-Метки в PHPDoc: `@laravel-ready`, `@legacy-code`, и т.д.
+Метки в PHPDoc: `@laravel-ready`, `@legacy-code`, и т.д.  
+Цвета в CLI — `RESOLUTION_AND_OUTPUT.md` (раздел «Цветовая палитра меток»).
 
 ---
 
@@ -69,9 +70,9 @@ Legacy ──┤
 |----------|-------------------|
 | Блокеры в AST | да |
 | `@legacy-code` | да |
-| `use` на класс без `@laravel-ready` / `@adapter` | да |
+| `use` на класс без `@laravel-ready` / `@laravel-adapter` | да |
 | `use Wf\...` в `@laravel-ready` | да (denylist по префиксу) |
-| `use` на `@for-legacy` / явный легаси | да |
+| `use` на `@legacy-adapter` / явный легаси | да |
 
 `vendor/`, стандартная библиотека PHP, фреймворк — **вне** проверки зависимостей.
 
@@ -92,16 +93,16 @@ Legacy ──┤
 | `use` | Правило |
 |-------|---------|
 | `Wf\...` | **сразу недопустимо** в `@laravel-ready` (denylist по префиксу; резолв `wfAutoLoad` не нужен) |
-| `App\...` | резолв в файл проекта → метка `@laravel-ready` или `@adapter` |
-| без метки, `@legacy-code`, `@for-legacy` | недопустимо |
+| `App\...` | резолв в файл проекта → метка `@laravel-ready` или `@laravel-adapter` |
+| без метки, `@legacy-code`, `@legacy-adapter` | недопустимо |
 | `Illuminate\...`, `Psr\...`, прочий vendor | пропуск (вне периметра) |
 
-Легаси из `Wf\` — только в файлах с `@adapter`; guarded-файл зависит от адаптера через `App\`, не через `use Wf\`.
+Легаси из `Wf\` — только в файлах с `@laravel-adapter`; guarded-файл зависит от адаптера через `App\`, не через `use Wf\`.
 
 ### Как писать код
 
 ```php
-/** @adapter */
+/** @laravel-adapter */
 class WfOfficeTableGateway
 {
     use Wf\Db\Table;  // ok здесь
@@ -147,7 +148,7 @@ class OfficeRepository
 
 ## LegacyPerfect
 
-Без блокеров + метка **`@adapter`** / **`@for-legacy`** / **`@legacy-perfect`**. Код ок, с легаси остаётся намеренно.
+Без блокеров + метка **`@laravel-adapter`** / **`@legacy-adapter`** / **`@legacy-perfect`**. Код ок, с легаси остаётся намеренно.
 
 ---
 
@@ -155,7 +156,7 @@ class OfficeRepository
 
 Без блокеров, без `@legacy-code`, deps ок. Для переноса в Laravel.
 
-Зависимость от **`@adapter`** — ок. От `Legacy` / **`@for-legacy`** / неразмеченного проектного класса — нет (для guarded-файла).
+Зависимость от **`@laravel-adapter`** — ок. От `Legacy` / **`@legacy-adapter`** / неразмеченного проектного класса — нет (для guarded-файла).
 
 ---
 

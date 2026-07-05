@@ -35,6 +35,15 @@ it('resolves laravel ready for laravel-ready tag without blockers', function () 
         ->and($readiness->hasBlockers)->toBeFalse();
 });
 
+it('resolves laravel adapter for laravel-adapter tag without blockers', function () {
+    $result = new AnalysisResult(collect([new TagFinding(Tag::LaravelAdapter, 3)]));
+
+    $readiness = (new ReadinessResolver)->resolve($result);
+
+    expect($readiness->actual)->toBe(ReadinessLevel::LaravelAdapter)
+        ->and($readiness->hasBlockers)->toBeFalse();
+});
+
 it('resolves untagged when analysis result has only legacy finding', function () {
     $findings = collect([new SuperglobalFinding(SuperglobalName::Get, 3)]);
     $result = new AnalysisResult($findings);
@@ -89,6 +98,18 @@ it('does not block legacy-code tag with legacy finding', function () {
 
     expect($readiness->actual)->toBe(ReadinessLevel::Legacy)
         ->and($readiness->hasBlockers)->toBeFalse();
+});
+
+it('detects blockers when laravel-adapter tag is paired with legacy finding', function () {
+    $result = new AnalysisResult(collect([
+        new SuperglobalFinding(SuperglobalName::Get, 5),
+        new TagFinding(Tag::LaravelAdapter, 3),
+    ]));
+
+    $readiness = (new ReadinessResolver)->resolve($result);
+
+    expect($readiness->actual)->toBe(ReadinessLevel::LaravelAdapter)
+        ->and($readiness->hasBlockers)->toBeTrue();
 });
 
 it('detects blockers when guarded file imports wf namespace', function () {

@@ -18,8 +18,11 @@ final class ReadinessHeader
         }
 
         return match ($readiness->actual) {
-            ReadinessLevel::LaravelReady => '<fg=green>'.$line.'</>',
             ReadinessLevel::Legacy => '<fg=yellow>'.$line.'</>',
+            ReadinessLevel::LegacyPerfect => '<fg=green>'.$line.'</>',
+            ReadinessLevel::LaravelAdapter => '<fg=cyan>'.$line.'</>',
+            ReadinessLevel::LaravelReady => '<fg=bright-green>'.$line.'</>',
+            ReadinessLevel::LaravelPerfect => '<fg=bright-cyan>'.$line.'</>',
             default => $line,
         };
     }

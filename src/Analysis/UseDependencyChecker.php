@@ -88,6 +88,7 @@ final class UseDependencyChecker
 
         $tags = TagFinding::uniqueTags((new Detector)->analyse($path)->findings);
 
-        return ! $tags->contains(Tag::LaravelReady);
+        return ! $tags->contains(Tag::LaravelReady)
+            && ! $tags->contains(Tag::LaravelAdapter);
     }
 }

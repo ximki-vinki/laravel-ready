@@ -83,7 +83,21 @@ it('detects wf import from detector output on guarded fixture', function () {
 it('adds use finding when guarded file imports untagged app class', function () {
     $result = (new Detector)->analyse(fixture('Use/src/Consumer/UsesUntagged.php'));
 
-    $checked = (new UseDependencyChecker(fixture('Use')))->check($result);
+    $checked = new UseDependencyChecker(fixture('Use'))->check($result);
 
     expect($checked->findings)->toContainEqual(new UseFinding('App\Domain\UntaggedService', 5));
+});
+
+it('does not add use finding when guarded file imports laravel-adapter class', function () {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LaravelReady, 7),
+        new UseImportFinding('App\Adapter\WfGateway', 5),
+    ]));
+
+    $checked = new UseDependencyChecker(fixture('Use'))->check($result);
+
+    expect($checked)->toBe($result)
+        ->and($checked->findings->filter(
+            fn ($finding): bool => $finding instanceof UseFinding,
+        ))->toBeEmpty();
 });

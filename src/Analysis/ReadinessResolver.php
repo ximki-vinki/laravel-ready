@@ -29,6 +29,7 @@ final class ReadinessResolver
             $tags->isEmpty() => ReadinessLevel::Untagged,
             $tags->count() > 1 => ReadinessLevel::MultiTag,
             default => match ($tags->first()) {
+                Tag::LaravelAdapter => ReadinessLevel::LaravelAdapter,
                 Tag::LaravelReady => ReadinessLevel::LaravelReady,
                 Tag::Legacy => ReadinessLevel::Legacy,
             },
@@ -44,6 +45,12 @@ final class ReadinessResolver
     {
         if (in_array($actual, [ReadinessLevel::MultiTag, ReadinessLevel::Untagged])) {
             return true;
+        }
+
+        if ($actual === ReadinessLevel::LaravelAdapter) {
+            return $result->findings->contains(
+                fn (Finding $finding): bool => $finding instanceof LegacyFinding && ! $finding instanceof UseFinding,
+            );
         }
 
         // TODO пока работаем только с LaravelReady, что бы можно уже было пользоваться
