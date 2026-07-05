@@ -112,6 +112,18 @@ it('detects blockers when laravel-adapter tag is paired with legacy finding', fu
         ->and($readiness->hasBlockers)->toBeTrue();
 });
 
+it('does not block laravel-adapter tag with use finding only', function () {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LaravelAdapter, 3),
+        new UseFinding('Wf\Legacy\OldRepo', 5),
+    ]));
+
+    $readiness = (new ReadinessResolver)->resolve($result);
+
+    expect($readiness->actual)->toBe(ReadinessLevel::LaravelAdapter)
+        ->and($readiness->hasBlockers)->toBeFalse();
+});
+
 it('detects blockers when guarded file imports wf namespace', function () {
     $path = fixture('Use/src/Domain/Invoice.php');
 

@@ -23,6 +23,19 @@ it('adds use finding for wf import in guarded file', function () {
     expect($checked->findings)->toContainEqual(new UseFinding('Wf\Legacy\OldRepo', 5));
 });
 
+it('adds use findings for multiple wf imports in guarded file', function () {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LaravelReady, 3),
+        new UseImportFinding('Wf\Legacy\OldRepo', 5),
+        new UseImportFinding('Wf\Legacy\AnotherRepo', 7),
+    ]));
+
+    $checked = (new UseDependencyChecker)->check($result);
+
+    expect($checked->findings)->toContainEqual(new UseFinding('Wf\Legacy\OldRepo', 5))
+        ->and($checked->findings)->toContainEqual(new UseFinding('Wf\Legacy\AnotherRepo', 7));
+});
+
 it('does not add use finding for wf import in unguarded file', function () {
     $result = new AnalysisResult(collect([
         new UseImportFinding('Wf\Legacy\OldRepo', 5),

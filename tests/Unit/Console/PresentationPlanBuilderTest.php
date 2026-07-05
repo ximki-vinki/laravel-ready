@@ -56,7 +56,10 @@ it('builds tag invalid plan for multi tag', function () {
     $readiness = new ReadinessResult(ReadinessLevel::MultiTag, true, collect());
     $plan = (new PresentationPlanBuilder)->build($readiness);
 
-    expect($plan->footer)->toBe(ReadinessFooter::MultiTagFailed);
+    expect($plan->headerStyle)->toBe(HeaderStyle::Clean)
+        ->and($plan->showFindings)->toBeTrue()
+        ->and($plan->footer)->toBe(ReadinessFooter::MultiTagFailed)
+        ->and($plan->exitCode)->toBe(1);
 });
 
 it('builds guard failed plan when laravel ready has blockers', function () {
@@ -73,5 +76,8 @@ it('builds adapter failed plan when laravel adapter has blockers', function () {
     $readiness = new ReadinessResult(ReadinessLevel::LaravelAdapter, true, collect());
     $plan = (new PresentationPlanBuilder)->build($readiness);
 
-    expect($plan->footer)->toBe(ReadinessFooter::AdapterFailed);
+    expect($plan->headerStyle)->toBe(HeaderStyle::Error)
+        ->and($plan->showFindings)->toBeTrue()
+        ->and($plan->footer)->toBe(ReadinessFooter::AdapterFailed)
+        ->and($plan->exitCode)->toBe(1);
 });
