@@ -17,7 +17,9 @@ final class ReadinessPresenter
 {
     public function present(ReadinessResult $readiness, string $relativePath, OutputInterface $output): int
     {
-        if ($readiness->actual === ReadinessLevel::LaravelReady && ! $readiness->hasBlockers) {
+        $scenario = (new ReportScenarioResolver)->resolve($readiness);
+
+        if ($scenario === ReportScenario::Clean) {
             (new LaravelReadyOutput)->write($output, $readiness, $relativePath);
         } else {
             (new LegacyOutput)->write($output, $readiness, $relativePath);
