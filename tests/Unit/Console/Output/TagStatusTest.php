@@ -33,6 +33,15 @@ it('resolves multi tag status with unique tags', function () {
         ->and($status->display())->toBe('multi');
 });
 
+it('resolves laravel adapter tag status', function () {
+    $status = TagStatus::fromFindings(collect([
+        new TagFinding(Tag::LaravelAdapter, 4),
+    ]));
+
+    expect($status)->toBe(TagStatus::LaravelAdapter)
+        ->and($status->display())->toBe('@laravel-adapter');
+});
+
 it('resolves legacy tag status', function () {
     $status = TagStatus::fromFindings(collect([
         new TagFinding(Tag::Legacy, 4),

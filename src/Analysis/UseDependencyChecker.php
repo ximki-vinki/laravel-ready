@@ -12,6 +12,19 @@ final class UseDependencyChecker
 
     private const string PROJECT_NAMESPACE_PREFIX = 'App\\';
 
+    /** @var list<string> */
+    private const array APP_BASE_DIRECTORIES = [
+        'project/app',
+        // TODO для тестов
+        'src',
+    ];
+
+    /** @var list<string> */
+    private const array APP_FILE_EXTENSIONS = [
+        '.php',
+        '.class.php',
+    ];
+
     public function __construct(
         private readonly ?string $projectRoot = null,
     ) {}
@@ -80,7 +93,7 @@ final class UseDependencyChecker
             return false;
         }
 
-        $path = new Psr4ClassResolver($this->projectRoot)->resolve($import->fqcn);
+        $path = $this->resolveAppPath($import->fqcn);
 
         if ($path === null) {
             return true;
@@ -90,5 +103,27 @@ final class UseDependencyChecker
 
         return ! $tags->contains(Tag::LaravelReady)
             && ! $tags->contains(Tag::LaravelAdapter);
+    }
+
+    private function resolveAppPath(string $fqcn): ?string
+    {
+        $relativePath = self::PROJECT_NAMESPACE_PREFIX
+                |> strlen(...)
+                |> (fn ($x) => substr($fqcn, $x))
+                |> (fn ($x) => str_replace('\\', '/', $x));
+
+        foreach (self::APP_BASE_DIRECTORIES as $directory) {
+            $base = $this->projectRoot.'/'.$directory;
+
+            foreach (self::APP_FILE_EXTENSIONS as $extension) {
+                $path = $base.'/'.$relativePath.$extension;
+
+                if (is_file($path)) {
+                    return $path;
+                }
+            }
+        }
+
+        return null;
     }
 }

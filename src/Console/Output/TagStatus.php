@@ -14,6 +14,7 @@ enum TagStatus: string
     case Untagged = 'untagged';
     case Multi = 'multi';
     case LaravelReady = '@laravel-ready';
+    case LaravelAdapter = '@laravel-adapter';
     case Legacy = '@legacy-code';
 
     /**
@@ -28,6 +29,7 @@ enum TagStatus: string
             $tags->count() > 1 => self::Multi,
             default => match ($tags->first()) {
                 Tag::LaravelReady => self::LaravelReady,
+                Tag::LaravelAdapter => self::LaravelAdapter,
                 Tag::Legacy => self::Legacy,
             },
         };
