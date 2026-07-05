@@ -4,40 +4,28 @@ declare(strict_types=1);
 
 namespace LaravelReady\Console;
 
-use LaravelReady\Analysis\ReadinessLevel;
 use LaravelReady\Analysis\ReadinessResult;
-use LaravelReady\Console\Output\LaravelReadyOutput;
-use LaravelReady\Console\Output\LegacyOutput;
-use LaravelReady\Console\Output\ReadinessFooter;
+use LaravelReady\Console\Output\FindingsOutput;
+use LaravelReady\Console\Output\HeaderOutput;
 use LaravelReady\Console\Output\ReadinessFooterOutput;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class ReadinessPresenter
 {
     public function present(ReadinessResult $readiness, string $relativePath, OutputInterface $output): int
     {
-        $scenario = (new ReportScenarioResolver)->resolve($readiness);
+        $plan = (new PresentationPlanBuilder)->build($readiness);
 
-        if ($scenario === ReportScenario::Clean) {
-            (new LaravelReadyOutput)->write($output, $readiness, $relativePath);
-        } else {
-            (new LegacyOutput)->write($output, $readiness, $relativePath);
+        (new HeaderOutput)->write($output, $readiness, $relativePath, $plan->headerStyle);
 
-            $footer = match (true) {
-                $readiness->actual === ReadinessLevel::LaravelReady && $readiness->hasBlockers => ReadinessFooter::GuardFailed,
-                $readiness->actual === ReadinessLevel::MultiTag => ReadinessFooter::MultiTagFailed,
-                $readiness->actual === ReadinessLevel::Untagged => ReadinessFooter::NotGuarded,
-                default => null,
-            };
-
-            if ($footer !== null) {
-                (new ReadinessFooterOutput)->write($output, $footer);
-            }
+        if ($plan->showFindings) {
+            (new FindingsOutput)->write($output, $readiness);
         }
 
-        return $readiness->hasBlockers
-            ? Command::FAILURE
-            : Command::SUCCESS;
+        if ($plan->footer !== null) {
+            (new ReadinessFooterOutput)->write($output, $plan->footer);
+        }
+
+        return $plan->exitCode;
     }
 }

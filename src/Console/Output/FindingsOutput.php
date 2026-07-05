@@ -8,12 +8,10 @@ use LaravelReady\Analysis\Finding;
 use LaravelReady\Analysis\ReadinessResult;
 use Symfony\Component\Console\Output\OutputInterface;
 
-final class LegacyOutput
+final class FindingsOutput
 {
-    public function write(OutputInterface $output, ReadinessResult $readiness, string $relativePath): void
+    public function write(OutputInterface $output, ReadinessResult $readiness): void
     {
-        $output->writeln(ReadinessHeader::format($relativePath, $readiness));
-
         foreach ((new FindingSectionBuilder)->build($readiness->findings) as $section) {
             $output->writeln('  '.$this->format($section));
         }

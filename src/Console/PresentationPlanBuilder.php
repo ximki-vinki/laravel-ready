@@ -1,0 +1,63 @@
+<?php
+
+declare(strict_types=1);
+
+namespace LaravelReady\Console;
+
+use LaravelReady\Analysis\ReadinessLevel;
+use LaravelReady\Analysis\ReadinessResult;
+use LaravelReady\Console\Output\ReadinessFooter;
+
+final class PresentationPlanBuilder
+{
+    public function build(ReadinessResult $readiness): PresentationPlan
+    {
+        return match ($readiness->actual) {
+            ReadinessLevel::Untagged => new PresentationPlan(
+                headerStyle: HeaderStyle::Clean,
+                showFindings: true,
+                footer: ReadinessFooter::NotGuarded,
+                exitCode: 1,
+            ),
+            ReadinessLevel::MultiTag => new PresentationPlan(
+                headerStyle: HeaderStyle::Clean,
+                showFindings: true,
+                footer: ReadinessFooter::MultiTagFailed,
+                exitCode: 1,
+            ),
+            ReadinessLevel::Legacy => new PresentationPlan(
+                headerStyle: HeaderStyle::Warning,
+                showFindings: true,
+                footer: null,
+                exitCode: 0,
+            ),
+            ReadinessLevel::LaravelAdapter => $readiness->hasBlockers
+                ? new PresentationPlan(
+                    headerStyle: HeaderStyle::Error,
+                    showFindings: true,
+                    footer: ReadinessFooter::AdapterFailed,
+                    exitCode: 1,
+                )
+                : new PresentationPlan(
+                    headerStyle: HeaderStyle::Clean,
+                    showFindings: false,
+                    footer: null,
+                    exitCode: 0,
+                ),
+            ReadinessLevel::LaravelReady => $readiness->hasBlockers
+                ? new PresentationPlan(
+                    headerStyle: HeaderStyle::Error,
+                    showFindings: true,
+                    footer: ReadinessFooter::GuardFailed,
+                    exitCode: 1,
+                )
+                : new PresentationPlan(
+                    headerStyle: HeaderStyle::Clean,
+                    showFindings: false,
+                    footer: null,
+                    exitCode: 0,
+                ),
+            default => throw new \LogicException("Presentation is not defined for {$readiness->actual->value}."),
+        };
+    }
+}

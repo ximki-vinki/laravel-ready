@@ -6,24 +6,24 @@ namespace LaravelReady\Console\Output;
 
 use LaravelReady\Analysis\ReadinessLevel;
 use LaravelReady\Analysis\ReadinessResult;
+use LaravelReady\Console\HeaderStyle;
 
 final class ReadinessHeader
 {
-    public static function format(string $relativePath, ReadinessResult $readiness): string
+    public static function format(string $relativePath, ReadinessResult $readiness, HeaderStyle $style): string
     {
         $line = $relativePath.' : '.$readiness->actual->value;
 
-        if ($readiness->hasBlockers) {
-            return '<error>'.$line.'</>';
-        }
-
-        return match ($readiness->actual) {
-            ReadinessLevel::Legacy => '<fg=yellow>'.$line.'</>',
-            ReadinessLevel::LegacyPerfect => '<fg=green>'.$line.'</>',
-            ReadinessLevel::LaravelAdapter => '<fg=cyan>'.$line.'</>',
-            ReadinessLevel::LaravelReady => '<fg=bright-green>'.$line.'</>',
-            ReadinessLevel::LaravelPerfect => '<fg=bright-cyan>'.$line.'</>',
-            default => $line,
+        return match ($style) {
+            HeaderStyle::Error => '<error>'.$line.'</>',
+            HeaderStyle::Warning => '<fg=yellow>'.$line.'</>',
+            HeaderStyle::Clean => match ($readiness->actual) {
+                // TODO LegacyPerfect => '<fg=green>'.$line.'</>',
+                // TODO LaravelPerfect => '<fg=bright-cyan>'.$line.'</>',
+                ReadinessLevel::LaravelAdapter => '<fg=cyan>'.$line.'</>',
+                ReadinessLevel::LaravelReady => '<fg=bright-green>'.$line.'</>',
+                default => $line,
+            },
         };
     }
 }

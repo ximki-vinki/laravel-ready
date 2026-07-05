@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace LaravelReady\Console;
 
-enum ReportScenario
+enum HeaderStyle
 {
     case Clean;
-    case LegacyInfo;
-    case GuardFailed;
-    case TagInvalid;
+    case Warning;
+    case Error;
 }

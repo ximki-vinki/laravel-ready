@@ -43,7 +43,8 @@ Legacy ──┤
 4. Иначе → `LaravelReady`
 5. На шаге 4 + идиомы Laravel → `LaravelPerfect` (позже)
 
-Без `@laravel-ready` guard **выключен** — коммит не блокируется (exit `0`).
+Файл **без метки** или с **несколькими метками** — exit `1` (нужна ровно одна метка).  
+Guard **периметра** (`@laravel-ready` + blockers) — отдельный кейс; `@legacy-code` с findings — exit `0`.
 
 ---
 
@@ -57,8 +58,7 @@ Legacy ──┤
 | **`laravel-adapter`** | Мост к легаси; для guarded-файла **допустимая** зависимость |
 | **`legacy-adapter`** | Код только для легаси-контура; **недопустимая** зависимость для `@laravel-ready` |
 
-Метки в PHPDoc: `@laravel-ready`, `@legacy-code`, и т.д.  
-Цвета в CLI — `RESOLUTION_AND_OUTPUT.md` (раздел «Цветовая палитра меток»).
+Метки в PHPDoc: `@laravel-ready`, `@legacy-code`, и т.д.
 
 ---
 
@@ -76,7 +76,7 @@ Legacy ──┤
 
 `vendor/`, стандартная библиотека PHP, фреймворк — **вне** проверки зависимостей.
 
-Без `@laravel-ready` те же правила **считают уровень**, но **не ломают** exit code (guard выключен).
+Без метки файл — `Untagged`, exit `1`. С `@legacy-code` blockers в AST **не ломают** exit (информирование).
 
 ---
 

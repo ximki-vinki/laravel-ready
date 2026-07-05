@@ -43,6 +43,30 @@ it('returns success for laravel-adapter fixture without blockers', function () {
         ->and($tester->getDisplay())->not->toContain('var:');
 });
 
+it('returns success for legacy-code fixture with legacy finding', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute(['path' => [fixture('Tags/Mixed/tag-and-blocker.php')]]);
+
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('tag-and-blocker.php')
+        ->and($tester->getDisplay())->toContain('Legacy')
+        ->and($tester->getDisplay())->toContain('var: $_GET')
+        ->and($tester->getDisplay())->not->toContain('Guard failed:');
+});
+
+it('returns failure when laravel-adapter fixture has legacy blocker', function () {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute(['path' => [fixture('Tags/laravel-adapter/with-blocker.php')]]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('with-blocker.php')
+        ->and($tester->getDisplay())->toContain('LaravelAdapter')
+        ->and($tester->getDisplay())->toContain("LaravelAdapter\n  var: \$_GET")
+        ->and($tester->getDisplay())->toContain('Guard failed: @laravel-adapter file must stay LaravelAdapter.');
+});
+
 it('returns success for laravel-ready fixture without blockers', function () {
     $tester = new CommandTester(new AnalyseCommand);
 

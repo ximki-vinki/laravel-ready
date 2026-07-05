@@ -17,7 +17,7 @@
                                             └─────────────────┘
 ```
 
-**Guard** — режим, в котором exit `1` только если файл с `@laravel-ready` перестал быть `LaravelReady`. Блокировка коммита — на стороне **git hook** в целевом проекте, не внутри пакета.
+**Guard** — exit `1`, когда нарушено обещание метки или файл без метки. Детали — `RESOLUTION_AND_OUTPUT.md`. Блокировка коммита — на стороне **git hook** в целевом проекте.
 
 ---
 
@@ -26,9 +26,9 @@
 | Фаза | Что | Статус |
 |------|-----|--------|
 | **0** | Блокеры легаси (AST), CLI на файл/каталог, вывод уровня | есть |
-| **1** | `@laravel-ready`, `ReadinessResolver`, guard + exit code | план |
-| **2** | Зависимости по `use`, `UseFinding`, autoload/base path | план |
-| **3** | `@adapter`, `@for-legacy`, pre-commit-скрипт для легаси-проекта | план |
+| **1** | `@laravel-ready`, `@laravel-adapter`, `ReadinessResolver`, guard + exit code | частично |
+| **2** | Зависимости по `use`, `UseFinding`, autoload/base path | частично |
+| **3** | `@legacy-adapter`, pre-commit-скрипт для легаси-проекта | план |
 | **4** | `extends` / `new` / `require`, manifest, `LaravelPerfect` | позже |
 
 Разработка пакета и использование на реальных файлах идут **параллельно**: новая фича в пакете — только когда без неё нельзя честно пометить следующий файл.
@@ -64,7 +64,7 @@
 | `AnalyseCommand` | CLI, guard, exit code |
 | `*Output` | Форматирование для человека |
 
-Подробнее про resolver, guard, pledged/actual и presenter — `RESOLUTION_AND_OUTPUT.md` (**на уточнении**).
+Подробнее про resolver, guard и presenter — `RESOLUTION_AND_OUTPUT.md`.
 
 Уровень считает **resolver**, не отдельные правила.
 
@@ -77,8 +77,8 @@
 | `SuperglobalFinding` | 0 | суперглобали |
 | `GlobalFinding` | 0 | `global $x` |
 | `FunctionCallFinding` | 0 | `define()`, `eval()`, … |
-| `TagFinding` | 1 | `@legacy-code` как причина `Legacy` |
-| `UseFinding` | 2 | недопустимый `use` → `LegacyFinding`; создаёт **UseDependencyChecker**, не Detector |
+| `TagFinding` | 1 | метка в PHPDoc |
+| `UseFinding` | 2 | недопустимый `use`; создаёт **UseDependencyChecker**, не Detector |
 
 ---
 
@@ -86,10 +86,13 @@
 
 | Условие | Exit |
 |---------|------|
-| `@laravel-ready` + `LaravelReady` | `0` |
-| `@laravel-ready` + `Legacy` | `1` |
-| без `@laravel-ready` | `0` (не guarded) |
+| `@laravel-ready` / `@laravel-adapter` без blockers | `0` |
+| `@laravel-ready` / `@laravel-adapter` с blockers | `1` |
+| `@legacy-code` | `0` |
+| без метки / несколько меток | `1` |
 | файл не найден, не `.php` | `≠ 0` (ошибка CLI) |
+
+Полная таблица — `RESOLUTION_AND_OUTPUT.md`.
 
 Флаг `--verbose` (план): показывать уровень и для неguarded-файлов. По умолчанию — тишина или краткая строка только для guarded.
 
@@ -163,10 +166,10 @@ UseDependencyChecker.check(result, path, projectRoot)   // только если
     → дополняет findings UseFinding при нарушении
 
 ReadinessResolver.resolve(result)
-    → hasBlockers = есть LegacyFinding
+    → hasBlockers по LegacyFinding
 ```
 
-Политику `use` можно вызывать из `AnalyseCommand` между detector и resolver или вынести в отдельный шаг pipeline — **не внутри Detector**.
+Checker вызывается из resolver; политику `use` **не** кладём в Detector.
 
 ### Политика (принято для KDL и по умолчанию)
 
@@ -191,12 +194,3 @@ ReadinessResolver.resolve(result)
 | PHPCompatibility | версии PHP, не легаси-паттерны |
 | Rector | меняет код |
 | Laravel Preflight | уже Laravel-проект |
-
----
-
-## Что уже есть в коде (фаза 0)
-
-- `LegacyDetector` — суперглобали, `global`, blocked functions
-- `TagVisitor` — `@legacy-code`, `@legacy-perfect` (чтение; resolver ещё не подключён)
-- `AnalyseCommand` — один файл / каталог; **всегда exit 0** при найденном Legacy (нужна фаза 1)
-- `ReadinessLevel` enum — без resolver
