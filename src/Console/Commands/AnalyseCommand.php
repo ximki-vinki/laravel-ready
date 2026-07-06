@@ -54,14 +54,14 @@ final class AnalyseCommand extends Command
 
         $filesystem = new Filesystem;
         $cliValidation = new CliValidationPresenter;
+
+        /** @var string $appRoot */
         $appRoot = $input->getOption('app-root');
         $exitCode = $cliValidation->presentAppRoot($appRoot, $filesystem, $output);
 
         if ($exitCode !== Command::SUCCESS) {
             return $exitCode;
         }
-
-        /** @var string $appRoot */
 
         $files = collect();
 

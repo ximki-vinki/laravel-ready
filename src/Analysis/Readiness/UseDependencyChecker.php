@@ -19,8 +19,8 @@ final class UseDependencyChecker
     private const string PROJECT_NAMESPACE_PREFIX = 'App\\';
 
     private const array APP_FILE_EXTENSIONS = [
-        '.php',
-        '.class.php',
+        '.php',       // @pest-mutate-ignore: RemoveArrayItem
+        '.class.php', // @pest-mutate-ignore: RemoveArrayItem
     ];
 
     public function __construct(

@@ -263,9 +263,20 @@ class OfficeListService {
 Пример для прогона (когда фаза 2 готова):
 
 ```bash
-laravel-ready --project-root=/path/to/KDL.Site \
-  project/app/Domain/Service/Office/OfficeListService.php
+# локально (PHP 8.5+)
+laravel-ready --app-root=/path/to/KDL.Site/project/app \
+  /path/to/KDL.Site/project/app/Domain/Service/Office/OfficeListService.php
+
+# Docker — обязательно -e FORCE_COLOR=1, иначе вывод без цветов
+docker run --rm \
+  -e FORCE_COLOR=1 \
+  -v /path/to/KDL.Site:/project \
+  laravel-ready \
+  --app-root=/project/project/app \
+  /project/project/app/Domain/Service/Office/OfficeListService.php
 ```
+
+На Windows (PowerShell / CMD): `-v "C:\Users\...\KDL.Site:/project"`.
 
 ---
 

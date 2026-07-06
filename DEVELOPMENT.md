@@ -37,6 +37,8 @@ composer check-dock
 
 Образ `laravel-ready-dev` (`Dockerfile.dev`, PHP 8.5, pcov, zip). Каждый `*-dock` — `docker run --rm` с монтированием проекта в `/app`.
 
+Продакшен-образ (`Dockerfile`) на целевом проекте — с `-e FORCE_COLOR=1` (см. `ARCHITECTURE.md`).
+
 `composer.lock` коммитим — воспроизводимые сборки.
 
 ## TDD

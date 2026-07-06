@@ -24,7 +24,18 @@ it('returns failure when app root is missing', function () {
     $exitCode = (new CliValidationPresenter)->presentAppRoot(null, new Filesystem, $output);
 
     expect($exitCode)->toBe(Command::FAILURE)
-        ->and($output->fetch())->toContain('App root is required. Pass --app-root=/path/to/project/app');
+        ->and($output->fetch())->toContain('App root is required. Pass --app-root=/path/to/project/app')
+        ->not->toContain('App root not found:');
+});
+
+it('returns failure when app root is empty string', function () {
+    $output = new BufferedOutput;
+
+    $exitCode = (new CliValidationPresenter)->presentAppRoot('', new Filesystem, $output);
+
+    expect($exitCode)->toBe(Command::FAILURE)
+        ->and($output->fetch())->toContain('App root is required. Pass --app-root=/path/to/project/app')
+        ->not->toContain('App root not found:');
 });
 
 it('returns failure when app root directory is missing', function () {
