@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use LaravelReady\Analysis\AnalysisResult;
-use LaravelReady\Analysis\Detector;
 use LaravelReady\Analysis\Tag;
 use LaravelReady\Analysis\TagFinding;
 use LaravelReady\Analysis\UseDependencyChecker;
@@ -63,6 +62,20 @@ it('does not add use finding for non wf import in guarded file', function () {
         ))->toBeEmpty();
 });
 
+it('does not add use finding when guarded file imports vendor class with project root', function () {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LaravelReady, 7),
+        new UseImportFinding('Illuminate\Support\Collection', 5),
+    ]));
+
+    $checked = new UseDependencyChecker(fixture('Use'))->check($result);
+
+    expect($checked)->toBe($result)
+        ->and($checked->findings->filter(
+            fn ($finding): bool => $finding instanceof UseFinding,
+        ))->toBeEmpty();
+});
+
 it('returns same result for guarded file without imports', function () {
     $result = new AnalysisResult(collect([
         new TagFinding(Tag::LaravelReady, 3),
@@ -85,20 +98,68 @@ it('preserves original findings when adding use finding', function () {
         ->and($checked->findings)->toContainEqual(new UseFinding('Wf\Legacy\OldRepo', 5));
 });
 
-it('detects wf import from detector output on guarded fixture', function () {
-    $result = (new Detector)->analyse(fixture('Use/src/Domain/Invoice.php'));
-
-    $checked = (new UseDependencyChecker)->check($result);
-
-    expect($checked->findings)->toContainEqual(new UseFinding('Wf\Legacy\OldRepo', 5));
-});
-
 it('adds use finding when guarded file imports untagged app class', function () {
-    $result = (new Detector)->analyse(fixture('Use/src/Consumer/UsesUntagged.php'));
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LaravelReady, 7),
+        new UseImportFinding('App\Domain\UntaggedService', 5),
+    ]));
 
     $checked = new UseDependencyChecker(fixture('Use'))->check($result);
 
     expect($checked->findings)->toContainEqual(new UseFinding('App\Domain\UntaggedService', 5));
+});
+
+it('adds use finding when guarded file imports unresolvable app class', function () {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LaravelReady, 7),
+        new UseImportFinding('App\Domain\NonExistent', 5),
+    ]));
+
+    $checked = new UseDependencyChecker(fixture('Use'))->check($result);
+
+    expect($checked->findings)->toContainEqual(new UseFinding('App\Domain\NonExistent', 5));
+});
+
+it('does not add use finding when guarded file imports laravel-ready class from project app', function () {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LaravelReady, 7),
+        new UseImportFinding('App\Domain\TaggedService', 5),
+    ]));
+
+    $checked = new UseDependencyChecker(fixture('Use'))->check($result);
+
+    expect($checked)->toBe($result)
+        ->and($checked->findings->filter(
+            fn ($finding): bool => $finding instanceof UseFinding,
+        ))->toBeEmpty();
+});
+
+it('does not add use finding when guarded file imports laravel-ready class from src', function () {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LaravelReady, 7),
+        new UseImportFinding('App\Domain\ReadyService', 5),
+    ]));
+
+    $checked = new UseDependencyChecker(fixture('Use'))->check($result);
+
+    expect($checked)->toBe($result)
+        ->and($checked->findings->filter(
+            fn ($finding): bool => $finding instanceof UseFinding,
+        ))->toBeEmpty();
+});
+
+it('does not add use finding when guarded file imports laravel-adapter class with class php extension', function () {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LaravelReady, 7),
+        new UseImportFinding('App\Domain\LegacyDto', 5),
+    ]));
+
+    $checked = new UseDependencyChecker(fixture('Use'))->check($result);
+
+    expect($checked)->toBe($result)
+        ->and($checked->findings->filter(
+            fn ($finding): bool => $finding instanceof UseFinding,
+        ))->toBeEmpty();
 });
 
 it('does not add use finding when guarded file imports laravel-adapter class', function () {

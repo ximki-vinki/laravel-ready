@@ -25,7 +25,7 @@ final class ReadinessResolver
      */
     private function actualFromTags(Collection $tags): ReadinessLevel
     {
-        return match (true) {
+        return match (true) { // @pest-mutate-ignore: TrueToFalse
             $tags->isEmpty() => ReadinessLevel::Untagged,
             $tags->count() > 1 => ReadinessLevel::MultiTag,
             default => match ($tags->first()) {

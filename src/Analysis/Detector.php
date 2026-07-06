@@ -27,12 +27,12 @@ final class Detector
     private function readCode(string $path): ?string
     {
         if (! is_file($path)) {
-            return null; // @pest-mutate-ignore
+            return null; // @pest-mutate-ignore: RemoveEarlyReturn
         }
 
         $code = file_get_contents($path);
 
-        return $code === false ? null : $code; // @pest-mutate-ignore
+        return $code === false ? null : $code; // @pest-mutate-ignore: FalseToTrue
     }
 
     /**

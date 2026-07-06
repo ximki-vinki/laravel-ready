@@ -12,19 +12,6 @@ final class UseDependencyChecker
 
     private const string PROJECT_NAMESPACE_PREFIX = 'App\\';
 
-    /** @var list<string> */
-    private const array APP_BASE_DIRECTORIES = [
-        'project/app',
-        // TODO для тестов
-        'src',
-    ];
-
-    /** @var list<string> */
-    private const array APP_FILE_EXTENSIONS = [
-        '.php',
-        '.class.php',
-    ];
-
     public function __construct(
         private readonly ?string $projectRoot = null,
     ) {}
@@ -112,10 +99,10 @@ final class UseDependencyChecker
                 |> (fn ($x) => substr($fqcn, $x))
                 |> (fn ($x) => str_replace('\\', '/', $x));
 
-        foreach (self::APP_BASE_DIRECTORIES as $directory) {
+        foreach ($this->appBaseDirectories() as $directory) {
             $base = $this->projectRoot.'/'.$directory;
 
-            foreach (self::APP_FILE_EXTENSIONS as $extension) {
+            foreach ($this->appFileExtensions() as $extension) {
                 $path = $base.'/'.$relativePath.$extension;
 
                 if (is_file($path)) {
@@ -125,5 +112,24 @@ final class UseDependencyChecker
         }
 
         return null;
+    }
+
+    /** @return list<string> */
+    private function appBaseDirectories(): array
+    {
+        return [
+            'project/app',
+            // TODO для тестов
+            'src',
+        ];
+    }
+
+    /** @return list<string> */
+    private function appFileExtensions(): array
+    {
+        return [
+            '.php',
+            '.class.php',
+        ];
     }
 }

@@ -38,7 +38,7 @@ final class AnalyseCommand extends Command
         if ($paths === []) {
             (new DescriptorHelper)->describe($output, $this);
 
-            return Command::SUCCESS; // @pest-mutate-ignore
+            return Command::SUCCESS; // @pest-mutate-ignore: RemoveEarlyReturn
         }
 
         $filesystem = new Filesystem;
