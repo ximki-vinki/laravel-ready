@@ -34,10 +34,10 @@ final class AnalyseCommand extends Command
                 InputArgument::IS_ARRAY | InputArgument::OPTIONAL,
                 'Path to analyse')
             ->addOption(
-                'project-root',
+                'app-root',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Root directory of the target project (e.g. KDL.Site repository root)',
+                'Root directory of App\\ code (e.g. project/app in KDL.Site)',
             );
     }
 
@@ -54,14 +54,14 @@ final class AnalyseCommand extends Command
 
         $filesystem = new Filesystem;
         $cliValidation = new CliValidationPresenter;
-        $projectRoot = $input->getOption('project-root');
-        $exitCode = $cliValidation->presentProjectRoot($projectRoot, $filesystem, $output);
+        $appRoot = $input->getOption('app-root');
+        $exitCode = $cliValidation->presentAppRoot($appRoot, $filesystem, $output);
 
         if ($exitCode !== Command::SUCCESS) {
             return $exitCode;
         }
 
-        /** @var string $projectRoot */
+        /** @var string $appRoot */
 
         $files = collect();
 
@@ -75,12 +75,12 @@ final class AnalyseCommand extends Command
             $files = $files->merge($this->resolveFiles($filesystem, $path));
         }
 
-        $files->values()->each(function (AnalysableFile $file) use ($output, $projectRoot, &$exitCode): void {
+        $files->values()->each(function (AnalysableFile $file) use ($output, $appRoot, &$exitCode): void {
             $output->writeln('');
 
             $result = (new Detector)->analyse($file->absolutePath);
 
-            $readiness = (new ReadinessResolver)->resolve($result, $projectRoot);
+            $readiness = (new ReadinessResolver)->resolve($result, $appRoot);
 
             $exitCode = (new ReadinessPresenter)->present($readiness, $file->relativePath, $output);
         });

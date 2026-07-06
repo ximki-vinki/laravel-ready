@@ -17,32 +17,32 @@ it('returns success when run without path', function () {
         ->and($tester->getDisplay())->toContain('Arguments:');
 });
 
-it('fails when project root is missing', function () {
+it('fails when app root is missing', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute(['path' => [fixture('Legacy/Clean/empty.php')]]);
 
     expect($code)->toBe(Command::FAILURE)
-        ->and($tester->getDisplay())->toContain('Project root is required. Pass --project-root=/path/to/project');
+        ->and($tester->getDisplay())->toContain('App root is required. Pass --app-root=/path/to/project/app');
 });
 
-it('fails when project root does not exist', function () {
+it('fails when app root does not exist', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Clean/empty.php')],
-        '--project-root' => '/tmp/laravel-ready-missing-root-'.uniqid(),
+        '--app-root' => '/tmp/laravel-ready-missing-root-'.uniqid(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)
-        ->and($tester->getDisplay())->toContain('Project root not found:');
+        ->and($tester->getDisplay())->toContain('App root not found:');
 });
 
 it('fails when path does not exist', function () {
     $tester = new CommandTester(new AnalyseCommand);
     $code = $tester->execute([
         'path' => ['/tmp/laravel-ready-missing-'.uniqid().'.php'],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
     expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('File not found');
@@ -53,7 +53,7 @@ it('returns invalid when path is not a php file', function () {
 
     $code = $tester->execute([
         'path' => [fixture('not-php.txt')],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::INVALID)
@@ -65,7 +65,7 @@ it('returns success for laravel-ready fixture without blockers', function () {
 
     $code = $tester->execute([
         'path' => [fixture('Tags/laravel-ready/class.php')],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::SUCCESS)
@@ -77,7 +77,7 @@ it('returns success for laravel-adapter fixture without blockers', function () {
 
     $code = $tester->execute([
         'path' => [fixture('Tags/laravel-adapter/class.php')],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::SUCCESS)
@@ -89,7 +89,7 @@ it('returns success for legacy-code fixture with legacy finding', function () {
 
     $code = $tester->execute([
         'path' => [fixture('Tags/Mixed/tag-and-blocker.php')],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::SUCCESS)
@@ -101,7 +101,7 @@ it('returns failure when laravel-ready fixture has legacy blocker', function () 
 
     $code = $tester->execute([
         'path' => [fixture('Tags/laravel-ready/with-blocker.php')],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)
@@ -113,7 +113,7 @@ it('returns failure when laravel-adapter fixture has legacy blocker', function (
 
     $code = $tester->execute([
         'path' => [fixture('Tags/laravel-adapter/with-blocker.php')],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)
@@ -125,7 +125,7 @@ it('returns failure for file with multiple tags', function () {
 
     $code = $tester->execute([
         'path' => [fixture('Tags/Mixed/multi-tag.php')],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)
@@ -137,7 +137,7 @@ it('returns failure for untagged file', function () {
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Clean/empty.php')],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)
@@ -149,19 +149,19 @@ it('prints denied use import for guarded file', function () {
 
     $code = $tester->execute([
         'path' => [fixture('Use/project/app/Domain/Invoice.php')],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('use: Wf\Legacy\OldRepo (line 5)');
 });
 
-it('prints denied use import for untagged app class when project root is passed', function () {
+it('prints denied use import for untagged app class when app root is passed', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
         'path' => [fixture('Use/project/app/Consumer/UsesUntagged.php')],
-        '--project-root' => fixture('Use'),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)
@@ -173,7 +173,7 @@ it('analyses php files in subdirectories', function () {
 
     $code = $tester->execute([
         'path' => [fixture('Legacy')],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)
@@ -189,7 +189,7 @@ it('analyses multiple file paths passed as separate arguments', function () {
             fixture('Legacy/Superglobals/bare.php'),
             fixture('Legacy/Clean/empty.php'),
         ],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)

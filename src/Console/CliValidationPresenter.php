@@ -11,16 +11,16 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class CliValidationPresenter
 {
-    public function presentProjectRoot(mixed $projectRoot, Filesystem $filesystem, OutputInterface $output): int
+    public function presentAppRoot(mixed $appRoot, Filesystem $filesystem, OutputInterface $output): int
     {
-        if (! is_string($projectRoot) || $projectRoot === '') {
-            $this->writeError($output, 'Project root is required. Pass --project-root=/path/to/project');
+        if (! is_string($appRoot) || $appRoot === '') {
+            $this->writeError($output, 'App root is required. Pass --app-root=/path/to/project/app');
 
             return Command::FAILURE;
         }
 
-        if (! $filesystem->isDirectory($projectRoot)) {
-            $this->writeError($output, sprintf('Project root not found: %s', $projectRoot));
+        if (! $filesystem->isDirectory($appRoot)) {
+            $this->writeError($output, sprintf('App root not found: %s', $appRoot));
 
             return Command::FAILURE;
         }

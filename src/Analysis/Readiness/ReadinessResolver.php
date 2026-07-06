@@ -14,9 +14,9 @@ use LaravelReady\Analysis\Findings\UseFinding;
 
 final class ReadinessResolver
 {
-    public function resolve(AnalysisResult $result, string $projectRoot): ReadinessResult
+    public function resolve(AnalysisResult $result, string $appRoot): ReadinessResult
     {
-        $result = new UseDependencyChecker($projectRoot)->check($result);
+        $result = new UseDependencyChecker($appRoot)->check($result);
         $actual = $this->actual($result);
 
         return new ReadinessResult(

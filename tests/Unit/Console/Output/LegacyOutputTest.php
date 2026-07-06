@@ -11,7 +11,7 @@ it('prints superglobals in var group', function () {
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Superglobals/bare.php')],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)
@@ -26,7 +26,7 @@ it('prints global variables in global group', function () {
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Global/bare.php')],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)
@@ -42,7 +42,7 @@ it('prints blocked functions in func group', function () {
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Functions/bare.php')],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)
@@ -57,7 +57,7 @@ it('prints grouped legacy findings for mixed fixture', function () {
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Mixed/rules.php')],
-        '--project-root' => projectRoot(),
+        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)

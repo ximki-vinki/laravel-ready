@@ -9,7 +9,7 @@ function runLaravelReadyBin(string ...$args): int
 {
     $process = new Process(
         array_merge(
-            [PHP_BINARY, 'bin/laravel-ready', '--project-root='.projectRoot()],
+            [PHP_BINARY, 'bin/laravel-ready', '--app-root='.appRoot()],
             $args,
         ),
         projectRoot(),
@@ -23,7 +23,7 @@ it('exits success when run without arguments', function () {
     expect(runLaravelReadyBin())->toBe(Command::SUCCESS);
 });
 
-it('exits failure when project root is missing', function () {
+it('exits failure when app root is missing', function () {
     $file = fixture('Legacy/Superglobals/bare.php');
 
     $process = new Process(
@@ -33,7 +33,7 @@ it('exits failure when project root is missing', function () {
     $process->run();
 
     expect($process->getExitCode())->toBe(Command::FAILURE)
-        ->and($process->getOutput().$process->getErrorOutput())->toContain('Project root is required');
+        ->and($process->getOutput().$process->getErrorOutput())->toContain('App root is required');
 });
 
 it('exits failure when path does not exist', function () {

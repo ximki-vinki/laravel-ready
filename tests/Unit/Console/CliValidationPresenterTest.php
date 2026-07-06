@@ -9,32 +9,32 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 covers(CliValidationPresenter::class);
 
-it('returns success for valid project root', function () {
+it('returns success for valid app root', function () {
     $output = new BufferedOutput;
 
-    $exitCode = (new CliValidationPresenter)->presentProjectRoot(projectRoot(), new Filesystem, $output);
+    $exitCode = (new CliValidationPresenter)->presentAppRoot(appRoot(), new Filesystem, $output);
 
     expect($exitCode)->toBe(Command::SUCCESS)
         ->and($output->fetch())->toBe('');
 });
 
-it('returns failure when project root is missing', function () {
+it('returns failure when app root is missing', function () {
     $output = new BufferedOutput;
 
-    $exitCode = (new CliValidationPresenter)->presentProjectRoot(null, new Filesystem, $output);
+    $exitCode = (new CliValidationPresenter)->presentAppRoot(null, new Filesystem, $output);
 
     expect($exitCode)->toBe(Command::FAILURE)
-        ->and($output->fetch())->toContain('Project root is required. Pass --project-root=/path/to/project');
+        ->and($output->fetch())->toContain('App root is required. Pass --app-root=/path/to/project/app');
 });
 
-it('returns failure when project root directory is missing', function () {
+it('returns failure when app root directory is missing', function () {
     $output = new BufferedOutput;
     $missing = '/tmp/laravel-ready-missing-root-'.uniqid();
 
-    $exitCode = (new CliValidationPresenter)->presentProjectRoot($missing, new Filesystem, $output);
+    $exitCode = (new CliValidationPresenter)->presentAppRoot($missing, new Filesystem, $output);
 
     expect($exitCode)->toBe(Command::FAILURE)
-        ->and($output->fetch())->toContain('Project root not found: '.$missing);
+        ->and($output->fetch())->toContain('App root not found: '.$missing);
 });
 
 it('returns success for existing php file path', function () {

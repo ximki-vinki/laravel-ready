@@ -21,3 +21,8 @@ function projectRoot(): string
 {
     return dirname(__DIR__);
 }
+
+function appRoot(): string
+{
+    return projectRoot().'/tests/Fixtures/Use/project/app';
+}

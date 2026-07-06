@@ -18,8 +18,13 @@ final class UseDependencyChecker
 
     private const string PROJECT_NAMESPACE_PREFIX = 'App\\';
 
+    private const array APP_FILE_EXTENSIONS = [
+        '.php',
+        '.class.php',
+    ];
+
     public function __construct(
-        private readonly string $projectRoot,
+        private readonly string $appRoot,
     ) {}
 
     public function check(AnalysisResult $result): AnalysisResult
@@ -78,7 +83,6 @@ final class UseDependencyChecker
 
     private function isDeniedAppImport(UseImportFinding $import): bool
     {
-        // TODO временная проверка что мы работаем только с папкой app
         if (! str_starts_with($import->fqcn, self::PROJECT_NAMESPACE_PREFIX)) {
             return false;
         }
@@ -102,35 +106,14 @@ final class UseDependencyChecker
                 |> (fn ($x) => substr($fqcn, $x))
                 |> (fn ($x) => str_replace('\\', '/', $x));
 
-        foreach ($this->appBaseDirectories() as $directory) {
-            $base = $this->projectRoot.'/'.$directory;
+        foreach (self::APP_FILE_EXTENSIONS as $extension) {
+            $path = $this->appRoot.'/'.$relativePath.$extension;
 
-            foreach ($this->appFileExtensions() as $extension) {
-                $path = $base.'/'.$relativePath.$extension;
-
-                if (is_file($path)) {
-                    return $path;
-                }
+            if (is_file($path)) {
+                return $path;
             }
         }
 
         return null;
-    }
-
-    /** @return list<string> */
-    private function appBaseDirectories(): array
-    {
-        return [
-            'project/app',
-        ];
-    }
-
-    /** @return list<string> */
-    private function appFileExtensions(): array
-    {
-        return [
-            '.php',
-            '.class.php',
-        ];
     }
 }
