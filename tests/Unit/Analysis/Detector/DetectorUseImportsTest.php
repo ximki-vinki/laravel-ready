@@ -8,7 +8,7 @@ use LaravelReady\Analysis\Findings\UseImportFinding;
 covers(Detector::class);
 
 it('collects use imports from ast', function () {
-    $result = (new Detector)->analyse(fixture('Use/src/Domain/Invoice.php'));
+    $result = (new Detector)->analyse(fixture('Use/project/app/Domain/Invoice.php'));
 
     expect($result->findings)->toContainEqual(new UseImportFinding('Wf\Legacy\OldRepo', 5));
 });

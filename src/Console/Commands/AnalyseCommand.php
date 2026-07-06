@@ -6,16 +6,17 @@ namespace LaravelReady\Console\Commands;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use LaravelReady\Analysis\Detector;
 use LaravelReady\Analysis\Readiness\ReadinessResolver;
 use LaravelReady\Console\AnalysableFile;
+use LaravelReady\Console\CliValidationPresenter;
 use LaravelReady\Console\ReadinessPresenter;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -27,7 +28,17 @@ final class AnalyseCommand extends Command
 {
     protected function configure(): void
     {
-        $this->addArgument('path', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, 'Path to analyse');
+        $this
+            ->addArgument(
+                'path',
+                InputArgument::IS_ARRAY | InputArgument::OPTIONAL,
+                'Path to analyse')
+            ->addOption(
+                'project-root',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Root directory of the target project (e.g. KDL.Site repository root)',
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -42,54 +53,39 @@ final class AnalyseCommand extends Command
         }
 
         $filesystem = new Filesystem;
+        $cliValidation = new CliValidationPresenter;
+        $projectRoot = $input->getOption('project-root');
+        $exitCode = $cliValidation->presentProjectRoot($projectRoot, $filesystem, $output);
+
+        if ($exitCode !== Command::SUCCESS) {
+            return $exitCode;
+        }
+
+        /** @var string $projectRoot */
+
         $files = collect();
 
         foreach ($paths as $path) {
-            $exitCode = $this->validatePath($filesystem, $output, $path);
+            $exitCode = $cliValidation->presentPath($path, $filesystem, $output);
 
-            if ($exitCode !== null) {
+            if ($exitCode !== Command::SUCCESS) {
                 return $exitCode;
             }
 
             $files = $files->merge($this->resolveFiles($filesystem, $path));
         }
 
-        $exitCode = Command::SUCCESS;
-
-        $files->values()->each(function (AnalysableFile $file) use ($output, &$exitCode): void {
+        $files->values()->each(function (AnalysableFile $file) use ($output, $projectRoot, &$exitCode): void {
             $output->writeln('');
 
             $result = (new Detector)->analyse($file->absolutePath);
 
-            $readiness = (new ReadinessResolver)->resolve($result);
+            $readiness = (new ReadinessResolver)->resolve($result, $projectRoot);
 
-            $presenter = new ReadinessPresenter;
-
-            $code = $presenter->present($readiness, $file->relativePath, $output);
-
-            if ($code !== Command::SUCCESS) {
-                $exitCode = Command::FAILURE;
-            }
+            $exitCode = (new ReadinessPresenter)->present($readiness, $file->relativePath, $output);
         });
 
         return $exitCode;
-    }
-
-    private function validatePath(Filesystem $filesystem, OutputInterface $output, string $path): ?int
-    {
-        if ($filesystem->missing($path)) {
-            $output->writeln(sprintf('<error>File not found: %s</error>', $path));
-
-            return Command::FAILURE;
-        }
-
-        if ($filesystem->isFile($path) && ! Str::endsWith($path, '.php')) {
-            $output->writeln('<error>Expected a PHP file.</error>');
-
-            return Command::INVALID;
-        }
-
-        return null;
     }
 
     /**

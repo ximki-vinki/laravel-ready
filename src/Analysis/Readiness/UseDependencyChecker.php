@@ -19,7 +19,7 @@ final class UseDependencyChecker
     private const string PROJECT_NAMESPACE_PREFIX = 'App\\';
 
     public function __construct(
-        private readonly ?string $projectRoot = null,
+        private readonly string $projectRoot,
     ) {}
 
     public function check(AnalysisResult $result): AnalysisResult
@@ -41,6 +41,7 @@ final class UseDependencyChecker
 
     private function isGuarded(AnalysisResult $result): bool
     {
+        // TODO пока защищаем только LaravelReady
         return TagFinding::uniqueTags($result->findings)->contains(Tag::LaravelReady);
     }
 
@@ -77,10 +78,6 @@ final class UseDependencyChecker
 
     private function isDeniedAppImport(UseImportFinding $import): bool
     {
-        if ($this->projectRoot === null) {
-            return false;
-        }
-
         // TODO временная проверка что мы работаем только с папкой app
         if (! str_starts_with($import->fqcn, self::PROJECT_NAMESPACE_PREFIX)) {
             return false;
@@ -125,8 +122,6 @@ final class UseDependencyChecker
     {
         return [
             'project/app',
-            // TODO для тестов
-            'src',
         ];
     }
 

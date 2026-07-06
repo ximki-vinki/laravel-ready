@@ -16,3 +16,8 @@ use PHPUnit\Framework\TestCase;
 require __DIR__.'/../vendor/autoload.php';
 
 pest()->extend(TestCase::class)->in('Unit', 'Feature');
+
+function projectRoot(): string
+{
+    return dirname(__DIR__);
+}

@@ -17,7 +17,7 @@ it('adds use finding for wf import in guarded file', function () {
         new UseImportFinding('Wf\Legacy\OldRepo', 5),
     ]));
 
-    $checked = (new UseDependencyChecker)->check($result);
+    $checked = (new UseDependencyChecker(projectRoot()))->check($result);
 
     expect($checked->findings)->toContainEqual(new UseFinding('Wf\Legacy\OldRepo', 5));
 });
@@ -29,7 +29,7 @@ it('adds use findings for multiple wf imports in guarded file', function () {
         new UseImportFinding('Wf\Legacy\AnotherRepo', 7),
     ]));
 
-    $checked = (new UseDependencyChecker)->check($result);
+    $checked = (new UseDependencyChecker(projectRoot()))->check($result);
 
     expect($checked->findings)->toContainEqual(new UseFinding('Wf\Legacy\OldRepo', 5))
         ->and($checked->findings)->toContainEqual(new UseFinding('Wf\Legacy\AnotherRepo', 7));
@@ -40,7 +40,7 @@ it('does not add use finding for wf import in unguarded file', function () {
         new UseImportFinding('Wf\Legacy\OldRepo', 5),
     ]));
 
-    $checked = (new UseDependencyChecker)->check($result);
+    $checked = (new UseDependencyChecker(projectRoot()))->check($result);
 
     expect($checked)->toBe($result)
         ->and($checked->findings->filter(
@@ -54,7 +54,7 @@ it('does not add use finding for non wf import in guarded file', function () {
         new UseImportFinding('App\Domain\Invoice', 5),
     ]));
 
-    $checked = (new UseDependencyChecker)->check($result);
+    $checked = (new UseDependencyChecker(fixture('Use')))->check($result);
 
     expect($checked)->toBe($result)
         ->and($checked->findings->filter(
@@ -81,7 +81,7 @@ it('returns same result for guarded file without imports', function () {
         new TagFinding(Tag::LaravelReady, 3),
     ]));
 
-    $checked = (new UseDependencyChecker)->check($result);
+    $checked = (new UseDependencyChecker(projectRoot()))->check($result);
 
     expect($checked)->toBe($result);
 });
@@ -91,7 +91,7 @@ it('preserves original findings when adding use finding', function () {
     $tag = new TagFinding(Tag::LaravelReady, 3);
     $result = new AnalysisResult(collect([$tag, $import]));
 
-    $checked = (new UseDependencyChecker)->check($result);
+    $checked = (new UseDependencyChecker(projectRoot()))->check($result);
 
     expect($checked->findings)->toContainEqual($tag)
         ->and($checked->findings)->toContainEqual($import)
@@ -134,7 +134,7 @@ it('does not add use finding when guarded file imports laravel-ready class from 
         ))->toBeEmpty();
 });
 
-it('does not add use finding when guarded file imports laravel-ready class from src', function () {
+it('does not add use finding when guarded file imports another laravel-ready app class', function () {
     $result = new AnalysisResult(collect([
         new TagFinding(Tag::LaravelReady, 7),
         new UseImportFinding('App\Domain\ReadyService', 5),

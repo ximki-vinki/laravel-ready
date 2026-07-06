@@ -9,7 +9,10 @@ use Symfony\Component\Console\Tester\CommandTester;
 it('prints superglobals in var group', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
-    $code = $tester->execute(['path' => [fixture('Legacy/Superglobals/bare.php')]]);
+    $code = $tester->execute([
+        'path' => [fixture('Legacy/Superglobals/bare.php')],
+        '--project-root' => projectRoot(),
+    ]);
 
     expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('bare.php')
@@ -21,7 +24,10 @@ it('prints superglobals in var group', function () {
 it('prints global variables in global group', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
-    $code = $tester->execute(['path' => [fixture('Legacy/Global/bare.php')]]);
+    $code = $tester->execute([
+        'path' => [fixture('Legacy/Global/bare.php')],
+        '--project-root' => projectRoot(),
+    ]);
 
     expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('bare.php')
@@ -34,7 +40,10 @@ it('prints global variables in global group', function () {
 it('prints blocked functions in func group', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
-    $code = $tester->execute(['path' => [fixture('Legacy/Functions/bare.php')]]);
+    $code = $tester->execute([
+        'path' => [fixture('Legacy/Functions/bare.php')],
+        '--project-root' => projectRoot(),
+    ]);
 
     expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('bare.php')
@@ -46,7 +55,10 @@ it('prints blocked functions in func group', function () {
 it('prints grouped legacy findings for mixed fixture', function () {
     $tester = new CommandTester(new AnalyseCommand);
 
-    $code = $tester->execute(['path' => [fixture('Legacy/Mixed/rules.php')]]);
+    $code = $tester->execute([
+        'path' => [fixture('Legacy/Mixed/rules.php')],
+        '--project-root' => projectRoot(),
+    ]);
 
     expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('rules.php')
