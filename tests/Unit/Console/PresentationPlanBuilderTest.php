@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use LaravelReady\Analysis\ReadinessLevel;
-use LaravelReady\Analysis\ReadinessResult;
+use LaravelReady\Analysis\Readiness\ReadinessLevel;
+use LaravelReady\Analysis\Readiness\ReadinessResult;
 use LaravelReady\Console\HeaderStyle;
 use LaravelReady\Console\Output\ReadinessFooter;
 use LaravelReady\Console\PresentationPlan;

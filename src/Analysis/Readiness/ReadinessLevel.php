@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LaravelReady\Analysis;
+namespace LaravelReady\Analysis\Readiness;
 
 enum ReadinessLevel: string
 {

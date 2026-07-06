@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelReady\Console\Output;
 
-use LaravelReady\Analysis\ReadinessResult;
+use LaravelReady\Analysis\Readiness\ReadinessResult;
 use LaravelReady\Console\HeaderStyle;
 use Symfony\Component\Console\Output\OutputInterface;
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace LaravelReady\Analysis;
 
 use Illuminate\Support\Collection;
+use LaravelReady\Analysis\Findings\Finding;
 use LaravelReady\Analysis\Visitors\BlockedFunctionVisitor;
 use LaravelReady\Analysis\Visitors\GlobalVisitor;
 use LaravelReady\Analysis\Visitors\SuperglobalVisitor;

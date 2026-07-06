@@ -8,7 +8,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use LaravelReady\Analysis\Detector;
-use LaravelReady\Analysis\ReadinessResolver;
+use LaravelReady\Analysis\Readiness\ReadinessResolver;
 use LaravelReady\Console\AnalysableFile;
 use LaravelReady\Console\ReadinessPresenter;
 use Symfony\Component\Console\Attribute\AsCommand;

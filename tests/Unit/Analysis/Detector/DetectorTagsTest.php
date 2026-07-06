@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use LaravelReady\Analysis\Detector;
-use LaravelReady\Analysis\SuperglobalFinding;
-use LaravelReady\Analysis\SuperglobalName;
-use LaravelReady\Analysis\Tag;
-use LaravelReady\Analysis\TagFinding;
+use LaravelReady\Analysis\Enums\SuperglobalName;
+use LaravelReady\Analysis\Enums\Tag;
+use LaravelReady\Analysis\Findings\SuperglobalFinding;
+use LaravelReady\Analysis\Findings\TagFinding;
 
 covers(Detector::class);
 

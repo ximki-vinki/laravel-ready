@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use LaravelReady\Analysis\Detector;
-use LaravelReady\Analysis\UseImportFinding;
+use LaravelReady\Analysis\Findings\UseImportFinding;
 
 covers(Detector::class);
 

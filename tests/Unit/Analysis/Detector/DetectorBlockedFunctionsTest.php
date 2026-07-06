@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use LaravelReady\Analysis\BlockedFunction;
 use LaravelReady\Analysis\Detector;
-use LaravelReady\Analysis\FunctionCallFinding;
+use LaravelReady\Analysis\Enums\BlockedFunction;
+use LaravelReady\Analysis\Findings\FunctionCallFinding;
 
 covers(Detector::class);
 

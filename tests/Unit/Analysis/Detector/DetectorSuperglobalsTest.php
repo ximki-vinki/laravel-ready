@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use LaravelReady\Analysis\Detector;
-use LaravelReady\Analysis\SuperglobalFinding;
-use LaravelReady\Analysis\SuperglobalName;
+use LaravelReady\Analysis\Enums\SuperglobalName;
+use LaravelReady\Analysis\Findings\SuperglobalFinding;
 
 covers(Detector::class);
 

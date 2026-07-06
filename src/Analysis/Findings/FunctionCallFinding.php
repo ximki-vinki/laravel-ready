@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace LaravelReady\Analysis;
+namespace LaravelReady\Analysis\Findings;
+
+use LaravelReady\Analysis\Enums\BlockedFunction;
 
 final readonly class FunctionCallFinding implements LegacyFinding
 {

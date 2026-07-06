@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LaravelReady\Analysis;
+namespace LaravelReady\Analysis\Findings;
 
 final readonly class UseImportFinding implements Finding
 {

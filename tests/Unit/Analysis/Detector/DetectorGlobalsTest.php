@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use LaravelReady\Analysis\Detector;
-use LaravelReady\Analysis\GlobalFinding;
+use LaravelReady\Analysis\Findings\GlobalFinding;
 
 covers(Detector::class);
 
