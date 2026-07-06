@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace LaravelReady\Analysis\Visitors;
 
 use Illuminate\Support\Collection;
-use LaravelReady\Analysis\Finding;
-use LaravelReady\Analysis\SuperglobalFinding;
-use LaravelReady\Analysis\SuperglobalName;
+use LaravelReady\Analysis\Enums\SuperglobalName;
+use LaravelReady\Analysis\Findings\Finding;
+use LaravelReady\Analysis\Findings\SuperglobalFinding;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\NodeVisitorAbstract;

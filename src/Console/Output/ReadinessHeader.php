@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace LaravelReady\Console\Output;
 
-use LaravelReady\Analysis\ReadinessLevel;
-use LaravelReady\Analysis\ReadinessResult;
+use LaravelReady\Analysis\Readiness\ReadinessLevel;
+use LaravelReady\Analysis\Readiness\ReadinessResult;
 use LaravelReady\Console\HeaderStyle;
 
 final class ReadinessHeader

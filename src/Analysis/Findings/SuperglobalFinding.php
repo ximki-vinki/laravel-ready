@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace LaravelReady\Analysis;
+namespace LaravelReady\Analysis\Findings;
+
+use LaravelReady\Analysis\Enums\SuperglobalName;
 
 final readonly class SuperglobalFinding implements LegacyFinding
 {

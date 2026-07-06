@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace LaravelReady\Analysis;
+namespace LaravelReady\Analysis\Findings;
 
 use Illuminate\Support\Collection;
+use LaravelReady\Analysis\Enums\Tag;
 
 final readonly class TagFinding implements Finding
 {

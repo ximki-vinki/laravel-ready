@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace LaravelReady\Analysis;
+namespace LaravelReady\Analysis\Enums;
 
 enum SuperglobalName: string
 {

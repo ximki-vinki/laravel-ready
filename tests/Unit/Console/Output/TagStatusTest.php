@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use LaravelReady\Analysis\Tag;
-use LaravelReady\Analysis\TagFinding;
+use LaravelReady\Analysis\Enums\Tag;
+use LaravelReady\Analysis\Findings\TagFinding;
 use LaravelReady\Console\Output\TagStatus;
 
 it('resolves untagged status from empty findings', function () {

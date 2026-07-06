@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelReady\Console;
 
-use LaravelReady\Analysis\ReadinessResult;
+use LaravelReady\Analysis\Readiness\ReadinessResult;
 use LaravelReady\Console\Output\FindingsOutput;
 use LaravelReady\Console\Output\HeaderOutput;
 use LaravelReady\Console\Output\ReadinessFooterOutput;

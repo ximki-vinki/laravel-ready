@@ -2,9 +2,15 @@
 
 declare(strict_types=1);
 
-namespace LaravelReady\Analysis;
+namespace LaravelReady\Analysis\Readiness;
 
 use Illuminate\Support\Collection;
+use LaravelReady\Analysis\AnalysisResult;
+use LaravelReady\Analysis\Detector;
+use LaravelReady\Analysis\Enums\Tag;
+use LaravelReady\Analysis\Findings\TagFinding;
+use LaravelReady\Analysis\Findings\UseFinding;
+use LaravelReady\Analysis\Findings\UseImportFinding;
 
 final class UseDependencyChecker
 {

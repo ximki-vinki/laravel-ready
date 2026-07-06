@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace LaravelReady\Analysis\Visitors;
 
 use Illuminate\Support\Collection;
-use LaravelReady\Analysis\Finding;
-use LaravelReady\Analysis\Tag;
-use LaravelReady\Analysis\TagFinding;
+use LaravelReady\Analysis\Enums\Tag;
+use LaravelReady\Analysis\Findings\Finding;
+use LaravelReady\Analysis\Findings\TagFinding;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 

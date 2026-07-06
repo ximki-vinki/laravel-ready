@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 use LaravelReady\Analysis\AnalysisResult;
-use LaravelReady\Analysis\Tag;
-use LaravelReady\Analysis\TagFinding;
-use LaravelReady\Analysis\UseDependencyChecker;
-use LaravelReady\Analysis\UseFinding;
-use LaravelReady\Analysis\UseImportFinding;
+use LaravelReady\Analysis\Enums\Tag;
+use LaravelReady\Analysis\Findings\TagFinding;
+use LaravelReady\Analysis\Findings\UseFinding;
+use LaravelReady\Analysis\Findings\UseImportFinding;
+use LaravelReady\Analysis\Readiness\UseDependencyChecker;
 
 covers(UseDependencyChecker::class);
 

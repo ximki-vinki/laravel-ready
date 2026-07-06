@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace LaravelReady\Console\Output;
 
 use Illuminate\Support\Collection;
-use LaravelReady\Analysis\Finding;
+use LaravelReady\Analysis\Findings\Finding;
 
 final readonly class FindingSection
 {

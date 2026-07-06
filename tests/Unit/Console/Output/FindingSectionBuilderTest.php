@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-use LaravelReady\Analysis\BlockedFunction;
-use LaravelReady\Analysis\FunctionCallFinding;
-use LaravelReady\Analysis\GlobalFinding;
-use LaravelReady\Analysis\SuperglobalFinding;
-use LaravelReady\Analysis\SuperglobalName;
-use LaravelReady\Analysis\Tag;
-use LaravelReady\Analysis\TagFinding;
-use LaravelReady\Analysis\UseFinding;
+use LaravelReady\Analysis\Enums\BlockedFunction;
+use LaravelReady\Analysis\Enums\SuperglobalName;
+use LaravelReady\Analysis\Enums\Tag;
+use LaravelReady\Analysis\Findings\FunctionCallFinding;
+use LaravelReady\Analysis\Findings\GlobalFinding;
+use LaravelReady\Analysis\Findings\SuperglobalFinding;
+use LaravelReady\Analysis\Findings\TagFinding;
+use LaravelReady\Analysis\Findings\UseFinding;
 use LaravelReady\Console\Output\FindingSectionBuilder;
 use LaravelReady\Console\Output\FindingSectionLabel;
 

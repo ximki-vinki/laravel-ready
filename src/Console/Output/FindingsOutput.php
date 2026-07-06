@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace LaravelReady\Console\Output;
 
-use LaravelReady\Analysis\Finding;
-use LaravelReady\Analysis\ReadinessResult;
+use LaravelReady\Analysis\Findings\Finding;
+use LaravelReady\Analysis\Readiness\ReadinessResult;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class FindingsOutput

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace LaravelReady\Console\Output;
 
-use LaravelReady\Analysis\Finding;
-use LaravelReady\Analysis\FunctionCallFinding;
-use LaravelReady\Analysis\GlobalFinding;
-use LaravelReady\Analysis\SuperglobalFinding;
-use LaravelReady\Analysis\UseFinding;
+use LaravelReady\Analysis\Findings\Finding;
+use LaravelReady\Analysis\Findings\FunctionCallFinding;
+use LaravelReady\Analysis\Findings\GlobalFinding;
+use LaravelReady\Analysis\Findings\SuperglobalFinding;
+use LaravelReady\Analysis\Findings\UseFinding;
 
 enum FindingSectionLabel: string
 {

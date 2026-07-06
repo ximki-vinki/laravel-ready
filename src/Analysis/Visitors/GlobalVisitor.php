@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace LaravelReady\Analysis\Visitors;
 
 use Illuminate\Support\Collection;
-use LaravelReady\Analysis\Finding;
-use LaravelReady\Analysis\GlobalFinding;
+use LaravelReady\Analysis\Findings\Finding;
+use LaravelReady\Analysis\Findings\GlobalFinding;
 use PhpParser\Node;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Stmt\Global_;

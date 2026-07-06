@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace LaravelReady\Analysis\Visitors;
 
 use Illuminate\Support\Collection;
-use LaravelReady\Analysis\Finding;
-use LaravelReady\Analysis\UseImportFinding;
+use LaravelReady\Analysis\Findings\Finding;
+use LaravelReady\Analysis\Findings\UseImportFinding;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Use_;
 use PhpParser\NodeVisitorAbstract;

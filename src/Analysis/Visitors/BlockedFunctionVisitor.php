@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace LaravelReady\Analysis\Visitors;
 
 use Illuminate\Support\Collection;
-use LaravelReady\Analysis\BlockedFunction;
-use LaravelReady\Analysis\Finding;
-use LaravelReady\Analysis\FunctionCallFinding;
+use LaravelReady\Analysis\Enums\BlockedFunction;
+use LaravelReady\Analysis\Findings\Finding;
+use LaravelReady\Analysis\Findings\FunctionCallFinding;
 use PhpParser\Node;
 use PhpParser\Node\Arg;
 use PhpParser\Node\Expr\Eval_;
