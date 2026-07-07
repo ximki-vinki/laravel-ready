@@ -1,5 +1,5 @@
 {
-  "name": "laravel-ready/cli",
+  "name": "laravel-readiness/cli",
   "version": "0.1.0",
   "description": "laravel-ready CLI: static binary delivery for legacy PHP projects",
   "type": "library",

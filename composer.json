@@ -1,5 +1,5 @@
 {
-  "name": "laravel-ready/tool",
+  "name": "laravel-readiness/tool",
   "description": "CLI: уровень готовности PHP-файлов к миграции в Laravel",
   "type": "library",
   "license": "MIT",
