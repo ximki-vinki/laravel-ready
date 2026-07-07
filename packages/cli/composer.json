@@ -1,0 +1,32 @@
+{
+  "name": "laravel-ready/cli",
+  "version": "0.1.0",
+  "description": "laravel-ready CLI: static binary delivery for legacy PHP projects",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.1",
+    "pact-foundation/composer-downloads-plugin": "^2.2"
+  },
+  "bin": [
+    "bin/laravel-ready",
+    "bin/laravel-ready.bat"
+  ],
+  "extra": {
+    "downloads": {
+      "laravel-ready": {
+        "type": "file",
+        "version": "0.1.0",
+        "url": "https://github.com/ximki-vinki/laravel-ready/releases/download/v{$version}/laravel-ready.exe",
+        "path": "bin/laravel-ready.exe",
+        "executable": true
+      }
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pact-foundation/composer-downloads-plugin": true
+    }
+  },
+  "minimum-stability": "stable"
+}
