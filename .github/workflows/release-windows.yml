@@ -13,16 +13,15 @@ env:
   PHP_MICRO_URL: https://dl.static-php.dev/static-php-cli/windows/spc-max/php-8.5.5-micro-win.zip
 
 jobs:
-  release-windows:
-    name: Build laravel-ready.exe
-    runs-on: windows-latest
+  # Box на Windows нестабилен (блокировка temp-директорий). PHAR собираем на Linux.
+  build-phar:
+    name: Build PHAR
+    runs-on: ubuntu-latest
 
     steps:
-      # Берём код репозитория на коммит тега.
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # PHP на раннере — только для сборки. Пользователь PHP не ставит.
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -30,36 +29,48 @@ jobs:
           tools: composer:v2
           coverage: none
 
-      # Prod-зависимости попадут внутрь static binary.
       - name: Install production dependencies
         run: composer install --no-dev --no-interaction --optimize-autoloader --classmap-authoritative
 
-      # Внутренний шаг: упаковка src + vendor перед склейкой с micro.sfx.
       - name: Bundle application
-        shell: bash
         run: |
           mkdir -p build
           curl -fsSL -o box.phar "${BOX_URL}"
           php -d phar.readonly=0 box.phar compile --no-interaction
 
-      # Статический PHP-рантайм (micro.sfx) — ядро будущего .exe.
+      - name: Upload PHAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: laravel-ready-phar
+          path: build/laravel-ready.phar
+          retention-days: 1
+
+  release-windows:
+    name: Build laravel-ready.exe
+    runs-on: windows-latest
+    needs: build-phar
+
+    steps:
+      - name: Download PHAR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: laravel-ready-phar
+          path: build
+
       - name: Download micro.sfx
         shell: bash
         run: |
           curl -fsSL -o micro.zip "${PHP_MICRO_URL}"
           unzip -j micro.zip micro.sfx -d build
 
-      # Склейка рантайма и приложения → static binary (PHP на машине не нужен).
       - name: Assemble static binary
         shell: cmd
         run: copy /b build\micro.sfx + build\laravel-ready.phar build\laravel-ready.exe
 
-      # Минимальная проверка: бинарник стартует и отдаёт exit 0 без аргументов.
       - name: Smoke test binary
         shell: cmd
         run: build\laravel-ready.exe
 
-      # Прикрепляет laravel-ready.exe к GitHub Release с именем тега (v0.1.0 → Release v0.1.0).
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
