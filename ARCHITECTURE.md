@@ -60,7 +60,7 @@ docker run --rm \
 
 Без `-e FORCE_COLOR=1` stdout в контейнере не TTY — Symfony Console отключает ANSI, вывод без цветов. Для логов без escape-кодов: `-e NO_COLOR=1` или `--no-ansi`.
 
-**Доставка:** static binary (`laravel-ready.exe`) через GitHub Release; установка в чужой проект — через Composer (шаг 3 в `RELEASE_TIERS.md`).
+**Доставка:** static binary (`laravel-ready.exe`) через GitHub Release; в чужой проект — тонкий пакет `laravel-ready/cli` (см. `RELEASE_TIERS.md`).
 
 Подход к разработке — `DEVELOPMENT.md`, `TDD.md`.
 

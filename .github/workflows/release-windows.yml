@@ -38,6 +38,7 @@ jobs:
       - name: Bundle application
         shell: bash
         run: |
+          mkdir -p build
           curl -fsSL -o box.phar "${BOX_URL}"
           php -d phar.readonly=0 box.phar compile --no-interaction
 
