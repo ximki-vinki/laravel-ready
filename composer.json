@@ -1,7 +1,7 @@
 {
   "name": "laravel-ready/tool",
   "description": "CLI: уровень готовности PHP-файлов к миграции в Laravel",
-  "type": "project",
+  "type": "library",
   "license": "MIT",
   "require": {
     "php": "^8.5",

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://box-project.github.io/box/schema.json",
+  "main": "bin/laravel-ready",
+  "output": "build/laravel-ready.phar",
+  "compression": "GZ",
+  "check-requirements": false,
+  "directories": [
+    "src",
+    "vendor"
+  ]
+}
