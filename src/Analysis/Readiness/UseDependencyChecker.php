@@ -27,9 +27,9 @@ final class UseDependencyChecker
         private readonly string $appRoot,
     ) {}
 
-    public function check(AnalysisResult $result): AnalysisResult
+    public function check(AnalysisResult $result, ReadinessLevel $actual): AnalysisResult
     {
-        if (! $this->isGuarded($result)) {
+        if (! $this->isGuarded($actual)) {
             return $result;
         }
 
@@ -44,10 +44,9 @@ final class UseDependencyChecker
         );
     }
 
-    private function isGuarded(AnalysisResult $result): bool
+    private function isGuarded(ReadinessLevel $actual): bool
     {
-        // TODO пока защищаем только LaravelReady
-        return TagFinding::uniqueTags($result->findings)->contains(Tag::LaravelReady);
+        return $actual === ReadinessLevel::LaravelReady;
     }
 
     /**
