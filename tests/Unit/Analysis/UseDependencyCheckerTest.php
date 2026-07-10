@@ -36,13 +36,38 @@ it('adds use findings for multiple wf imports in guarded file', function () {
         ->and($checked->findings)->toContainEqual(new UseFinding('Wf\Legacy\AnotherRepo', 7));
 });
 
-it('does not apply use policy to laravel-adapter file', function () {
+it('does not add use finding for wf import in laravel-adapter file', function () {
     $result = new AnalysisResult(collect([
         new TagFinding(Tag::LaravelAdapter, 3),
         new UseImportFinding('Wf\Legacy\OldRepo', 5),
     ]));
 
     $checked = (new UseDependencyChecker(appRoot()))->check($result, ReadinessLevel::LaravelAdapter);
+
+    expect($checked)->toBe($result)
+        ->and($checked->findings->filter(
+            fn ($finding): bool => $finding instanceof UseFinding,
+        ))->toBeEmpty();
+});
+
+it('adds use finding when laravel-adapter file imports untagged app class', function () {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LaravelAdapter, 7),
+        new UseImportFinding('App\Domain\UntaggedService', 5),
+    ]));
+
+    $checked = new UseDependencyChecker(appRoot())->check($result, ReadinessLevel::LaravelAdapter);
+
+    expect($checked->findings)->toContainEqual(new UseFinding('App\Domain\UntaggedService', 5));
+});
+
+it('does not add use finding when laravel-adapter file imports another laravel-adapter class', function () {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LaravelAdapter, 7),
+        new UseImportFinding('App\Adapter\WfGateway', 5),
+    ]));
+
+    $checked = new UseDependencyChecker(appRoot())->check($result, ReadinessLevel::LaravelAdapter);
 
     expect($checked)->toBe($result)
         ->and($checked->findings->filter(

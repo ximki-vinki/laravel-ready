@@ -11,6 +11,7 @@ use LaravelReady\Analysis\Findings\FunctionCallFinding;
 use LaravelReady\Analysis\Findings\SuperglobalFinding;
 use LaravelReady\Analysis\Findings\TagFinding;
 use LaravelReady\Analysis\Findings\UseFinding;
+use LaravelReady\Analysis\Findings\UseImportFinding;
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
 use LaravelReady\Analysis\Readiness\ReadinessResolver;
 
