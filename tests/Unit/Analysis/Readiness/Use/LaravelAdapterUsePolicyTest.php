@@ -59,6 +59,15 @@ it('denies laravel-ready app import', function () {
         ->toContainEqual(new UseFinding('App\Domain\TaggedService', 5));
 });
 
+it('denies multitagged app import', function () {
+    $result = new AnalysisResult(collect([
+        new UseImportFinding('App\Domain\MultiTaggedService', 5),
+    ]));
+
+    expect((new LaravelAdapterUsePolicy(appRoot()))->violations($result))
+        ->toContainEqual(new UseFinding('App\Domain\MultiTaggedService', 5));
+});
+
 it('denies unresolvable app import', function () {
     $result = new AnalysisResult(collect([
         new UseImportFinding('App\Domain\NonExistent', 5),
