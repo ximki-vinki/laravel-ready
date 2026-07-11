@@ -4,50 +4,29 @@ declare(strict_types=1);
 
 namespace LaravelReady\Analysis\Readiness\Use;
 
-use Illuminate\Support\Collection;
-use LaravelReady\Analysis\AnalysisResult;
-use LaravelReady\Analysis\Findings\UseFinding;
-use LaravelReady\Analysis\Findings\UseImportFinding;
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
+use LaravelReady\Analysis\Readiness\Use\Rule\DenyAppImportByLevelRule;
 
-final readonly class LaravelAdapterUsePolicy
+final readonly class LaravelAdapterUsePolicy extends UsePolicy
 {
     private const array ALLOWED_DEPENDENCY_LEVELS = [
         ReadinessLevel::LaravelAdapter, // @pest-mutate-ignore: RemoveArrayItem
     ];
 
-    private const array APP_FILE_EXTENSIONS = [
-        '.php',       // @pest-mutate-ignore: RemoveArrayItem
+    private const array ADDITIONAL_FILE_EXTENSIONS = [
         '.class.php', // @pest-mutate-ignore: RemoveArrayItem
     ];
 
-    private AppImportReadinessChecker $appImportChecker;
+    public function __construct(private string $appRoot) {}
 
-    public function __construct(string $appRoot)
+    protected function rules(): array
     {
-        $this->appImportChecker = new AppImportReadinessChecker(
-            new AppPathResolver($appRoot, self::APP_FILE_EXTENSIONS),
-            self::ALLOWED_DEPENDENCY_LEVELS,
-        );
-    }
-
-    /**
-     * @return Collection<array-key, UseFinding>
-     */
-    public function violations(AnalysisResult $result): Collection
-    {
-        $violations = collect();
-
-        foreach ($result->findings as $finding) {
-            if (! $finding instanceof UseImportFinding) {
-                continue;
-            }
-
-            if ($this->appImportChecker->isDenied($finding)) {
-                $violations->push(new UseFinding($finding->fqcn, $finding->line));
-            }
-        }
-
-        return $violations;
+        return [
+            new DenyAppImportByLevelRule(
+                $this->appRoot,
+                self::ALLOWED_DEPENDENCY_LEVELS,
+                self::ADDITIONAL_FILE_EXTENSIONS,
+            ),
+        ];
     }
 }

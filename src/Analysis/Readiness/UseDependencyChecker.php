@@ -10,23 +10,21 @@ use LaravelReady\Analysis\Readiness\Use\LaravelReadyUsePolicy;
 
 final readonly class UseDependencyChecker
 {
-    private LaravelReadyUsePolicy $laravelReadyPolicy;
-
-    private LaravelAdapterUsePolicy $laravelAdapterPolicy;
-
-    public function __construct(string $appRoot)
-    {
-        $this->laravelReadyPolicy = new LaravelReadyUsePolicy($appRoot);
-        $this->laravelAdapterPolicy = new LaravelAdapterUsePolicy($appRoot);
-    }
+    public function __construct(private string $appRoot) {}
 
     public function check(AnalysisResult $result, ReadinessLevel $actual): AnalysisResult
     {
-        $violations = match ($actual) {
-            ReadinessLevel::LaravelReady => $this->laravelReadyPolicy->violations($result),
-            ReadinessLevel::LaravelAdapter => $this->laravelAdapterPolicy->violations($result),
-            default => collect(),
+        $policy = match ($actual) {
+            ReadinessLevel::LaravelReady => new LaravelReadyUsePolicy($this->appRoot),
+            ReadinessLevel::LaravelAdapter => new LaravelAdapterUsePolicy($this->appRoot),
+            default => null,
         };
+
+        if ($policy === null) {
+            return $result;
+        }
+
+        $violations = $policy->violations($result);
 
         if ($violations->isEmpty()) {
             return $result;
