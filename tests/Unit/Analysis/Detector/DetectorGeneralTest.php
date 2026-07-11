@@ -10,7 +10,7 @@ use LaravelReady\Analysis\Findings\SuperglobalFinding;
 
 covers(Detector::class);
 
-it('detects only legacy patterns in mixed superglobal, blocked function and clean function fixture', function () {
+it('detects only legacy patterns in mixed superglobal, blocked function and clean function fixture', function (): void {
     $file = fixture('Legacy/Mixed/rules.php');
     $findings = (new Detector)->analyse($file)->findings->values()->all();
 
@@ -20,7 +20,7 @@ it('detects only legacy patterns in mixed superglobal, blocked function and clea
     ]);
 });
 
-it('returns no findings when file cannot be read', function () {
+it('returns no findings when file cannot be read', function (): void {
     $file = '/tmp/laravel-ready-missing-'.uniqid().'.php';
     $findings = (new Detector)->analyse($file)->findings;
 

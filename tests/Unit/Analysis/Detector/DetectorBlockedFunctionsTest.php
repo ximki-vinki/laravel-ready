@@ -8,7 +8,7 @@ use LaravelReady\Analysis\Findings\FunctionCallFinding;
 
 covers(Detector::class);
 
-it('detects legacy define in bare fixture', function () {
+it('detects legacy define in bare fixture', function (): void {
     $file = fixture('Legacy/Functions/bare.php');
     $expected = new FunctionCallFinding(BlockedFunction::Define, 3);
     $findings = (new Detector)->analyse($file)->findings;
@@ -18,7 +18,7 @@ it('detects legacy define in bare fixture', function () {
         ->toContainEqual($expected);
 });
 
-it('detects legacy define in same-line fixture', function () {
+it('detects legacy define in same-line fixture', function (): void {
     $file = fixture('Legacy/Functions/same-line.php');
     $define = new FunctionCallFinding(BlockedFunction::Define, 3);
     $extract = new FunctionCallFinding(BlockedFunction::Extract, 3);
@@ -29,7 +29,7 @@ it('detects legacy define in same-line fixture', function () {
         ->toContainEqual($define, $extract);
 });
 
-it('detects legacy define in all blocked functions fixture', function () {
+it('detects legacy define in all blocked functions fixture', function (): void {
     $file = fixture('Legacy/Functions/all.php');
     $findings = (new Detector)->analyse($file)->findings->values()->all();
 
@@ -52,7 +52,7 @@ it('detects legacy define in all blocked functions fixture', function () {
     ]);
 });
 
-it('detects legacy assert only with string argument', function () {
+it('detects legacy assert only with string argument', function (): void {
     $legacy = fixture('Legacy/Functions/assert.php');
     $clean = fixture('Legacy/Clean/assert.php');
     $legacyFindings = (new Detector)->analyse($legacy)->findings->values()->all();
@@ -64,7 +64,7 @@ it('detects legacy assert only with string argument', function () {
         ->and($cleanFindings)->toBeEmpty();
 });
 
-it('detects legacy parse_str only without result argument', function () {
+it('detects legacy parse_str only without result argument', function (): void {
     $legacy = fixture('Legacy/Functions/parse-str.php');
     $clean = fixture('Legacy/Clean/parse-str.php');
     $legacyFindings = (new Detector)->analyse($legacy)->findings->values()->all();
@@ -76,7 +76,7 @@ it('detects legacy parse_str only without result argument', function () {
         ->and($cleanFindings)->toBeEmpty();
 });
 
-it('detects legacy in blocked function shapes', function (string $fixture, int $line) {
+it('detects legacy in blocked function shapes', function (string $fixture, int $line): void {
     $file = fixture('Legacy/Functions/'.$fixture);
     $expected = new FunctionCallFinding(BlockedFunction::Define, $line);
     $findings = (new Detector)->analyse($file)->findings;
@@ -95,7 +95,7 @@ it('detects legacy in blocked function shapes', function (string $fixture, int $
     'closure' => ['closure.php', 3],
 ]);
 
-it('detects legacy in functions mixed fixture', function () {
+it('detects legacy in functions mixed fixture', function (): void {
     $file = fixture('Legacy/Functions/mixed.php');
     $bare = new FunctionCallFinding(BlockedFunction::Define, 3);
     $assign = new FunctionCallFinding(BlockedFunction::Define, 4);

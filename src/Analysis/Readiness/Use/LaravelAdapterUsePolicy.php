@@ -10,7 +10,7 @@ use LaravelReady\Analysis\Findings\UseFinding;
 use LaravelReady\Analysis\Findings\UseImportFinding;
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
 
-final class LaravelAdapterUsePolicy
+final readonly class LaravelAdapterUsePolicy
 {
     private const array ALLOWED_DEPENDENCY_LEVELS = [
         ReadinessLevel::LaravelAdapter, // @pest-mutate-ignore: RemoveArrayItem
@@ -21,7 +21,7 @@ final class LaravelAdapterUsePolicy
         '.class.php', // @pest-mutate-ignore: RemoveArrayItem
     ];
 
-    private readonly AppImportReadinessChecker $appImportChecker;
+    private AppImportReadinessChecker $appImportChecker;
 
     public function __construct(string $appRoot)
     {

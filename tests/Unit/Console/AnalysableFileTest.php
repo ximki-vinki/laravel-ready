@@ -7,7 +7,7 @@ use Symfony\Component\Finder\SplFileInfo;
 
 covers(AnalysableFile::class);
 
-it('maps explicit file path to basename relative path', function () {
+it('maps explicit file path to basename relative path', function (): void {
     $path = fixture('Legacy/Superglobals/bare.php');
 
     $file = AnalysableFile::fromExplicitFile($path);
@@ -16,7 +16,7 @@ it('maps explicit file path to basename relative path', function () {
         ->and($file->relativePath)->toBe('bare.php');
 });
 
-it('maps directory entry to relative path within directory', function () {
+it('maps directory entry to relative path within directory', function (): void {
     $entry = new SplFileInfo(
         fixture('Legacy/Superglobals/bare.php'),
         'Superglobals',

@@ -6,7 +6,7 @@ use LaravelReady\Console\Commands\AnalyseCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
-it('prints superglobals in var group', function () {
+it('prints superglobals in var group', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -21,7 +21,7 @@ it('prints superglobals in var group', function () {
         ->and($tester->getDisplay())->not->toContain('func:');
 });
 
-it('prints global variables in global group', function () {
+it('prints global variables in global group', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -37,7 +37,7 @@ it('prints global variables in global group', function () {
         ->and($tester->getDisplay())->not->toContain('func:');
 });
 
-it('prints blocked functions in func group', function () {
+it('prints blocked functions in func group', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -52,7 +52,7 @@ it('prints blocked functions in func group', function () {
         ->and($tester->getDisplay())->not->toContain('var:');
 });
 
-it('prints grouped legacy findings for mixed fixture', function () {
+it('prints grouped legacy findings for mixed fixture', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([

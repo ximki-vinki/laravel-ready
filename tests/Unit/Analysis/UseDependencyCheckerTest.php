@@ -12,12 +12,12 @@ use LaravelReady\Analysis\Readiness\UseDependencyChecker;
 
 covers(UseDependencyChecker::class);
 
-it('does not add use finding for wf import in unguarded file', function () {
+it('does not add use finding for wf import in unguarded file', function (): void {
     $result = new AnalysisResult(collect([
         new UseImportFinding('Wf\Legacy\OldRepo', 5),
     ]));
 
-    $checked = (new UseDependencyChecker(appRoot()))->check($result, ReadinessLevel::Untagged);
+    $checked = new UseDependencyChecker(appRoot())->check($result, ReadinessLevel::Untagged);
 
     expect($checked)->toBe($result)
         ->and($checked->findings->filter(
@@ -25,22 +25,22 @@ it('does not add use finding for wf import in unguarded file', function () {
         ))->toBeEmpty();
 });
 
-it('returns same result for guarded file without imports', function () {
+it('returns same result for guarded file without imports', function (): void {
     $result = new AnalysisResult(collect([
         new TagFinding(Tag::LaravelReady, 3),
     ]));
 
-    $checked = (new UseDependencyChecker(appRoot()))->check($result, ReadinessLevel::LaravelReady);
+    $checked = new UseDependencyChecker(appRoot())->check($result, ReadinessLevel::LaravelReady);
 
     expect($checked)->toBe($result);
 });
 
-it('preserves original findings when adding use finding', function () {
+it('preserves original findings when adding use finding', function (): void {
     $import = new UseImportFinding('Wf\Legacy\OldRepo', 5);
     $tag = new TagFinding(Tag::LaravelReady, 3);
     $result = new AnalysisResult(collect([$tag, $import]));
 
-    $checked = (new UseDependencyChecker(appRoot()))->check($result, ReadinessLevel::LaravelReady);
+    $checked = new UseDependencyChecker(appRoot())->check($result, ReadinessLevel::LaravelReady);
 
     expect($checked->findings)->toContainEqual($tag)
         ->and($checked->findings)->toContainEqual($import)

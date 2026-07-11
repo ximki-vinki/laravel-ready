@@ -10,7 +10,7 @@ use LaravelReady\Analysis\Findings\UseFinding;
 use LaravelReady\Analysis\Findings\UseImportFinding;
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
 
-final class LaravelReadyUsePolicy
+final readonly class LaravelReadyUsePolicy
 {
     private const string DENIED_NAMESPACE_PREFIX = 'Wf\\';
 
@@ -23,7 +23,7 @@ final class LaravelReadyUsePolicy
         '.php',       // @pest-mutate-ignore: RemoveArrayItem
     ];
 
-    private readonly AppImportReadinessChecker $appImportChecker;
+    private AppImportReadinessChecker $appImportChecker;
 
     public function __construct(string $appRoot)
     {

@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 covers(CliValidationPresenter::class);
 
-it('returns success for valid app root', function () {
+it('returns success for valid app root', function (): void {
     $output = new BufferedOutput;
 
     $exitCode = (new CliValidationPresenter)->presentAppRoot(appRoot(), new Filesystem, $output);
@@ -18,7 +18,7 @@ it('returns success for valid app root', function () {
         ->and($output->fetch())->toBe('');
 });
 
-it('returns failure when app root is missing', function () {
+it('returns failure when app root is missing', function (): void {
     $output = new BufferedOutput;
 
     $exitCode = (new CliValidationPresenter)->presentAppRoot(null, new Filesystem, $output);
@@ -28,7 +28,7 @@ it('returns failure when app root is missing', function () {
         ->not->toContain('App root not found:');
 });
 
-it('returns failure when app root is empty string', function () {
+it('returns failure when app root is empty string', function (): void {
     $output = new BufferedOutput;
 
     $exitCode = (new CliValidationPresenter)->presentAppRoot('', new Filesystem, $output);
@@ -38,7 +38,7 @@ it('returns failure when app root is empty string', function () {
         ->not->toContain('App root not found:');
 });
 
-it('returns failure when app root directory is missing', function () {
+it('returns failure when app root directory is missing', function (): void {
     $output = new BufferedOutput;
     $missing = '/tmp/laravel-ready-missing-root-'.uniqid();
 
@@ -48,7 +48,7 @@ it('returns failure when app root directory is missing', function () {
         ->and($output->fetch())->toContain('App root not found: '.$missing);
 });
 
-it('returns success for existing php file path', function () {
+it('returns success for existing php file path', function (): void {
     $output = new BufferedOutput;
 
     $exitCode = (new CliValidationPresenter)->presentPath(fixture('Legacy/Clean/empty.php'), new Filesystem, $output);
@@ -57,7 +57,7 @@ it('returns success for existing php file path', function () {
         ->and($output->fetch())->toBe('');
 });
 
-it('returns failure when path does not exist', function () {
+it('returns failure when path does not exist', function (): void {
     $output = new BufferedOutput;
     $missing = '/tmp/laravel-ready-missing-'.uniqid().'.php';
 
@@ -67,7 +67,7 @@ it('returns failure when path does not exist', function () {
         ->and($output->fetch())->toContain('File not found: '.$missing);
 });
 
-it('returns invalid when path is not a php file', function () {
+it('returns invalid when path is not a php file', function (): void {
     $output = new BufferedOutput;
 
     $exitCode = (new CliValidationPresenter)->presentPath(fixture('not-php.txt'), new Filesystem, $output);

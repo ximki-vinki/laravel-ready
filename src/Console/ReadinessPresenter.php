@@ -7,6 +7,7 @@ namespace LaravelReady\Console;
 use LaravelReady\Analysis\Readiness\ReadinessResult;
 use LaravelReady\Console\Output\FindingsOutput;
 use LaravelReady\Console\Output\HeaderOutput;
+use LaravelReady\Console\Output\ReadinessFooter;
 use LaravelReady\Console\Output\ReadinessFooterOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -22,7 +23,7 @@ final class ReadinessPresenter
             (new FindingsOutput)->write($output, $readiness);
         }
 
-        if ($plan->footer !== null) {
+        if ($plan->footer instanceof ReadinessFooter) {
             (new ReadinessFooterOutput)->write($output, $plan->footer);
         }
 

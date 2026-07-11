@@ -21,7 +21,7 @@ final class TagVisitor extends NodeVisitorAbstract
         $docComment = $node->getDocComment()?->getText();
         $tag = $docComment !== null ? Tag::tryFromDocComment($docComment) : null;
 
-        if ($tag !== null) {
+        if ($tag instanceof Tag) {
             $this->findings->push(new TagFinding($tag, $node->getStartLine()));
         }
 

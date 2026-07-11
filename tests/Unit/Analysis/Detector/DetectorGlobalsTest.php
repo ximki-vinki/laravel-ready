@@ -7,7 +7,7 @@ use LaravelReady\Analysis\Findings\GlobalFinding;
 
 covers(Detector::class);
 
-it('detects legacy global in bare fixture', function () {
+it('detects legacy global in bare fixture', function (): void {
     $file = fixture('Legacy/Global/bare.php');
     $expected = new GlobalFinding('foo', 3);
     $findings = (new Detector)->analyse($file)->findings;
@@ -17,7 +17,7 @@ it('detects legacy global in bare fixture', function () {
         ->toContainEqual($expected);
 });
 
-it('detects legacy global in same-line fixture', function () {
+it('detects legacy global in same-line fixture', function (): void {
     $file = fixture('Legacy/Global/same-line.php');
     $foo = new GlobalFinding('foo', 3);
     $bar = new GlobalFinding('bar', 3);
@@ -28,7 +28,7 @@ it('detects legacy global in same-line fixture', function () {
         ->toContainEqual($foo, $bar);
 });
 
-it('detects legacy in global shapes', function (string $fixture, int $line) {
+it('detects legacy in global shapes', function (string $fixture, int $line): void {
     $file = fixture('Legacy/Global/'.$fixture);
     $expected = new GlobalFinding('foo', $line);
     $findings = (new Detector)->analyse($file)->findings;
@@ -41,7 +41,7 @@ it('detects legacy in global shapes', function (string $fixture, int $line) {
     'in-class' => ['in-class.php', 7],
 ]);
 
-it('detects legacy in global mixed fixture', function () {
+it('detects legacy in global mixed fixture', function (): void {
     $file = fixture('Legacy/Global/mixed.php');
     $bare = new GlobalFinding('foo', 3);
     $inFunction = new GlobalFinding('baz', 8);

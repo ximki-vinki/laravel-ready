@@ -8,7 +8,7 @@ use LaravelReady\Analysis\Findings\SuperglobalFinding;
 
 covers(Detector::class);
 
-it('detects legacy in bare fixture', function () {
+it('detects legacy in bare fixture', function (): void {
     $file = fixture('Legacy/Superglobals/bare.php');
     $globals = new SuperglobalFinding(SuperglobalName::Globals, 3);
     $cookie = new SuperglobalFinding(SuperglobalName::Cookie, 4);
@@ -19,7 +19,7 @@ it('detects legacy in bare fixture', function () {
         ->toContainEqual($globals, $cookie);
 });
 
-it('detects legacy in same-line fixture', function () {
+it('detects legacy in same-line fixture', function (): void {
     $file = fixture('Legacy/Superglobals/same-line.php');
     $globals = new SuperglobalFinding(SuperglobalName::Globals, 3);
     $cookie = new SuperglobalFinding(SuperglobalName::Cookie, 3);
@@ -30,7 +30,7 @@ it('detects legacy in same-line fixture', function () {
         ->toContainEqual($globals, $cookie);
 });
 
-it('detects legacy in all superglobals fixture', function () {
+it('detects legacy in all superglobals fixture', function (): void {
     $file = fixture('Legacy/Superglobals/all.php');
     $findings = (new Detector)->analyse($file)->findings->values()->all();
 
@@ -47,7 +47,7 @@ it('detects legacy in all superglobals fixture', function () {
     ]);
 });
 
-it('detects legacy in superglobal shapes', function (string $fixture, int $line) {
+it('detects legacy in superglobal shapes', function (string $fixture, int $line): void {
     $file = fixture('Legacy/Superglobals/'.$fixture);
     $expected = new SuperglobalFinding(SuperglobalName::Globals, $line);
     $findings = (new Detector)->analyse($file)->findings;
@@ -67,7 +67,7 @@ it('detects legacy in superglobal shapes', function (string $fixture, int $line)
     'foreach' => ['foreach.php', 3],
 ]);
 
-it('detects legacy in mixed fixture', function () {
+it('detects legacy in mixed fixture', function (): void {
     $file = fixture('Legacy/Superglobals/mixed.php');
     $globalsBare = new SuperglobalFinding(SuperglobalName::Globals, 3);
     $cookieAssign = new SuperglobalFinding(SuperglobalName::Cookie, 4);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelReady\Analysis\Readiness\Use;
 
-final class AppPathResolver
+final readonly class AppPathResolver
 {
     private const string NAMESPACE_PREFIX = 'App\\';
 
@@ -12,8 +12,8 @@ final class AppPathResolver
      * @param  list<string>  $fileExtensions
      */
     public function __construct(
-        private readonly string $appRoot,
-        private readonly array $fileExtensions,
+        private string $appRoot,
+        private array $fileExtensions,
     ) {}
 
     public static function matches(string $fqcn): bool
@@ -25,8 +25,8 @@ final class AppPathResolver
     {
         $relativePath = self::NAMESPACE_PREFIX
                 |> strlen(...)
-                |> (fn ($x) => substr($fqcn, $x))
-                |> (fn ($x) => str_replace('\\', '/', $x));
+                |> (fn ($x): string => substr($fqcn, $x))
+                |> (fn ($x): string => str_replace('\\', '/', $x));
 
         foreach ($this->fileExtensions as $extension) {
             $path = $this->appRoot.'/'.$relativePath.$extension;

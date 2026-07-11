@@ -13,13 +13,13 @@ use LaravelReady\Analysis\Findings\UseFinding;
 use LaravelReady\Console\Output\FindingSectionBuilder;
 use LaravelReady\Console\Output\FindingSectionLabel;
 
-it('returns no sections for empty findings', function () {
+it('returns no sections for empty findings', function (): void {
     $sections = (new FindingSectionBuilder)->build(collect());
 
     expect($sections)->toBeEmpty();
 });
 
-it('groups superglobals under var section', function () {
+it('groups superglobals under var section', function (): void {
     $sections = (new FindingSectionBuilder)->build(collect([
         new SuperglobalFinding(SuperglobalName::Get, 3),
         new SuperglobalFinding(SuperglobalName::Cookie, 7),
@@ -30,7 +30,7 @@ it('groups superglobals under var section', function () {
         ->and($sections->first()->findings)->toHaveCount(2);
 });
 
-it('groups globals and functions into separate sections', function () {
+it('groups globals and functions into separate sections', function (): void {
     $sections = (new FindingSectionBuilder)->build(collect([
         new GlobalFinding('foo', 2),
         new FunctionCallFinding(BlockedFunction::Define, 5),
@@ -41,7 +41,7 @@ it('groups globals and functions into separate sections', function () {
         ->and($sections->get(1)->label)->toBe(FindingSectionLabel::Func);
 });
 
-it('orders sections as var global func use', function () {
+it('orders sections as var global func use', function (): void {
     $sections = (new FindingSectionBuilder)->build(collect([
         new UseFinding('Wf\Legacy\OldRepo', 11),
         new FunctionCallFinding(BlockedFunction::Define, 9),
@@ -57,7 +57,7 @@ it('orders sections as var global func use', function () {
     ]);
 });
 
-it('groups use findings under use section', function () {
+it('groups use findings under use section', function (): void {
     $sections = (new FindingSectionBuilder)->build(collect([
         new UseFinding('Wf\Legacy\OldRepo', 5),
     ]));
@@ -67,7 +67,7 @@ it('groups use findings under use section', function () {
         ->and($sections->first()->findings)->toHaveCount(1);
 });
 
-it('excludes tag findings from sections', function () {
+it('excludes tag findings from sections', function (): void {
     $sections = (new FindingSectionBuilder)->build(collect([
         new TagFinding(Tag::LaravelReady, 1),
         new SuperglobalFinding(SuperglobalName::Get, 3),
@@ -78,7 +78,7 @@ it('excludes tag findings from sections', function () {
         ->and($sections->first()->findings)->toHaveCount(1);
 });
 
-it('omits empty section types', function () {
+it('omits empty section types', function (): void {
     $sections = (new FindingSectionBuilder)->build(collect([
         new SuperglobalFinding(SuperglobalName::Get, 3),
     ]));

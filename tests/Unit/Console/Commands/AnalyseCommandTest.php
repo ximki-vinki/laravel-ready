@@ -8,7 +8,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 
 covers(AnalyseCommand::class);
 
-it('returns success when run without path', function () {
+it('returns success when run without path', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([]);
@@ -17,7 +17,7 @@ it('returns success when run without path', function () {
         ->and($tester->getDisplay())->toContain('Arguments:');
 });
 
-it('fails when app root is missing', function () {
+it('fails when app root is missing', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute(['path' => [fixture('Legacy/Clean/empty.php')]]);
@@ -26,7 +26,7 @@ it('fails when app root is missing', function () {
         ->and($tester->getDisplay())->toContain('App root is required. Pass --app-root=/path/to/project/app');
 });
 
-it('fails when app root does not exist', function () {
+it('fails when app root does not exist', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -38,7 +38,7 @@ it('fails when app root does not exist', function () {
         ->and($tester->getDisplay())->toContain('App root not found:');
 });
 
-it('fails when path does not exist', function () {
+it('fails when path does not exist', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
     $code = $tester->execute([
         'path' => ['/tmp/laravel-ready-missing-'.uniqid().'.php'],
@@ -48,7 +48,7 @@ it('fails when path does not exist', function () {
         ->and($tester->getDisplay())->toContain('File not found');
 });
 
-it('returns invalid when path is not a php file', function () {
+it('returns invalid when path is not a php file', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -60,7 +60,7 @@ it('returns invalid when path is not a php file', function () {
         ->and($tester->getDisplay())->toContain('Expected a PHP file');
 });
 
-it('returns success for laravel-ready fixture without blockers', function () {
+it('returns success for laravel-ready fixture without blockers', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -72,7 +72,7 @@ it('returns success for laravel-ready fixture without blockers', function () {
         ->and($tester->getDisplay())->toContain('class.php : LaravelReady');
 });
 
-it('returns success for laravel-adapter fixture without blockers', function () {
+it('returns success for laravel-adapter fixture without blockers', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -84,7 +84,7 @@ it('returns success for laravel-adapter fixture without blockers', function () {
         ->and($tester->getDisplay())->toContain('class.php : LaravelAdapter');
 });
 
-it('returns success for legacy-code fixture with legacy finding', function () {
+it('returns success for legacy-code fixture with legacy finding', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -96,7 +96,7 @@ it('returns success for legacy-code fixture with legacy finding', function () {
         ->and($tester->getDisplay())->toContain('var: $_GET');
 });
 
-it('returns failure when laravel-ready fixture has legacy blocker', function () {
+it('returns failure when laravel-ready fixture has legacy blocker', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -108,7 +108,7 @@ it('returns failure when laravel-ready fixture has legacy blocker', function () 
         ->and($tester->getDisplay())->toContain('Guard failed: @laravel-ready file must stay LaravelReady.');
 });
 
-it('returns failure when laravel-adapter fixture has legacy blocker', function () {
+it('returns failure when laravel-adapter fixture has legacy blocker', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -120,7 +120,7 @@ it('returns failure when laravel-adapter fixture has legacy blocker', function (
         ->and($tester->getDisplay())->toContain('Guard failed: @laravel-adapter file must stay LaravelAdapter.');
 });
 
-it('returns failure for file with multiple tags', function () {
+it('returns failure for file with multiple tags', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -132,7 +132,7 @@ it('returns failure for file with multiple tags', function () {
         ->and($tester->getDisplay())->toContain('MultiTag failed: file must have only one tag.');
 });
 
-it('returns failure for untagged file', function () {
+it('returns failure for untagged file', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -144,7 +144,7 @@ it('returns failure for untagged file', function () {
         ->and($tester->getDisplay())->toContain('Not guarded: file has no tag.');
 });
 
-it('prints denied use import for guarded file', function () {
+it('prints denied use import for guarded file', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -156,7 +156,7 @@ it('prints denied use import for guarded file', function () {
         ->and($tester->getDisplay())->toContain('use: Wf\Legacy\OldRepo (line 5)');
 });
 
-it('prints denied use import for untagged app class when app root is passed', function () {
+it('prints denied use import for untagged app class when app root is passed', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -168,7 +168,7 @@ it('prints denied use import for untagged app class when app root is passed', fu
         ->and($tester->getDisplay())->toContain('use: App\Domain\UntaggedService (line 5)');
 });
 
-it('analyses php files in subdirectories', function () {
+it('analyses php files in subdirectories', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -181,7 +181,7 @@ it('analyses php files in subdirectories', function () {
         ->and($tester->getDisplay())->toContain('Clean/empty.php');
 });
 
-it('analyses multiple file paths passed as separate arguments', function () {
+it('analyses multiple file paths passed as separate arguments', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([

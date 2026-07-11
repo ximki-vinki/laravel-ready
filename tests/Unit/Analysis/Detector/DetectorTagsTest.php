@@ -10,7 +10,7 @@ use LaravelReady\Analysis\Findings\TagFinding;
 
 covers(Detector::class);
 
-it('detects tag on clean fixture', function (Tag $expected, string $path, int $line) {
+it('detects tag on clean fixture', function (Tag $expected, string $path, int $line): void {
     $result = (new Detector)->analyse(fixture($path));
 
     expect($result->findings)->toContainEqual(new TagFinding($expected, $line));
@@ -22,7 +22,7 @@ it('detects tag on clean fixture', function (Tag $expected, string $path, int $l
     'laravel-adapter on class' => [Tag::LaravelAdapter, 'Tags/laravel-adapter/class.php', 4],
 ]);
 
-it('detects no tag in clean fixtures', function (string $fixture) {
+it('detects no tag in clean fixtures', function (string $fixture): void {
     $result = (new Detector)->analyse(fixture('Tags/Clean/'.$fixture));
 
     expect($result->findings->filter(
@@ -35,7 +35,7 @@ it('detects no tag in clean fixtures', function (string $fixture) {
     'similar-tag' => ['similar-tag.php'],
 ]);
 
-it('detects tag alongside blockers in mixed fixture', function () {
+it('detects tag alongside blockers in mixed fixture', function (): void {
     $result = (new Detector)->analyse(fixture('Tags/Mixed/tag-and-blocker.php'));
 
     expect($result->findings)->toContainEqual(new TagFinding(Tag::Legacy, 4))

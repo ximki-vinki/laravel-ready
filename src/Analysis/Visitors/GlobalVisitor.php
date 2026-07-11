@@ -24,10 +24,12 @@ final class GlobalVisitor extends NodeVisitorAbstract
         }
 
         foreach ($node->vars as $variable) {
-            if (! $variable instanceof Variable || ! is_string($variable->name)) {
+            if (! $variable instanceof Variable) {
                 continue;
             }
-
+            if (! is_string($variable->name)) {
+                continue;
+            }
             $this->findings->push(new GlobalFinding(
                 $variable->name,
                 $variable->getStartLine(),

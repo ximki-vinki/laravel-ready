@@ -9,10 +9,6 @@ use LaravelReady\Analysis\Readiness\Guard\GuardEvaluator;
 
 final readonly class ReadinessResolver
 {
-    public function __construct()
-    {
-    }
-
     public function resolve(AnalysisResult $result, string $appRoot): ReadinessResult
     {
         $actual = new ReadinessLevelResolver()->fromResult($result);

@@ -6,7 +6,7 @@ use LaravelReady\Analysis\Detector;
 
 covers(Detector::class);
 
-it('detects no legacy in clean fixtures', function (string $fixture) {
+it('detects no legacy in clean fixtures', function (string $fixture): void {
     $file = fixture('Legacy/Clean/'.$fixture);
     $findings = (new Detector)->analyse($file)->findings;
 

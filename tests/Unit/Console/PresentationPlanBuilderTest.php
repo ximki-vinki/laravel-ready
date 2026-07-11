@@ -11,7 +11,7 @@ use LaravelReady\Console\PresentationPlanBuilder;
 
 covers(PresentationPlanBuilder::class);
 
-it('builds clean plan for laravel ready without blockers', function () {
+it('builds clean plan for laravel ready without blockers', function (): void {
     $readiness = new ReadinessResult(ReadinessLevel::LaravelReady, false, collect());
     $plan = (new PresentationPlanBuilder)->build($readiness);
 
@@ -23,7 +23,7 @@ it('builds clean plan for laravel ready without blockers', function () {
     ));
 });
 
-it('builds clean plan for laravel adapter without blockers', function () {
+it('builds clean plan for laravel adapter without blockers', function (): void {
     $readiness = new ReadinessResult(ReadinessLevel::LaravelAdapter, false, collect());
     $plan = (new PresentationPlanBuilder)->build($readiness);
 
@@ -32,7 +32,7 @@ it('builds clean plan for laravel adapter without blockers', function () {
         ->and($plan->exitCode)->toBe(0);
 });
 
-it('builds legacy info plan with findings and success exit', function () {
+it('builds legacy info plan with findings and success exit', function (): void {
     $readiness = new ReadinessResult(ReadinessLevel::Legacy, false, collect());
     $plan = (new PresentationPlanBuilder)->build($readiness);
 
@@ -42,7 +42,7 @@ it('builds legacy info plan with findings and success exit', function () {
         ->and($plan->exitCode)->toBe(0);
 });
 
-it('builds tag invalid plan for untagged', function () {
+it('builds tag invalid plan for untagged', function (): void {
     $readiness = new ReadinessResult(ReadinessLevel::Untagged, true, collect());
     $plan = (new PresentationPlanBuilder)->build($readiness);
 
@@ -52,7 +52,7 @@ it('builds tag invalid plan for untagged', function () {
         ->and($plan->exitCode)->toBe(1);
 });
 
-it('builds tag invalid plan for multi tag', function () {
+it('builds tag invalid plan for multi tag', function (): void {
     $readiness = new ReadinessResult(ReadinessLevel::MultiTag, true, collect());
     $plan = (new PresentationPlanBuilder)->build($readiness);
 
@@ -62,7 +62,7 @@ it('builds tag invalid plan for multi tag', function () {
         ->and($plan->exitCode)->toBe(1);
 });
 
-it('builds guard failed plan when laravel ready has blockers', function () {
+it('builds guard failed plan when laravel ready has blockers', function (): void {
     $readiness = new ReadinessResult(ReadinessLevel::LaravelReady, true, collect());
     $plan = (new PresentationPlanBuilder)->build($readiness);
 
@@ -72,7 +72,7 @@ it('builds guard failed plan when laravel ready has blockers', function () {
         ->and($plan->exitCode)->toBe(1);
 });
 
-it('builds adapter failed plan when laravel adapter has blockers', function () {
+it('builds adapter failed plan when laravel adapter has blockers', function (): void {
     $readiness = new ReadinessResult(ReadinessLevel::LaravelAdapter, true, collect());
     $plan = (new PresentationPlanBuilder)->build($readiness);
 
