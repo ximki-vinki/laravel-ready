@@ -14,23 +14,26 @@ final class GuardEvaluator
 {
     public function hasBlockers(AnalysisResult $result, ReadinessLevel $actual): bool
     {
-        if (in_array($actual, [ReadinessLevel::MultiTag, ReadinessLevel::Untagged])) {
-            return true;
-        }
+        return match ($actual) {
+            ReadinessLevel::MultiTag,
+            ReadinessLevel::Untagged => true,
+            ReadinessLevel::LaravelReady => $this->hasAnyLegacyFinding($result),
+            ReadinessLevel::LaravelAdapter => $this->hasAstBlocker($result),
+            default => false,
+        };
+    }
 
-        if ($actual === ReadinessLevel::LaravelAdapter) {
-            return $result->findings->contains(
-                fn (Finding $finding): bool => $finding instanceof LegacyFinding && ! $finding instanceof UseFinding,
-            );
-        }
-
-        // TODO пока работаем только с LaravelReady, что бы можно уже было пользоваться
-        if ($actual !== ReadinessLevel::LaravelReady) {
-            return false;
-        }
-
+    private function hasAnyLegacyFinding(AnalysisResult $result): bool
+    {
         return $result->findings->contains(
             fn (Finding $finding): bool => $finding instanceof LegacyFinding,
+        );
+    }
+
+    private function hasAstBlocker(AnalysisResult $result): bool
+    {
+        return $result->findings->contains(
+            fn (Finding $finding): bool => $finding instanceof LegacyFinding && ! $finding instanceof UseFinding,
         );
     }
 }
