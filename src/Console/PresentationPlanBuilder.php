@@ -83,7 +83,6 @@ final class PresentationPlanBuilder
                     footer: null,
                     exitCode: 0,
                 ),
-            default => throw new \LogicException("Presentation is not defined for {$readiness->actual->value}."),
         };
     }
 }

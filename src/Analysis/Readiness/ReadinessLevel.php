@@ -13,5 +13,4 @@ enum ReadinessLevel: string
     case LegacyPerfect = 'LegacyPerfect';
     case LaravelAdapter = 'LaravelAdapter';
     case LaravelReady = 'LaravelReady';
-    case LaravelPerfect = 'LaravelPerfect';
 }
