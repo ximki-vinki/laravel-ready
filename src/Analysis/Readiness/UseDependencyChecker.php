@@ -19,6 +19,7 @@ final readonly class UseDependencyChecker
             ReadinessLevel::LaravelReady => new LaravelReadyUsePolicy($this->appRoot),
             ReadinessLevel::LaravelAdapter => new LaravelAdapterUsePolicy($this->appRoot),
             ReadinessLevel::LegacyAdapter => new LegacyAdapterUsePolicy($this->appRoot),
+            // ReadinessLevel::Legacy as default
             default => null,
         };
 

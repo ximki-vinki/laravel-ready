@@ -25,6 +25,20 @@ it('does not add use finding for wf import in unguarded file', function (): void
         ))->toBeEmpty();
 });
 
+it('does not add use finding when legacy-code imports laravel-ready', function (): void {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::Legacy, 3),
+        new UseImportFinding('App\Domain\TaggedService', 5),
+    ]));
+
+    $checked = new UseDependencyChecker(appRoot())->check($result, ReadinessLevel::Legacy);
+
+    expect($checked)->toBe($result)
+        ->and($checked->findings->filter(
+            fn ($finding): bool => $finding instanceof UseFinding,
+        ))->toBeEmpty();
+});
+
 it('returns same result for guarded file without imports', function (): void {
     $result = new AnalysisResult(collect([
         new TagFinding(Tag::LaravelReady, 3),

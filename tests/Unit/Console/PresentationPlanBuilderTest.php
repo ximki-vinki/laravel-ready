@@ -42,6 +42,26 @@ it('builds legacy info plan with findings and success exit', function (): void {
         ->and($plan->exitCode)->toBe(0);
 });
 
+it('builds quiet plan for legacy adapter without blockers', function (): void {
+    $readiness = new ReadinessResult(ReadinessLevel::LegacyAdapter, false, collect());
+    $plan = (new PresentationPlanBuilder)->build($readiness);
+
+    expect($plan->headerStyle)->toBe(HeaderStyle::Clean)
+        ->and($plan->showFindings)->toBeFalse()
+        ->and($plan->footer)->toBeNull()
+        ->and($plan->exitCode)->toBe(0);
+});
+
+it('builds failed plan when legacy adapter has blockers', function (): void {
+    $readiness = new ReadinessResult(ReadinessLevel::LegacyAdapter, true, collect());
+    $plan = (new PresentationPlanBuilder)->build($readiness);
+
+    expect($plan->headerStyle)->toBe(HeaderStyle::Error)
+        ->and($plan->showFindings)->toBeTrue()
+        ->and($plan->footer)->toBe(ReadinessFooter::LegacyAdapterFailed)
+        ->and($plan->exitCode)->toBe(1);
+});
+
 it('builds tag invalid plan for untagged', function (): void {
     $readiness = new ReadinessResult(ReadinessLevel::Untagged, true, collect());
     $plan = (new PresentationPlanBuilder)->build($readiness);

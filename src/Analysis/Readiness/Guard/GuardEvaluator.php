@@ -20,6 +20,7 @@ final class GuardEvaluator
             ReadinessLevel::LaravelReady => $this->hasLegacyFinding($result) || $this->hasUseFinding($result),
             ReadinessLevel::LaravelAdapter => $this->hasLegacyFinding($result),
             ReadinessLevel::LegacyAdapter => $this->hasUseFinding($result),
+            // ReadinessLevel::Legacy as default
             default => false,
         };
     }

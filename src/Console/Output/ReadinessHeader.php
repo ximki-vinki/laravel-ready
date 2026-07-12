@@ -20,6 +20,7 @@ final class ReadinessHeader
             HeaderStyle::Clean => match ($readiness->actual) {
                 // TODO LegacyPerfect => '<fg=green>'.$line.'</>',
                 // TODO LaravelPerfect => '<fg=bright-cyan>'.$line.'</>',
+                ReadinessLevel::LegacyAdapter => '<fg=yellow>'.$line.'</>',
                 ReadinessLevel::LaravelAdapter => '<fg=cyan>'.$line.'</>',
                 ReadinessLevel::LaravelReady => '<fg=bright-green>'.$line.'</>',
                 default => $line,

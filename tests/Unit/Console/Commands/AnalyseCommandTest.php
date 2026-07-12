@@ -84,6 +84,32 @@ it('returns success for laravel-adapter fixture without blockers', function (): 
         ->and($tester->getDisplay())->toContain('class.php : LaravelAdapter');
 });
 
+it('returns success for legacy-adapter fixture and hides legacy findings', function (): void {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [fixture('Tags/legacy-adapter/with-blocker.php')],
+        '--app-root' => appRoot(),
+    ]);
+
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('with-blocker.php : LegacyAdapter')
+        ->and($tester->getDisplay())->not->toContain('$_GET');
+});
+
+it('returns failure when legacy-adapter imports laravel-ready', function (): void {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [fixture('Use/project/app/Adapter/UsesReady.php')],
+        '--app-root' => appRoot(),
+    ]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('Guard failed: @legacy-adapter file must stay in legacy contour.')
+        ->and($tester->getDisplay())->toContain('App\Domain\TaggedService');
+});
+
 it('returns success for legacy-code fixture with legacy finding', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 

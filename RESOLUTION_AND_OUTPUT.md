@@ -61,6 +61,8 @@ Exit code, наличие findings и «успех для hook'а» — **три
 |----------|------|
 | Файл без метки или с несколькими метками | `1` |
 | `@legacy-code` (с findings или без) | `0` |
+| `@legacy-adapter` без blockers (AST ок, deps ок) | `0` |
+| `@legacy-adapter` с UseFinding | `1` |
 | `@laravel-ready` / `@laravel-adapter` без blockers | `0` |
 | `@laravel-ready` / `@laravel-adapter` с blockers | `1` |
 | Ошибка CLI (файл не найден, не `.php`) | `≠ 0` |
