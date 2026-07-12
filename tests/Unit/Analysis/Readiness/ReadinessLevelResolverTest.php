@@ -34,6 +34,12 @@ it('resolves legacy adapter for legacy-adapter tag', function (): void {
     expect((new ReadinessLevelResolver)->fromResult($result))->toBe(ReadinessLevel::LegacyAdapter);
 });
 
+it('resolves legacy perfect for legacy-perfect tag', function (): void {
+    $result = new AnalysisResult(collect([new TagFinding(Tag::LegacyPerfect, 3)]));
+
+    expect((new ReadinessLevelResolver)->fromResult($result))->toBe(ReadinessLevel::LegacyPerfect);
+});
+
 it('resolves legacy for legacy-code tag', function (): void {
     $result = new AnalysisResult(collect([new TagFinding(Tag::Legacy, 4)]));
 

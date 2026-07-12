@@ -21,6 +21,7 @@ it('detects tag on clean fixture', function (Tag $expected, string $path, int $l
     'laravel-ready on class' => [Tag::LaravelReady, 'Tags/laravel-ready/class.php', 4],
     'laravel-adapter on class' => [Tag::LaravelAdapter, 'Tags/laravel-adapter/class.php', 4],
     'legacy-adapter on class' => [Tag::LegacyAdapter, 'Tags/legacy-adapter/class.php', 4],
+    'legacy-perfect on class' => [Tag::LegacyPerfect, 'Tags/legacy-perfect/class.php', 4],
 ]);
 
 it('detects no tag in clean fixtures', function (string $fixture): void {

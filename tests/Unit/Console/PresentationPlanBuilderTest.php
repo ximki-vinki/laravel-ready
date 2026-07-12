@@ -52,6 +52,16 @@ it('builds quiet plan for legacy adapter without blockers', function (): void {
         ->and($plan->exitCode)->toBe(0);
 });
 
+it('builds quiet plan for legacy perfect without blockers', function (): void {
+    $readiness = new ReadinessResult(ReadinessLevel::LegacyPerfect, false, collect());
+    $plan = (new PresentationPlanBuilder)->build($readiness);
+
+    expect($plan->headerStyle)->toBe(HeaderStyle::Clean)
+        ->and($plan->showFindings)->toBeFalse()
+        ->and($plan->footer)->toBeNull()
+        ->and($plan->exitCode)->toBe(0);
+});
+
 it('builds failed plan when legacy adapter has blockers', function (): void {
     $readiness = new ReadinessResult(ReadinessLevel::LegacyAdapter, true, collect());
     $plan = (new PresentationPlanBuilder)->build($readiness);
@@ -59,6 +69,16 @@ it('builds failed plan when legacy adapter has blockers', function (): void {
     expect($plan->headerStyle)->toBe(HeaderStyle::Error)
         ->and($plan->showFindings)->toBeTrue()
         ->and($plan->footer)->toBe(ReadinessFooter::LegacyAdapterFailed)
+        ->and($plan->exitCode)->toBe(1);
+});
+
+it('builds failed plan when legacy perfect has blockers', function (): void {
+    $readiness = new ReadinessResult(ReadinessLevel::LegacyPerfect, true, collect());
+    $plan = (new PresentationPlanBuilder)->build($readiness);
+
+    expect($plan->headerStyle)->toBe(HeaderStyle::Error)
+        ->and($plan->showFindings)->toBeTrue()
+        ->and($plan->footer)->toBe(ReadinessFooter::LegacyPerfectFailed)
         ->and($plan->exitCode)->toBe(1);
 });
 

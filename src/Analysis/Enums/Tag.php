@@ -11,6 +11,7 @@ enum Tag: string
 {
     case Legacy = 'legacy-code';
     case LegacyAdapter = 'legacy-adapter';
+    case LegacyPerfect = 'legacy-perfect';
     case LaravelAdapter = 'laravel-adapter';
     case LaravelReady = 'laravel-ready';
 

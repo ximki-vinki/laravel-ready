@@ -26,6 +26,7 @@ final class ReadinessLevelResolver
             $tags->count() > 1 => ReadinessLevel::MultiTag,
             default => match ($tags->first()) {
                 Tag::LegacyAdapter => ReadinessLevel::LegacyAdapter,
+                Tag::LegacyPerfect => ReadinessLevel::LegacyPerfect,
                 Tag::LaravelAdapter => ReadinessLevel::LaravelAdapter,
                 Tag::LaravelReady => ReadinessLevel::LaravelReady,
                 Tag::Legacy => ReadinessLevel::Legacy,

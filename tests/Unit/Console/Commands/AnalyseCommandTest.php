@@ -97,6 +97,45 @@ it('returns success for legacy-adapter fixture and hides legacy findings', funct
         ->and($tester->getDisplay())->not->toContain('$_GET');
 });
 
+it('returns success for legacy-perfect fixture', function (): void {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [fixture('Tags/legacy-perfect/class.php')],
+        '--app-root' => appRoot(),
+    ]);
+
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('class.php : LegacyPerfect');
+});
+
+it('returns failure when legacy-perfect has ast blocker', function (): void {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [fixture('Tags/legacy-perfect/with-blocker.php')],
+        '--app-root' => appRoot(),
+    ]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('with-blocker.php : LegacyPerfect')
+        ->and($tester->getDisplay())->toContain('$_GET')
+        ->and($tester->getDisplay())->toContain('Guard failed: @legacy-perfect file must stay cleaned in legacy contour.');
+});
+
+it('returns failure when legacy-perfect imports laravel-ready', function (): void {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [fixture('Use/project/app/Domain/PerfectUsesReady.php')],
+        '--app-root' => appRoot(),
+    ]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('Guard failed: @legacy-perfect file must stay cleaned in legacy contour.')
+        ->and($tester->getDisplay())->toContain('App\Domain\TaggedService');
+});
+
 it('returns failure when legacy-adapter imports laravel-ready', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 

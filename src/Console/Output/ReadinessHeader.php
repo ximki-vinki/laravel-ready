@@ -18,7 +18,7 @@ final class ReadinessHeader
             HeaderStyle::Error => '<error>'.$line.'</>',
             HeaderStyle::Warning => '<fg=yellow>'.$line.'</>',
             HeaderStyle::Clean => match ($readiness->actual) {
-                // TODO LegacyPerfect => '<fg=green>'.$line.'</>',
+                ReadinessLevel::LegacyPerfect => '<fg=green>'.$line.'</>',
                 // TODO LaravelPerfect => '<fg=bright-cyan>'.$line.'</>',
                 ReadinessLevel::LegacyAdapter => '<fg=yellow>'.$line.'</>',
                 ReadinessLevel::LaravelAdapter => '<fg=cyan>'.$line.'</>',

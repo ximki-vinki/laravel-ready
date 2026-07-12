@@ -44,6 +44,19 @@ final class PresentationPlanBuilder
                     footer: null,
                     exitCode: 0,
                 ),
+            ReadinessLevel::LegacyPerfect => $readiness->hasBlockers
+                ? new PresentationPlan(
+                    headerStyle: HeaderStyle::Error,
+                    showFindings: true,
+                    footer: ReadinessFooter::LegacyPerfectFailed,
+                    exitCode: 1,
+                )
+                : new PresentationPlan(
+                    headerStyle: HeaderStyle::Clean,
+                    showFindings: false,
+                    footer: null,
+                    exitCode: 0,
+                ),
             ReadinessLevel::LaravelAdapter => $readiness->hasBlockers
                 ? new PresentationPlan(
                     headerStyle: HeaderStyle::Error,

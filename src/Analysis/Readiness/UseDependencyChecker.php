@@ -8,6 +8,7 @@ use LaravelReady\Analysis\AnalysisResult;
 use LaravelReady\Analysis\Readiness\Use\LaravelAdapterUsePolicy;
 use LaravelReady\Analysis\Readiness\Use\LaravelReadyUsePolicy;
 use LaravelReady\Analysis\Readiness\Use\LegacyAdapterUsePolicy;
+use LaravelReady\Analysis\Readiness\Use\LegacyPerfectUsePolicy;
 
 final readonly class UseDependencyChecker
 {
@@ -19,6 +20,7 @@ final readonly class UseDependencyChecker
             ReadinessLevel::LaravelReady => new LaravelReadyUsePolicy($this->appRoot),
             ReadinessLevel::LaravelAdapter => new LaravelAdapterUsePolicy($this->appRoot),
             ReadinessLevel::LegacyAdapter => new LegacyAdapterUsePolicy($this->appRoot),
+            ReadinessLevel::LegacyPerfect => new LegacyPerfectUsePolicy($this->appRoot),
             // ReadinessLevel::Legacy as default
             default => null,
         };

@@ -43,6 +43,24 @@ it('does not block legacy-adapter level', function (): void {
     expect($guard)->toBeFalse();
 });
 
+it('blocks legacy-perfect on ast finding', function (): void {
+    $result = new AnalysisResult(collect([
+        new SuperglobalFinding(SuperglobalName::Get, 5),
+    ]));
+    $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyPerfect);
+
+    expect($guard)->toBeTrue();
+});
+
+it('blocks legacy-perfect on use finding', function (): void {
+    $result = new AnalysisResult(collect([
+        new UseFinding('App\Domain\TaggedService', 5),
+    ]));
+    $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyPerfect);
+
+    expect($guard)->toBeTrue();
+});
+
 it('blocks legacy-adapter on use finding', function (): void {
     $result = new AnalysisResult(collect([
         new UseFinding('App\Domain\TaggedService', 5),

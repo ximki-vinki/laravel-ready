@@ -60,6 +60,28 @@ it('adds use finding when legacy-adapter imports laravel-ready', function (): vo
     expect($checked->findings)->toContainEqual(new UseFinding('App\Domain\TaggedService', 5));
 });
 
+it('adds use finding when legacy-perfect imports laravel-ready', function (): void {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LegacyPerfect, 3),
+        new UseImportFinding('App\Domain\TaggedService', 5),
+    ]));
+
+    $checked = new UseDependencyChecker(appRoot())->check($result, ReadinessLevel::LegacyPerfect);
+
+    expect($checked->findings)->toContainEqual(new UseFinding('App\Domain\TaggedService', 5));
+});
+
+it('adds use finding when legacy-perfect imports legacy-code', function (): void {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LegacyPerfect, 3),
+        new UseImportFinding('App\Domain\LegacyService', 5),
+    ]));
+
+    $checked = new UseDependencyChecker(appRoot())->check($result, ReadinessLevel::LegacyPerfect);
+
+    expect($checked->findings)->toContainEqual(new UseFinding('App\Domain\LegacyService', 5));
+});
+
 it('preserves original findings when adding use finding', function (): void {
     $import = new UseImportFinding('Wf\Legacy\OldRepo', 5);
     $tag = new TagFinding(Tag::LaravelReady, 3);

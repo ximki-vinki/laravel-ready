@@ -26,9 +26,9 @@
 | Фаза | Что | Статус |
 |------|-----|--------|
 | **0** | Блокеры легаси (AST), CLI на файл/каталог, вывод уровня | есть |
-| **1** | `@laravel-ready`, `@laravel-adapter`, `ReadinessResolver`, guard + exit code | частично |
-| **2** | Зависимости по `use`, `UseFinding`, autoload/base path | частично |
-| **3** | `@legacy-adapter`, pre-commit-скрипт для легаси-проекта | план |
+| **1** | `@laravel-ready`, `@laravel-adapter`, `ReadinessResolver`, guard + exit code | есть |
+| **2** | Зависимости по `use`, `UseFinding`, autoload/base path | есть |
+| **3** | `@legacy-adapter`, `@legacy-perfect`; pre-commit-скрипт для легаси-проекта | метки есть; хук — план |
 | **4** | `extends` / `new` / `require`, manifest, `LaravelPerfect` | позже |
 
 Разработка пакета и использование на реальных файлах идут **параллельно**: новая фича в пакете — только когда без неё нельзя честно пометить следующий файл.

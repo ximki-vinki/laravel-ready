@@ -43,7 +43,8 @@ Finding ≠ tag: метка файла не дублируется в каждо
 - `@laravel-adapter` — blockers, если есть `LegacyFinding` (AST); `UseFinding` не блокер.
 - `@laravel-ready` — blockers, если есть `LegacyFinding` или `UseFinding`.
 - `@legacy-adapter` — blockers, если есть `UseFinding`; AST (`LegacyFinding`) не блокер.
-- `@legacy-code` и др. — blockers нет: findings информативны, exit `0`.
+- `@legacy-perfect` — blockers, если есть `LegacyFinding` или `UseFinding`.
+- `@legacy-code` — blockers нет: findings информативны, exit `0`.
 
 Guard — не синоним «exit 1». Файл с `@legacy-code` и `$_GET` — `Legacy`, exit `0`: метка осознанная, не нарушение обещания.
 
@@ -63,6 +64,8 @@ Exit code, наличие findings и «успех для hook'а» — **три
 | `@legacy-code` (с findings или без) | `0` |
 | `@legacy-adapter` без blockers (AST ок, deps ок) | `0` |
 | `@legacy-adapter` с UseFinding | `1` |
+| `@legacy-perfect` без blockers | `0` |
+| `@legacy-perfect` с AST или UseFinding | `1` |
 | `@laravel-ready` / `@laravel-adapter` без blockers | `0` |
 | `@laravel-ready` / `@laravel-adapter` с blockers | `1` |
 | Ошибка CLI (файл не найден, не `.php`) | `≠ 0` |
@@ -70,7 +73,7 @@ Exit code, наличие findings и «успех для hook'а» — **три
 ## Планируется
 
 - **`pledged` / `guardFailed`** в `ReadinessResult` вместо частных правил в `hasBlockers`.
-- **`LegacyPerfect`**, **`LaravelPerfect`**, подсказки по идиомам без guard.
+- **`LaravelPerfect`**, подсказки по идиомам без guard.
 - **`UseImportFinding`** в Detector как сырой `use` (политика остаётся в checker).
 
 ## Антипаттерны
