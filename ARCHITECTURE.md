@@ -171,7 +171,7 @@ src/Domain/Invoice.php : Legacy
 |-----------|------|
 | `UseVisitor` (в Detector) | `use` → сырой finding: FQCN + строка (`UseImportFinding` или аналог) |
 | `UseDependencyChecker` | политика: `Wf\` → блок; `App\` → резолв + метка; vendor → пропуск → `UseFinding` |
-| `ReadinessResolver` | `hasBlockers` по `LegacyFinding` (включая `UseFinding`); политику `use` **не применяет** |
+| `ReadinessResolver` | `hasBlockers` через GuardEvaluator (`LegacyFinding` / `UseFinding` по уровню); политику `use` **не применяет** |
 
 ```text
 Detector.analyse(path)
@@ -181,7 +181,7 @@ UseDependencyChecker.check(result, path, projectRoot)   // только если
     → дополняет findings UseFinding при нарушении
 
 ReadinessResolver.resolve(result)
-    → hasBlockers по LegacyFinding
+    → hasBlockers через GuardEvaluator (AST и/или Use по уровню)
 ```
 
 Checker вызывается из resolver; политику `use` **не** кладём в Detector.

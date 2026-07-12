@@ -11,6 +11,7 @@ use LaravelReady\Analysis\Findings\FunctionCallFinding;
 use LaravelReady\Analysis\Findings\SuperglobalFinding;
 use LaravelReady\Analysis\Findings\TagFinding;
 use LaravelReady\Analysis\Findings\UseFinding;
+use LaravelReady\Analysis\Findings\UseImportFinding;
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
 use LaravelReady\Analysis\Readiness\ReadinessResolver;
 
@@ -62,6 +63,31 @@ it('resolves legacy when analysis result has legacy-code tag', function (): void
 
     expect($readiness->actual)->toBe(ReadinessLevel::Legacy)
         ->and($readiness->hasBlockers)->toBeFalse();
+});
+
+it('resolves legacy adapter for legacy-adapter tag without blockers', function (): void {
+    $result = new AnalysisResult(collect([
+        new SuperglobalFinding(SuperglobalName::Get, 5),
+        new TagFinding(Tag::LegacyAdapter, 3),
+    ]));
+
+    $readiness = (new ReadinessResolver)->resolve($result, appRoot());
+
+    expect($readiness->actual)->toBe(ReadinessLevel::LegacyAdapter)
+        ->and($readiness->hasBlockers)->toBeFalse();
+});
+
+it('detects blockers when legacy-adapter imports laravel-ready', function (): void {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LegacyAdapter, 3),
+        new UseImportFinding('App\Domain\TaggedService', 5),
+    ]));
+
+    $readiness = (new ReadinessResolver)->resolve($result, appRoot());
+
+    expect($readiness->actual)->toBe(ReadinessLevel::LegacyAdapter)
+        ->and($readiness->hasBlockers)->toBeTrue()
+        ->and($readiness->findings)->toContainEqual(new UseFinding('App\Domain\TaggedService', 5));
 });
 
 it('resolves multitag when analysis result has multiple tags', function (): void {

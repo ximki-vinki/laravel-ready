@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelReady\Analysis\Findings;
 
-final readonly class UseFinding implements LegacyFinding
+final readonly class UseFinding implements Finding
 {
     public function __construct(
         public string $fqcn,

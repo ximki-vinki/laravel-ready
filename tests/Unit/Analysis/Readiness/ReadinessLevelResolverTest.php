@@ -28,6 +28,12 @@ it('resolves laravel adapter for laravel-adapter tag', function (): void {
     expect((new ReadinessLevelResolver)->fromResult($result))->toBe(ReadinessLevel::LaravelAdapter);
 });
 
+it('resolves legacy adapter for legacy-adapter tag', function (): void {
+    $result = new AnalysisResult(collect([new TagFinding(Tag::LegacyAdapter, 3)]));
+
+    expect((new ReadinessLevelResolver)->fromResult($result))->toBe(ReadinessLevel::LegacyAdapter);
+});
+
 it('resolves legacy for legacy-code tag', function (): void {
     $result = new AnalysisResult(collect([new TagFinding(Tag::Legacy, 4)]));
 

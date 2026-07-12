@@ -17,23 +17,24 @@ final class GuardEvaluator
         return match ($actual) {
             ReadinessLevel::MultiTag,
             ReadinessLevel::Untagged => true,
-            ReadinessLevel::LaravelReady => $this->hasAnyLegacyFinding($result),
-            ReadinessLevel::LaravelAdapter => $this->hasAstBlocker($result),
+            ReadinessLevel::LaravelReady => $this->hasLegacyFinding($result) || $this->hasUseFinding($result),
+            ReadinessLevel::LaravelAdapter => $this->hasLegacyFinding($result),
+            ReadinessLevel::LegacyAdapter => $this->hasUseFinding($result),
             default => false,
         };
     }
 
-    private function hasAnyLegacyFinding(AnalysisResult $result): bool
+    private function hasLegacyFinding(AnalysisResult $result): bool
     {
         return $result->findings->contains(
             fn (Finding $finding): bool => $finding instanceof LegacyFinding,
         );
     }
 
-    private function hasAstBlocker(AnalysisResult $result): bool
+    private function hasUseFinding(AnalysisResult $result): bool
     {
         return $result->findings->contains(
-            fn (Finding $finding): bool => $finding instanceof LegacyFinding && ! $finding instanceof UseFinding,
+            fn (Finding $finding): bool => $finding instanceof UseFinding,
         );
     }
 }

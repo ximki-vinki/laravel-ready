@@ -9,6 +9,7 @@ enum ReadinessLevel: string
     case Untagged = 'Untagged';
     case MultiTag = 'MultiTag';
     case Legacy = 'Legacy';
+    case LegacyAdapter = 'LegacyAdapter';
     case LegacyPerfect = 'LegacyPerfect';
     case LaravelAdapter = 'LaravelAdapter';
     case LaravelReady = 'LaravelReady';

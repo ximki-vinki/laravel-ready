@@ -150,7 +150,7 @@ use Wf\Db\Exception;
 |------|------------|
 | **Detector** | `UseVisitor` — факт: FQCN и строка. **Без вердикта.** |
 | **UseDependencyChecker** | `use Wf\...` в `@laravel-ready` → сразу `UseFinding`; `use App\...` → резолв + метка |
-| **ReadinessResolver** | `hasBlockers` по `instanceof LegacyFinding` (включая `UseFinding`). Политику не применяет |
+| **ReadinessResolver** | `hasBlockers` через GuardEvaluator. Политику не применяет |
 
 Резолвер `wfAutoLoad` для guard **не нужен**: префикс `Wf\` в `use` — достаточное условие нарушения.
 
@@ -243,7 +243,7 @@ class OfficeListService {
 1. **TDD** — фикстура `tests/Fixtures/Use/` (`App\` без метки → `UseFinding`).
 2. **Detector** — `UseVisitor`, сырой импорт (не `UseFinding`).
 3. **UseDependencyChecker** — denylist `Wf\` + резолв `App\` через composer целевого проекта.
-4. **ReadinessResolver** — без изменений логики: `UseFinding instanceof LegacyFinding`.
+4. **ReadinessResolver** — `hasBlockers` через GuardEvaluator (`LegacyFinding` и `UseFinding` раздельно).
 5. **KDL** — расширения `.class.php` для `App\`.
 6. **CLI** — `--project-root`, поиск `composer.json` вверх от файла.
 7. Позже — `extends` / `new` / `require` (фаза 4).

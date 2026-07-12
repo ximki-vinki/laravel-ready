@@ -85,7 +85,7 @@ composer test
 
 1. Тест: guarded-файл + `use` на легаси → exit `1`
 2. `UseVisitor` (факты) → `UseDependencyChecker` (политика) → `UseFinding`
-3. `ReadinessResolver` — только `hasBlockers` по `LegacyFinding`
+3. `ReadinessResolver` — `hasBlockers` через GuardEvaluator (`LegacyFinding` / `UseFinding`)
 4. Прогон на реальном файле в легаси-проекте
 
 Ограничения целевого проекта (KDL.Site), denylist `Wf\`, слои — `LEGACY_PROJECTS.md`, `ARCHITECTURE.md`.

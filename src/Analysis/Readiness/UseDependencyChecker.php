@@ -7,6 +7,7 @@ namespace LaravelReady\Analysis\Readiness;
 use LaravelReady\Analysis\AnalysisResult;
 use LaravelReady\Analysis\Readiness\Use\LaravelAdapterUsePolicy;
 use LaravelReady\Analysis\Readiness\Use\LaravelReadyUsePolicy;
+use LaravelReady\Analysis\Readiness\Use\LegacyAdapterUsePolicy;
 
 final readonly class UseDependencyChecker
 {
@@ -17,6 +18,7 @@ final readonly class UseDependencyChecker
         $policy = match ($actual) {
             ReadinessLevel::LaravelReady => new LaravelReadyUsePolicy($this->appRoot),
             ReadinessLevel::LaravelAdapter => new LaravelAdapterUsePolicy($this->appRoot),
+            ReadinessLevel::LegacyAdapter => new LegacyAdapterUsePolicy($this->appRoot),
             default => null,
         };
 

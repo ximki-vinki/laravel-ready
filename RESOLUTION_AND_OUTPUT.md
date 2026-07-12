@@ -28,7 +28,7 @@ Finding ≠ tag: метка файла не дублируется в каждо
 |-----------|-----------------|-----------|
 | **Detector** | Факты AST (суперглобали, `global`, tag в PHPDoc, сырые `use`) | Политику допустимости `use` |
 | **UseDependencyChecker** | Политика `use` для guarded-файлов → `UseFinding` | Вывод в консоль |
-| **ReadinessResolver** | `actual` из меток; `hasBlockers` по `LegacyFinding` | Exit code, форматирование |
+| **ReadinessResolver** | `actual` из меток; `hasBlockers` через GuardEvaluator (`LegacyFinding` и/или `UseFinding` по уровню) | Exit code, форматирование |
 | **ReadinessPresenter** | План вывода → formatters | Доменные правила guard |
 
 Детали — в коде и тестах (`ReadinessResolver`, `PresentationPlanBuilder`).
@@ -40,8 +40,9 @@ Finding ≠ tag: метка файла не дублируется в каждо
 **`hasBlockers`** — упрощённый guard до появления `pledged`:
 
 - `Untagged`, `MultiTag` — всегда blockers (проблема конфигурации метки).
-- `@laravel-adapter` — blockers, если есть `LegacyFinding`, кроме `UseFinding`.
-- `@laravel-ready` — blockers, если есть любой `LegacyFinding`.
+- `@laravel-adapter` — blockers, если есть `LegacyFinding` (AST); `UseFinding` не блокер.
+- `@laravel-ready` — blockers, если есть `LegacyFinding` или `UseFinding`.
+- `@legacy-adapter` — blockers, если есть `UseFinding`; AST (`LegacyFinding`) не блокер.
 - `@legacy-code` и др. — blockers нет: findings информативны, exit `0`.
 
 Guard — не синоним «exit 1». Файл с `@legacy-code` и `$_GET` — `Legacy`, exit `0`: метка осознанная, не нарушение обещания.

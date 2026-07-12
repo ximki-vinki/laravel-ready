@@ -35,6 +35,17 @@ it('returns same result for guarded file without imports', function (): void {
     expect($checked)->toBe($result);
 });
 
+it('adds use finding when legacy-adapter imports laravel-ready', function (): void {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LegacyAdapter, 3),
+        new UseImportFinding('App\Domain\TaggedService', 5),
+    ]));
+
+    $checked = new UseDependencyChecker(appRoot())->check($result, ReadinessLevel::LegacyAdapter);
+
+    expect($checked->findings)->toContainEqual(new UseFinding('App\Domain\TaggedService', 5));
+});
+
 it('preserves original findings when adding use finding', function (): void {
     $import = new UseImportFinding('Wf\Legacy\OldRepo', 5);
     $tag = new TagFinding(Tag::LaravelReady, 3);

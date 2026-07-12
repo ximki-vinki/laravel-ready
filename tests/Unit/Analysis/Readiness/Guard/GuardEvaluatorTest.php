@@ -34,7 +34,34 @@ it('does not block legacy level', function (): void {
     expect($guard)->toBeFalse();
 });
 
-it('blocks laravel-ready on any legacy finding', function (): void {
+it('does not block legacy-adapter level', function (): void {
+    $result = new AnalysisResult(collect([
+        new SuperglobalFinding(SuperglobalName::Get, 5),
+    ]));
+    $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
+
+    expect($guard)->toBeFalse();
+});
+
+it('blocks legacy-adapter on use finding', function (): void {
+    $result = new AnalysisResult(collect([
+        new UseFinding('App\Domain\TaggedService', 5),
+    ]));
+    $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
+
+    expect($guard)->toBeTrue();
+});
+
+it('blocks laravel-ready on legacy finding', function (): void {
+    $result = new AnalysisResult(collect([
+        new SuperglobalFinding(SuperglobalName::Get, 5),
+    ]));
+    $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LaravelReady);
+
+    expect($guard)->toBeTrue();
+});
+
+it('blocks laravel-ready on use finding', function (): void {
     $result = new AnalysisResult(collect([
         new UseFinding('Wf\Legacy\OldRepo', 5),
     ]));
