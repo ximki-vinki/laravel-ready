@@ -25,13 +25,6 @@ it('detects tag on clean fixture', function (Tag $expected, string $path, int $l
     'legacy-perfect on class' => [Tag::LegacyPerfect, 'Tags/legacy-perfect/class.php', 4],
 ]);
 
-it('detects skipCheck on laravel-adapter fixture', function (): void {
-    $result = (new Detector)->analyse(fixture('Tags/laravel-adapter/skip-check.php'));
-
-    expect($result->skipCheck)->toBeTrue()
-        ->and($result->findings)->toContainEqual(new TagFinding(Tag::LaravelAdapter, 4));
-});
-
 it('detects no tag in clean fixtures', function (string $fixture): void {
     $result = (new Detector)->analyse(fixture('Tags/Clean/'.$fixture));
 

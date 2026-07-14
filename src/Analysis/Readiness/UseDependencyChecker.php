@@ -38,6 +38,7 @@ final readonly class UseDependencyChecker
         return new AnalysisResult(
             findings: $result->findings->merge($violations),
             skipCheck: $result->skipCheck,
+            allows: $result->allows,
         );
     }
 }

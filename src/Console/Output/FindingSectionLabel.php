@@ -8,6 +8,7 @@ use LaravelReady\Analysis\Findings\Finding;
 use LaravelReady\Analysis\Findings\FunctionCallFinding;
 use LaravelReady\Analysis\Findings\GlobalFinding;
 use LaravelReady\Analysis\Findings\SuperglobalFinding;
+use LaravelReady\Analysis\Findings\UnknownAllowTokenFinding;
 use LaravelReady\Analysis\Findings\UseFinding;
 
 enum FindingSectionLabel: string
@@ -16,6 +17,7 @@ enum FindingSectionLabel: string
     case Global = 'global';
     case Func = 'func';
     case Use = 'use';
+    case Allows = 'allows';
 
     /**
      * @return class-string<Finding>
@@ -27,6 +29,7 @@ enum FindingSectionLabel: string
             self::Global => GlobalFinding::class,
             self::Func => FunctionCallFinding::class,
             self::Use => UseFinding::class,
+            self::Allows => UnknownAllowTokenFinding::class,
         };
     }
 
@@ -40,6 +43,7 @@ enum FindingSectionLabel: string
             self::Global,
             self::Func,
             self::Use,
+            self::Allows,
         ];
     }
 }

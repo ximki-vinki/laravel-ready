@@ -6,9 +6,10 @@ namespace LaravelReady\Analysis;
 
 use Illuminate\Support\Collection;
 use LaravelReady\Analysis\Findings\Finding;
+use LaravelReady\Analysis\Visitors\AllowsVisitor;
 use LaravelReady\Analysis\Visitors\BlockedFunctionVisitor;
-use LaravelReady\Analysis\Visitors\SkipCheckVisitor;
 use LaravelReady\Analysis\Visitors\GlobalVisitor;
+use LaravelReady\Analysis\Visitors\SkipCheckVisitor;
 use LaravelReady\Analysis\Visitors\SuperglobalVisitor;
 use LaravelReady\Analysis\Visitors\TagVisitor;
 use LaravelReady\Analysis\Visitors\UseVisitor;
@@ -61,11 +62,13 @@ final class Detector
         /** @var Collection<array-key, Finding> $findings */
         $findings = collect();
         $skipCheckVisitor = new SkipCheckVisitor;
+        $allowsVisitor = new AllowsVisitor($findings);
 
         if ($ast !== null) {
             $traverser = new NodeTraverser;
             $traverser->addVisitor(new TagVisitor($findings));
             $traverser->addVisitor($skipCheckVisitor);
+            $traverser->addVisitor($allowsVisitor);
             $traverser->addVisitor(new SuperglobalVisitor($findings));
             $traverser->addVisitor(new GlobalVisitor($findings));
             $traverser->addVisitor(new BlockedFunctionVisitor($findings));
@@ -76,6 +79,7 @@ final class Detector
         return new AnalysisResult(
             findings: $findings,
             skipCheck: $skipCheckVisitor->detected,
+            allows: $allowsVisitor->allows,
         );
     }
 }

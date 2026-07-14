@@ -1,0 +1,93 @@
+# Разработка
+
+Как пишем код. Смысл уровней — `READINESS_MODEL.md`, доставка — `ARCHITECTURE.md`.
+
+## Стек
+
+**Прод:** PHP 8.5, `symfony/console`, `illuminate/support`, `nikic/php-parser`.
+
+**Dev:** PHPUnit 13, PHPStan (level 10), Laravel Pint.
+
+CLI — **Symfony Console** (без `illuminate/console`): меньше bootstrap, достаточно для команд.
+
+## Команды
+
+**Локально** (нужен PHP 8.5+):
+
+```bash
+composer install
+composer test               # pest
+composer phpstan
+composer pint
+composer pint:test
+php bin/laravel-ready
+```
+
+**Через Docker** (если на машине другая версия PHP):
+
+```bash
+composer dock-build        # один раз: docker build -f Dockerfile.dev -t laravel-ready-dev .
+composer install-dock
+composer test-dock
+composer phpstan-dock
+composer pint-dock
+composer pint-test-dock
+composer check-dock
+```
+
+Образ `laravel-ready-dev` (`Dockerfile.dev`, PHP 8.5, pcov, zip). Каждый `*-dock` — `docker run --rm` с монтированием проекта в `/app`.
+
+Продакшен-образ (`Dockerfile`) на целевом проекте — с `-e FORCE_COLOR=1` (см. `ARCHITECTURE.md`).
+
+`composer.lock` коммитим — воспроизводимые сборки.
+
+## TDD
+
+1. **Красный** — тест из `READINESS_MODEL.md` (файл → уровень, блокер, метка).
+2. **Зелёный** — минимум кода, чтобы тест прошёл (заглушка — нормально).
+3. **Рефакторинг** — улучшаем структуру при зелёных тестах; Stan и Pint перед коммитом.
+
+Подробный пример с лестницей шагов — `TDD.md`.
+
+Тесты — источник правды для правил анализа; документация не дублирует детали реализации.
+
+## Git hooks
+
+Установка: `composer hooks` (см. `GIT_HOOKS.md`).
+
+- **pre-commit** — синтаксис staged `.php`, автоформат Pint
+- **pre-push** — `composer validate`, PHPStan, тесты
+
+## Перед коммитом
+
+Вручную (если хуки не установлены):
+
+```bash
+composer phpstan
+composer pint:test
+composer test
+```
+
+Или в Docker: `composer check-dock`.
+
+## Порядок фич
+
+Согласован с `ARCHITECTURE.md` (фазы 0–4). Сначала охрана периметра, не полная миграция.
+
+**Фаза 1 (guard):**
+
+1. Тест: `@laravel-ready` + блокер → exit `1`
+2. `Tag::LaravelReady`, `ReadinessResolver`
+3. Guard в `AnalyseCommand`, exit code
+4. Stan + Pint
+
+**Фаза 2 (use):**
+
+1. Тест: guarded-файл + `use` на легаси → exit `1`
+2. `UseVisitor` (факты) → `UseDependencyChecker` (политика) → `UseFinding`
+3. `ReadinessResolver` — `hasBlockers` через GuardEvaluator (`LegacyFinding` / `UseFinding`)
+4. Прогон на реальном файле в легаси-проекте
+
+Ограничения целевого проекта (KDL.Site), denylist `Wf\`, слои — `LEGACY_PROJECTS.md`, `ARCHITECTURE.md`.
+
+**Параллельно с легаси:** один файл → CLI → метка → хук. Пакет дописываем только под реальную боль.
