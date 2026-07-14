@@ -26,7 +26,7 @@ Finding ≠ tag: метка файла не дублируется в каждо
 
 | Компонент | Ответственность | Не делает |
 |-----------|-----------------|-----------|
-| **Detector** | Факты AST (суперглобали, `global`, tag в PHPDoc, сырые `use`, флаг `@skipCheck`) | Политику допустимости `use`, решение skip |
+| **Detector** | Факты AST (суперглобали, `global`, tag в PHPDoc, сырые `use`, флаг `@skipCheck`, `@allows` → `allows` / `UnknownAllowTokenFinding`) | Политику допустимости `use`, решение skip / guard |
 | **UseDependencyChecker** | Политика `use` для guarded-файлов → `UseFinding` | Вывод в консоль |
 | **ReadinessResolver** | `actual` из меток; `hasBlockers` через GuardEvaluator; проброс `skipCheck` | Exit code, форматирование |
 | **PresentationPlanBuilder** | План вывода (в т.ч. skip при `skipCheck` + blockers) → formatters | Детект `@skipCheck` |
@@ -42,9 +42,31 @@ Finding ≠ tag: метка файла не дублируется в каждо
 - `Untagged`, `MultiTag` — всегда blockers (проблема конфигурации метки).
 - `@laravel-adapter` — blockers, если есть `LegacyFinding` (AST); `UseFinding` не блокер.
 - `@laravel-ready` — blockers, если есть `LegacyFinding` или `UseFinding`.
-- `@legacy-adapter` — blockers, если есть `UseFinding`; AST (`LegacyFinding`) не блокер.
+- `@legacy-adapter` — blockers, если есть `UseFinding` **или** непрощённый `LegacyFinding` (см. `@allows` ниже).
 - `@legacy-perfect` — blockers, если есть `LegacyFinding` или `UseFinding`.
 - `@legacy-code` — blockers нет: findings информативны, exit `0`.
+
+### `@allows` (для `@legacy-adapter`)
+
+Модификатор контракта адаптера: какие AST-примитивы разрешены в файле.
+
+```php
+/**
+ * @legacy-adapter
+ * @allows $_COOKIE, setcookie
+ */
+```
+
+| Ситуация | Blocker? |
+|----------|----------|
+| нет `LegacyFinding`, deps ок | нет — `@allows` не обязателен |
+| есть `LegacyFinding`, нет `@allows` | да (`null` ≡ ничего не разрешено) |
+| `LegacyFinding` ∈ списка `@allows` | нет |
+| `LegacyFinding` ∉ списка | да |
+| `global` и прочее без токена в allowlist | да |
+| неизвестный токен в `@allows` (`UnknownAllowTokenFinding`) | нет (finding информативен, exit не валит) |
+
+Токены — явные, 1:1 с детектором: `$_COOKIE`, `setcookie` (не пресеты вроде `cookie`).
 
 Guard — не синоним «exit 1». Файл с `@legacy-code` и `$_GET` — `Legacy`, exit `0`: метка осознанная, не нарушение обещания.
 
@@ -58,14 +80,16 @@ Exit code, наличие findings и «успех для hook'а» — **три
 
 План вывода строит `PresentationPlanBuilder` (в т.ч. ветка skip до `match` по уровню); formatters только рисуют переданные части — без бизнес-логики.
 
+При успехе `@legacy-adapter` findings сейчас **скрыты** (в т.ч. разрешённый `$_COOKIE` и опечатки в `@allows`).
+
 ## Контракт exit code
 
 | Ситуация | Exit |
 |----------|------|
 | Файл без метки или с несколькими метками | `1` |
 | `@legacy-code` (с findings или без) | `0` |
-| `@legacy-adapter` без blockers (AST ок, deps ок) | `0` |
-| `@legacy-adapter` с UseFinding | `1` |
+| `@legacy-adapter` без blockers | `0` |
+| `@legacy-adapter` с `UseFinding` или непрощённым AST | `1` |
 | `@legacy-perfect` без blockers | `0` |
 | `@legacy-perfect` с AST или UseFinding | `1` |
 | `@laravel-ready` / `@laravel-adapter` без blockers | `0` |

@@ -67,6 +67,23 @@ Legacy ──┤               → LaravelAdapter
 
 Метки в PHPDoc: `@laravel-ready`, `@legacy-code`, и т.д.
 
+### Модификатор `@allows`
+
+Не уровень: контракт для `@legacy-adapter` — какие AST-примитивы разрешены.
+
+```php
+/**
+ * @legacy-adapter
+ * @allows $_COOKIE, setcookie
+ */
+```
+
+- без `LegacyFinding` — `@allows` не обязателен;
+- с `LegacyFinding` — нужен явный список; вне списка → blocker;
+- неизвестный токен → `UnknownAllowTokenFinding` (информативно, не blocker).
+
+Детект — `AllowsVisitor` → `AnalysisResult::$allows` + findings. Политику применяет `GuardEvaluator`.
+
 ### Модификатор `@skipCheck`
 
 Не уровень и не readiness-метка: флаг в PHPDoc рядом с меткой файла.

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use LaravelReady\Analysis\Detector;
+use LaravelReady\Analysis\Enums\AllowKeyword;
 use LaravelReady\Analysis\Enums\BlockedFunction;
 use LaravelReady\Analysis\Enums\SuperglobalName;
 use LaravelReady\Analysis\Enums\Tag;
@@ -19,6 +20,16 @@ it('detects allows on legacy-adapter fixture', function (): void {
             SuperglobalName::Cookie,
             BlockedFunction::Setcookie,
         ]));
+});
+
+it('detects global allow token on legacy-adapter fixture', function (): void {
+    $result = (new Detector)->analyse(fixture('Tags/legacy-adapter/with-allows-global.php'));
+
+    expect($result->allows)->toEqual(collect([
+        SuperglobalName::Cookie,
+        BlockedFunction::Setcookie,
+        AllowKeyword::Global,
+    ]));
 });
 
 it('detects unknown allow tokens as findings', function (): void {

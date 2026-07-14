@@ -79,6 +79,32 @@ it('resolves legacy when analysis result has legacy-code tag', function (): void
 });
 
 it('resolves legacy adapter for legacy-adapter tag without blockers', function (): void {
+    $result = new AnalysisResult(
+        findings: collect([
+            new SuperglobalFinding(SuperglobalName::Get, 5),
+            new TagFinding(Tag::LegacyAdapter, 3),
+        ]),
+        allows: collect([SuperglobalName::Get]),
+    );
+
+    $readiness = (new ReadinessResolver)->resolve($result, appRoot());
+
+    expect($readiness->actual)->toBe(ReadinessLevel::LegacyAdapter)
+        ->and($readiness->hasBlockers)->toBeFalse();
+});
+
+it('resolves clean legacy-adapter without allows as no blockers', function (): void {
+    $result = new AnalysisResult(collect([
+        new TagFinding(Tag::LegacyAdapter, 3),
+    ]));
+
+    $readiness = (new ReadinessResolver)->resolve($result, appRoot());
+
+    expect($readiness->actual)->toBe(ReadinessLevel::LegacyAdapter)
+        ->and($readiness->hasBlockers)->toBeFalse();
+});
+
+it('detects blockers when legacy-adapter has finding and no allows', function (): void {
     $result = new AnalysisResult(collect([
         new SuperglobalFinding(SuperglobalName::Get, 5),
         new TagFinding(Tag::LegacyAdapter, 3),
@@ -87,7 +113,22 @@ it('resolves legacy adapter for legacy-adapter tag without blockers', function (
     $readiness = (new ReadinessResolver)->resolve($result, appRoot());
 
     expect($readiness->actual)->toBe(ReadinessLevel::LegacyAdapter)
-        ->and($readiness->hasBlockers)->toBeFalse();
+        ->and($readiness->hasBlockers)->toBeTrue();
+});
+
+it('detects blockers when legacy-adapter finding is not allowed', function (): void {
+    $result = new AnalysisResult(
+        findings: collect([
+            new SuperglobalFinding(SuperglobalName::Get, 5),
+            new TagFinding(Tag::LegacyAdapter, 3),
+        ]),
+        allows: collect([SuperglobalName::Cookie]),
+    );
+
+    $readiness = (new ReadinessResolver)->resolve($result, appRoot());
+
+    expect($readiness->actual)->toBe(ReadinessLevel::LegacyAdapter)
+        ->and($readiness->hasBlockers)->toBeTrue();
 });
 
 it('detects blockers when legacy-adapter imports laravel-ready', function (): void {

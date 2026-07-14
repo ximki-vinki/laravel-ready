@@ -3,8 +3,12 @@
 declare(strict_types=1);
 
 use LaravelReady\Analysis\AnalysisResult;
+use LaravelReady\Analysis\Enums\BlockedFunction;
 use LaravelReady\Analysis\Enums\SuperglobalName;
+use LaravelReady\Analysis\Findings\FunctionCallFinding;
+use LaravelReady\Analysis\Findings\GlobalFinding;
 use LaravelReady\Analysis\Findings\SuperglobalFinding;
+use LaravelReady\Analysis\Findings\UnknownAllowTokenFinding;
 use LaravelReady\Analysis\Findings\UseFinding;
 use LaravelReady\Analysis\Readiness\Guard\GuardEvaluator;
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
@@ -34,10 +38,75 @@ it('does not block legacy level', function (): void {
     expect($guard)->toBeFalse();
 });
 
-it('does not block legacy-adapter level', function (): void {
+it('blocks legacy-adapter with legacy finding and no allows', function (): void {
     $result = new AnalysisResult(collect([
         new SuperglobalFinding(SuperglobalName::Get, 5),
     ]));
+    $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
+
+    expect($guard)->toBeTrue();
+});
+
+it('does not block clean legacy-adapter without allows', function (): void {
+    $result = new AnalysisResult(collect());
+    $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
+
+    expect($guard)->toBeFalse();
+});
+
+it('does not block legacy-adapter when finding is allowed', function (): void {
+    $result = new AnalysisResult(
+        findings: collect([
+            new SuperglobalFinding(SuperglobalName::Cookie, 5),
+            new FunctionCallFinding(BlockedFunction::Setcookie, 6),
+        ]),
+        allows: collect([
+            SuperglobalName::Cookie,
+            BlockedFunction::Setcookie,
+        ]),
+    );
+    $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
+
+    expect($guard)->toBeFalse();
+});
+
+it('blocks legacy-adapter when finding is not allowed', function (): void {
+    $result = new AnalysisResult(
+        findings: collect([
+            new SuperglobalFinding(SuperglobalName::Get, 5),
+        ]),
+        allows: collect([
+            SuperglobalName::Cookie,
+        ]),
+    );
+    $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
+
+    expect($guard)->toBeTrue();
+});
+
+it('blocks legacy-adapter on global finding even with allows', function (): void {
+    $result = new AnalysisResult(
+        findings: collect([
+            new GlobalFinding('foo', 5),
+        ]),
+        allows: collect([
+            SuperglobalName::Cookie,
+        ]),
+    );
+    $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
+
+    expect($guard)->toBeTrue();
+});
+
+it('does not block legacy-adapter on unknown allow token alone', function (): void {
+    $result = new AnalysisResult(
+        findings: collect([
+            new UnknownAllowTokenFinding('not-a-thing', 4),
+        ]),
+        allows: collect([
+            SuperglobalName::Cookie,
+        ]),
+    );
     $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
 
     expect($guard)->toBeFalse();

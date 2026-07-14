@@ -6,8 +6,8 @@
  */
 class CookieAdapter
 {
-    public function get(string $name): ?string
+    public function run(): void
     {
-        return $_COOKIE[$name] ?? null;
+        $_GET['id'];
     }
 }

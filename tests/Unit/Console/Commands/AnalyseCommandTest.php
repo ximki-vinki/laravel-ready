@@ -84,7 +84,20 @@ it('returns success for laravel-adapter fixture without blockers', function (): 
         ->and($tester->getDisplay())->toContain('class.php : LaravelAdapter');
 });
 
-it('returns success for legacy-adapter fixture and hides legacy findings', function (): void {
+it('returns success for legacy-adapter fixture with allowed legacy usage', function (): void {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [fixture('Tags/legacy-adapter/with-allows.php')],
+        '--app-root' => appRoot(),
+    ]);
+
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('with-allows.php : LegacyAdapter')
+        ->and($tester->getDisplay())->not->toContain('$_COOKIE');
+});
+
+it('returns failure for legacy-adapter fixture with legacy finding and no allows', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
@@ -92,9 +105,24 @@ it('returns success for legacy-adapter fixture and hides legacy findings', funct
         '--app-root' => appRoot(),
     ]);
 
-    expect($code)->toBe(Command::SUCCESS)
+    expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain('with-blocker.php : LegacyAdapter')
-        ->and($tester->getDisplay())->not->toContain('$_GET');
+        ->and($tester->getDisplay())->toContain('$_GET')
+        ->and($tester->getDisplay())->toContain('Guard failed: @legacy-adapter file must stay in legacy contour.');
+});
+
+it('returns failure when legacy-adapter uses unpermitted legacy', function (): void {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [fixture('Tags/legacy-adapter/with-allows-unpermitted.php')],
+        '--app-root' => appRoot(),
+    ]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('with-allows-unpermitted.php : LegacyAdapter')
+        ->and($tester->getDisplay())->toContain('$_GET')
+        ->and($tester->getDisplay())->toContain('Guard failed: @legacy-adapter file must stay in legacy contour.');
 });
 
 it('returns success for legacy-perfect fixture', function (): void {
