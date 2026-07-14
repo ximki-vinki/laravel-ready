@@ -14,5 +14,6 @@ final readonly class AnalysisResult
      */
     public function __construct(
         public Collection $findings,
+        public bool $skipCheck = false,
     ) {}
 }

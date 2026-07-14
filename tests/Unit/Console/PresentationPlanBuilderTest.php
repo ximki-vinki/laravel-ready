@@ -36,7 +36,7 @@ it('builds legacy info plan with findings and success exit', function (): void {
     $readiness = new ReadinessResult(ReadinessLevel::Legacy, false, collect());
     $plan = (new PresentationPlanBuilder)->build($readiness);
 
-    expect($plan->headerStyle)->toBe(HeaderStyle::Warning)
+    expect($plan->headerStyle)->toBe(HeaderStyle::Clean)
         ->and($plan->showFindings)->toBeTrue()
         ->and($plan->footer)->toBeNull()
         ->and($plan->exitCode)->toBe(0);
@@ -119,5 +119,23 @@ it('builds adapter failed plan when laravel adapter has blockers', function (): 
     expect($plan->headerStyle)->toBe(HeaderStyle::Error)
         ->and($plan->showFindings)->toBeTrue()
         ->and($plan->footer)->toBe(ReadinessFooter::AdapterFailed)
+        ->and($plan->exitCode)->toBe(1);
+});
+
+it('builds skipped plan when tagged file has blockers and skipCheck', function (): void {
+    $readiness = new ReadinessResult(ReadinessLevel::LaravelAdapter, true, collect(), skipCheck: true);
+    $plan = (new PresentationPlanBuilder)->build($readiness);
+
+    expect($plan->headerStyle)->toBe(HeaderStyle::Warning)
+        ->and($plan->showFindings)->toBeTrue()
+        ->and($plan->footer)->toBe(ReadinessFooter::SkipCheck)
+        ->and($plan->exitCode)->toBe(0);
+});
+
+it('does not skip untagged file even with skipCheck', function (): void {
+    $readiness = new ReadinessResult(ReadinessLevel::Untagged, true, collect(), skipCheck: true);
+    $plan = (new PresentationPlanBuilder)->build($readiness);
+
+    expect($plan->footer)->toBe(ReadinessFooter::NotGuarded)
         ->and($plan->exitCode)->toBe(1);
 });

@@ -13,7 +13,8 @@ covers(Detector::class);
 it('detects tag on clean fixture', function (Tag $expected, string $path, int $line): void {
     $result = (new Detector)->analyse(fixture($path));
 
-    expect($result->findings)->toContainEqual(new TagFinding($expected, $line));
+    expect($result->findings)->toContainEqual(new TagFinding($expected, $line))
+        ->and($result->skipCheck)->toBeFalse();
 })->with([
     'legacy-code on class' => [Tag::Legacy, 'Tags/legacy-code/class.php', 4],
     'legacy-code on function' => [Tag::Legacy, 'Tags/legacy-code/function.php', 4],
@@ -24,12 +25,20 @@ it('detects tag on clean fixture', function (Tag $expected, string $path, int $l
     'legacy-perfect on class' => [Tag::LegacyPerfect, 'Tags/legacy-perfect/class.php', 4],
 ]);
 
+it('detects skipCheck on laravel-adapter fixture', function (): void {
+    $result = (new Detector)->analyse(fixture('Tags/laravel-adapter/skip-check.php'));
+
+    expect($result->skipCheck)->toBeTrue()
+        ->and($result->findings)->toContainEqual(new TagFinding(Tag::LaravelAdapter, 4));
+});
+
 it('detects no tag in clean fixtures', function (string $fixture): void {
     $result = (new Detector)->analyse(fixture('Tags/Clean/'.$fixture));
 
     expect($result->findings->filter(
         fn ($finding): bool => $finding instanceof TagFinding,
-    ))->toBeEmpty();
+    ))->toBeEmpty()
+        ->and($result->skipCheck)->toBeFalse();
 })->with([
     'empty' => ['empty.php'],
     'no-tag' => ['no-tag.php'],

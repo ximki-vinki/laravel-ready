@@ -12,4 +12,5 @@ enum ReadinessFooter: string
     case LegacyPerfectFailed = 'Guard failed: @legacy-perfect file must stay cleaned in legacy contour.';
     case MultiTagFailed = 'MultiTag failed: file must have only one tag.';
     case NotGuarded = 'Not guarded: file has no tag.';
+    case SkipCheck = 'Skipped: @skipCheck.';
 }

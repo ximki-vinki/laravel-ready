@@ -42,7 +42,20 @@ it('resolves laravel adapter for laravel-adapter tag without blockers', function
     $readiness = (new ReadinessResolver)->resolve($result, appRoot());
 
     expect($readiness->actual)->toBe(ReadinessLevel::LaravelAdapter)
-        ->and($readiness->hasBlockers)->toBeFalse();
+        ->and($readiness->hasBlockers)->toBeFalse()
+        ->and($readiness->skipCheck)->toBeFalse();
+});
+
+it('propagates skipCheck from analysis result', function (): void {
+    $result = new AnalysisResult(
+        findings: collect([new TagFinding(Tag::LaravelAdapter, 3)]),
+        skipCheck: true,
+    );
+
+    $readiness = (new ReadinessResolver)->resolve($result, appRoot());
+
+    expect($readiness->skipCheck)->toBeTrue()
+        ->and($readiness->actual)->toBe(ReadinessLevel::LaravelAdapter);
 });
 
 it('resolves untagged when analysis result has only legacy finding', function (): void {

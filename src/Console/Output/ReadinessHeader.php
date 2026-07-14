@@ -16,12 +16,12 @@ final class ReadinessHeader
 
         return match ($style) {
             HeaderStyle::Error => '<error>'.$line.'</>',
-            HeaderStyle::Warning => '<fg=yellow>'.$line.'</>',
+            HeaderStyle::Warning => '<fg=white;bg=yellow>'.$line.'</>',
             HeaderStyle::Clean => match ($readiness->actual) {
+                ReadinessLevel::Legacy => '<fg=yellow>'.$line.'</>',
+                ReadinessLevel::LegacyAdapter => '<fg=cyan>'.$line.'</>',
+                ReadinessLevel::LaravelAdapter => '<fg=bright-cyan>'.$line.'</>',
                 ReadinessLevel::LegacyPerfect => '<fg=green>'.$line.'</>',
-                // TODO LaravelPerfect => '<fg=bright-cyan>'.$line.'</>',
-                ReadinessLevel::LegacyAdapter => '<fg=yellow>'.$line.'</>',
-                ReadinessLevel::LaravelAdapter => '<fg=cyan>'.$line.'</>',
                 ReadinessLevel::LaravelReady => '<fg=bright-green>'.$line.'</>',
                 default => $line,
             },

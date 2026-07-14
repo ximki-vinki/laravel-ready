@@ -12,6 +12,15 @@ final class PresentationPlanBuilder
 {
     public function build(ReadinessResult $readiness): PresentationPlan
     {
+        if ($this->isSkipped($readiness)) {
+            return new PresentationPlan(
+                headerStyle: HeaderStyle::Warning,
+                showFindings: true,
+                footer: ReadinessFooter::SkipCheck,
+                exitCode: 0,
+            );
+        }
+
         return match ($readiness->actual) {
             ReadinessLevel::Untagged => new PresentationPlan(
                 headerStyle: HeaderStyle::Clean,
@@ -26,7 +35,7 @@ final class PresentationPlanBuilder
                 exitCode: 1,
             ),
             ReadinessLevel::Legacy => new PresentationPlan(
-                headerStyle: HeaderStyle::Warning,
+                headerStyle: HeaderStyle::Clean,
                 showFindings: true,
                 footer: null,
                 exitCode: 0,
@@ -84,5 +93,17 @@ final class PresentationPlanBuilder
                     exitCode: 0,
                 ),
         };
+    }
+
+    private function isSkipped(ReadinessResult $readiness): bool
+    {
+        if (! $readiness->skipCheck || ! $readiness->hasBlockers) {
+            return false;
+        }
+
+        return ! in_array($readiness->actual, [
+            ReadinessLevel::Untagged,
+            ReadinessLevel::MultiTag,
+        ], true);
     }
 }

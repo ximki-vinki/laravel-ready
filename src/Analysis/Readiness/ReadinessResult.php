@@ -16,5 +16,6 @@ final readonly class ReadinessResult
         public ReadinessLevel $actual,
         public bool $hasBlockers,
         public Collection $findings,
+        public bool $skipCheck = false,
     ) {}
 }
