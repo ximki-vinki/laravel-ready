@@ -12,3 +12,9 @@ it('collects use imports from ast', function (): void {
 
     expect($result->findings)->toContainEqual(new UseImportFinding('Wf\Legacy\OldRepo', 5));
 });
+
+it('collects group use imports from ast', function (): void {
+    $result = (new Detector)->analyse(fixture('Use/project/app/Domain/GroupUseInvoice.php'));
+
+    expect($result->findings)->toContainEqual(new UseImportFinding('Wf\Legacy\OldRepo', 5));
+});

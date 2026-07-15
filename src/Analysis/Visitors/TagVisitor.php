@@ -19,9 +19,12 @@ final class TagVisitor extends NodeVisitorAbstract
     public function enterNode(Node $node): ?int
     {
         $docComment = $node->getDocComment()?->getText();
-        $tag = $docComment !== null ? Tag::tryFromDocComment($docComment) : null;
 
-        if ($tag instanceof Tag) {
+        if ($docComment === null) {
+            return null;
+        }
+
+        foreach (Tag::allFromDocComment($docComment) as $tag) {
             $this->findings->push(new TagFinding($tag, $node->getStartLine()));
         }
 

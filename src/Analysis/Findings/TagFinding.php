@@ -28,6 +28,6 @@ final readonly class TagFinding implements Finding
 
     public function display(): string
     {
-        return 'tag: @'.$this->tag->value.' (line '.$this->line.')';
+        return 'tag: '.$this->tag->value.' (line '.$this->line.')';
     }
 }

@@ -262,6 +262,18 @@ it('prints denied use import for guarded file', function (): void {
         ->and($tester->getDisplay())->toContain('use: Wf\Legacy\OldRepo (line 5)');
 });
 
+it('prints denied group use import for guarded file', function (): void {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [fixture('Use/project/app/Domain/GroupUseInvoice.php')],
+        '--app-root' => appRoot(),
+    ]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('use: Wf\Legacy\OldRepo (line 5)');
+});
+
 it('prints denied use import for untagged app class when app root is passed', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
@@ -300,4 +312,21 @@ it('analyses multiple file paths passed as separate arguments', function (): voi
 
     expect($code)->toBe(Command::FAILURE)
         ->and($tester->getDisplay())->toContain("Not guarded: file has no tag.\n\nempty.php");
+});
+
+it('returns failure when an earlier file fails and a later file passes', function (): void {
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [
+            fixture('Tags/laravel-ready/with-blocker.php'),
+            fixture('Tags/laravel-ready/class.php'),
+        ],
+        '--app-root' => appRoot(),
+    ]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('with-blocker.php : LaravelReady')
+        ->and($tester->getDisplay())->toContain('Guard failed: @laravel-ready file must stay LaravelReady.')
+        ->and($tester->getDisplay())->toContain('class.php : LaravelReady');
 });

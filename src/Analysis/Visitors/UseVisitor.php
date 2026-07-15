@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use LaravelReady\Analysis\Findings\Finding;
 use LaravelReady\Analysis\Findings\UseImportFinding;
 use PhpParser\Node;
+use PhpParser\Node\Stmt\GroupUse;
 use PhpParser\Node\Stmt\Use_;
 use PhpParser\NodeVisitorAbstract;
 
@@ -18,13 +19,24 @@ final class UseVisitor extends NodeVisitorAbstract
 
     public function enterNode(Node $node): ?int
     {
-        if (! $node instanceof Use_) {
+        if ($node instanceof Use_) {
+            foreach ($node->uses as $use) {
+                $this->findings->push(new UseImportFinding(
+                    $use->name->toString(),
+                    $use->getStartLine(),
+                ));
+            }
+
+            return null;
+        }
+
+        if (! $node instanceof GroupUse) {
             return null;
         }
 
         foreach ($node->uses as $use) {
             $this->findings->push(new UseImportFinding(
-                $use->name->toString(),
+                $node->prefix->toString().'\\'.$use->name->toString(),
                 $use->getStartLine(),
             ));
         }

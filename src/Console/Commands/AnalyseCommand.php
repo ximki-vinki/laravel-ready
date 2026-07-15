@@ -82,7 +82,10 @@ final class AnalyseCommand extends Command
 
             $readiness = (new ReadinessResolver)->resolve($result, $appRoot);
 
-            $exitCode = (new ReadinessPresenter)->present($readiness, $file->relativePath, $output);
+            $fileExitCode = (new ReadinessPresenter)->present($readiness, $file->relativePath, $output);
+            if ($fileExitCode !== Command::SUCCESS) {
+                $exitCode = $fileExitCode;
+            }
         });
 
         return $exitCode;

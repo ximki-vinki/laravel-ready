@@ -45,3 +45,10 @@ it('detects tag alongside blockers in mixed fixture', function (): void {
     expect($result->findings)->toContainEqual(new TagFinding(Tag::Legacy, 4))
         ->and($result->findings)->toContainEqual(new SuperglobalFinding(SuperglobalName::Get, 8));
 });
+
+it('detects both readiness tags from one phpdoc', function (): void {
+    $result = (new Detector)->analyse(fixture('Tags/Mixed/conflicting-tags-in-doc.php'));
+
+    expect($result->findings)->toContainEqual(new TagFinding(Tag::LaravelReady, 4))
+        ->and($result->findings)->toContainEqual(new TagFinding(Tag::Legacy, 4));
+});
