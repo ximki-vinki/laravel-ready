@@ -139,3 +139,11 @@ it('does not skip untagged file even with skipCheck', function (): void {
     expect($plan->footer)->toBe(ReadinessFooter::NotGuarded)
         ->and($plan->exitCode)->toBe(1);
 });
+
+it('does not skip multi-tag file even with skipCheck', function (): void {
+    $readiness = new ReadinessResult(ReadinessLevel::MultiTag, true, collect(), skipCheck: true);
+    $plan = (new PresentationPlanBuilder)->build($readiness);
+
+    expect($plan->footer)->toBe(ReadinessFooter::MultiTagFailed)
+        ->and($plan->exitCode)->toBe(1);
+});

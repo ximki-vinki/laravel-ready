@@ -52,3 +52,14 @@ it('detects no allows without @allows', function (): void {
 
     expect($result->allows)->toBeNull();
 });
+
+it('ignores a second @allows on a later node', function (): void {
+    $result = (new Detector)->analyse(fixture('Tags/legacy-adapter/with-allows-second-ignored.php'));
+
+    expect($result->allows)->toEqual(collect([
+        SuperglobalName::Cookie,
+    ]))
+        ->and($result->findings)->not->toContainEqual(
+            new UnknownAllowTokenFinding('not-from-second', 10),
+        );
+});

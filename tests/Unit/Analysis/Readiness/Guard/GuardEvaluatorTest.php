@@ -7,6 +7,7 @@ use LaravelReady\Analysis\Enums\BlockedFunction;
 use LaravelReady\Analysis\Enums\SuperglobalName;
 use LaravelReady\Analysis\Findings\FunctionCallFinding;
 use LaravelReady\Analysis\Findings\GlobalFinding;
+use LaravelReady\Analysis\Findings\LegacyFinding;
 use LaravelReady\Analysis\Findings\SuperglobalFinding;
 use LaravelReady\Analysis\Findings\UnknownAllowTokenFinding;
 use LaravelReady\Analysis\Findings\UseFinding;
@@ -88,6 +89,43 @@ it('blocks legacy-adapter on global finding even with allows', function (): void
     $result = new AnalysisResult(
         findings: collect([
             new GlobalFinding('foo', 5),
+        ]),
+        allows: collect([
+            SuperglobalName::Cookie,
+        ]),
+    );
+    $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
+
+    expect($guard)->toBeTrue();
+});
+
+it('blocks legacy-adapter on non-function legacy findings even with a function-shaped property', function (): void {
+    $finding = new class(BlockedFunction::Setcookie, 5) implements LegacyFinding
+    {
+        public function __construct(
+            public BlockedFunction $function,
+            public int $line,
+        ) {}
+
+        public function display(): string
+        {
+            return 'fake';
+        }
+    };
+
+    $result = new AnalysisResult(
+        findings: collect([$finding]),
+        allows: collect([BlockedFunction::Setcookie]),
+    );
+    $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
+
+    expect($guard)->toBeTrue();
+});
+
+it('blocks legacy-adapter when function call finding is not allowed', function (): void {
+    $result = new AnalysisResult(
+        findings: collect([
+            new FunctionCallFinding(BlockedFunction::Setcookie, 5),
         ]),
         allows: collect([
             SuperglobalName::Cookie,

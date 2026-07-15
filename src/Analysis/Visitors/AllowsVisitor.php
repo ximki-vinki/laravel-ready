@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace LaravelReady\Analysis\Visitors;
 
 use Illuminate\Support\Collection;
-use LaravelReady\Analysis\Allows\AllowListParser;
-use LaravelReady\Analysis\Allows\AllowListParseResult;
+use LaravelReady\Analysis\Allows\AllowsParser;
+use LaravelReady\Analysis\Allows\AllowsParseResult;
 use LaravelReady\Analysis\Enums\AllowKeyword;
 use LaravelReady\Analysis\Enums\BlockedFunction;
 use LaravelReady\Analysis\Enums\SuperglobalName;
 use LaravelReady\Analysis\Findings\Finding;
+use PhpParser\Comment\Doc;
 use PhpParser\Node;
 use PhpParser\NodeVisitorAbstract;
 
@@ -22,33 +23,32 @@ final class AllowsVisitor extends NodeVisitorAbstract
     /** @param  Collection<array-key, Finding>  $findings */
     public function __construct(
         private readonly Collection $findings,
-        private readonly AllowListParser $parser = new AllowListParser,
+        private readonly AllowsParser $parser = new AllowsParser,
     ) {}
 
     public function enterNode(Node $node): ?int
     {
-        $docComment = $node->getDocComment();
-
-        if ($docComment === null) {
+        if ($this->allows instanceof Collection) {
             return null;
         }
 
-        $parsed = $this->parser->parseDocComment(
+        $docComment = $node->getDocComment();
+
+        if (! $docComment instanceof Doc) {
+            return null;
+        }
+
+        $parsed = $this->parser->parseAllows(
             $docComment->getText(),
             $docComment->getStartLine(),
         );
 
-        if ($parsed === null) {
+        if (! $parsed instanceof AllowsParseResult) {
             return null;
         }
 
-        foreach ($parsed->unknowns as $unknown) {
-            $this->findings->push($unknown);
-        }
-
-        $this->allows = ($this->allows ?? collect())
-            ->concat($parsed->tokens)
-            ->values();
+        $this->findings->push(...$parsed->unknowns);
+        $this->allows = $parsed->tokens->values();
 
         return null;
     }
