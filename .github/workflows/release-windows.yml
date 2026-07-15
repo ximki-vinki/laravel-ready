@@ -13,10 +13,14 @@ env:
   PHP_MICRO_URL: https://dl.static-php.dev/static-php-cli/windows/spc-max/php-8.5.5-micro-win.zip
 
 jobs:
+  quality:
+    uses: ./.github/workflows/quality.yml
+
   # Box на Windows нестабилен (блокировка temp-директорий). PHAR собираем на Linux.
   build-phar:
     name: Build PHAR
     runs-on: ubuntu-latest
+    needs: quality
 
     steps:
       - name: Checkout repository
