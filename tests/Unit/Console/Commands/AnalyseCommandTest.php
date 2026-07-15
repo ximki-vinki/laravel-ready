@@ -286,6 +286,44 @@ it('prints denied use import for untagged app class when app root is passed', fu
         ->and($tester->getDisplay())->toContain('use: App\Domain\UntaggedService (line 5)');
 });
 
+it('fails when directory contains no php files', function (): void {
+    $emptyDir = sys_get_temp_dir().'/laravel-ready-empty-'.uniqid();
+    mkdir($emptyDir);
+
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [$emptyDir],
+        '--app-root' => appRoot(),
+    ]);
+
+    rmdir($emptyDir);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('PHP files not found');
+});
+
+it('ignores empty directory when other php paths are present', function (): void {
+    $emptyDir = sys_get_temp_dir().'/laravel-ready-empty-'.uniqid();
+    mkdir($emptyDir);
+
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [
+            $emptyDir,
+            fixture('Tags/laravel-ready/class.php'),
+        ],
+        '--app-root' => appRoot(),
+    ]);
+
+    rmdir($emptyDir);
+
+    expect($code)->toBe(Command::SUCCESS)
+        ->and($tester->getDisplay())->toContain('class.php : LaravelReady')
+        ->and($tester->getDisplay())->not->toContain('PHP files not found');
+});
+
 it('analyses php files in subdirectories', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 

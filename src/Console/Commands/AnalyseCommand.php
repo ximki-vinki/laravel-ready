@@ -6,6 +6,7 @@ namespace LaravelReady\Console\Commands;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use LaravelReady\Analysis\Detector;
 use LaravelReady\Analysis\Readiness\ReadinessResolver;
 use LaravelReady\Console\AnalysableFile;
@@ -53,11 +54,11 @@ final class AnalyseCommand extends Command
         }
 
         $filesystem = new Filesystem;
-        $cliValidation = new CliValidationPresenter;
+        $cliValidation = new CliValidationPresenter($output);
 
         /** @var string $appRoot */
         $appRoot = $input->getOption('app-root');
-        $exitCode = $cliValidation->presentAppRoot($appRoot, $filesystem, $output);
+        $exitCode = $cliValidation->presentAppRoot($appRoot, $filesystem);
 
         if ($exitCode !== Command::SUCCESS) {
             return $exitCode;
@@ -66,13 +67,19 @@ final class AnalyseCommand extends Command
         $files = collect();
 
         foreach ($paths as $path) {
-            $exitCode = $cliValidation->presentPath($path, $filesystem, $output);
+            $exitCode = $cliValidation->presentPath($path, $filesystem);
 
             if ($exitCode !== Command::SUCCESS) {
                 return $exitCode;
             }
 
             $files = $files->merge($this->resolveFiles($filesystem, $path));
+        }
+
+        $exitCode = $cliValidation->presentPhpFilesFound($files->isNotEmpty());
+
+        if ($exitCode !== Command::SUCCESS) {
+            return $exitCode;
         }
 
         $files->values()->each(function (AnalysableFile $file) use ($output, $appRoot, &$exitCode): void {
@@ -101,6 +108,8 @@ final class AnalyseCommand extends Command
         }
 
         return collect($filesystem->allFiles($path))
-            ->map(fn (SplFileInfo $file): AnalysableFile => AnalysableFile::fromDirectoryEntry($file));
+            ->filter(fn (SplFileInfo $file): bool => Str::endsWith($file->getFilename(), '.php'))
+            ->map(fn (SplFileInfo $file): AnalysableFile => AnalysableFile::fromDirectoryEntry($file))
+            ->values();
     }
 }
