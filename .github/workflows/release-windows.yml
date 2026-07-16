@@ -26,6 +26,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
+      - name: Bake version from git tag
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          echo "Baking version=${version}"
+          sed -i "s/@package_version@/${version}/g" src/Console/Application.php
+          grep "VERSION = " src/Console/Application.php
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -41,6 +48,15 @@ jobs:
           mkdir -p build
           curl -fsSL -o box.phar "${BOX_URL}"
           php -d phar.readonly=0 box.phar compile --no-interaction
+
+      - name: Smoke PHAR -V matches tag
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          expected="laravel-ready ${version}"
+          actual="$(php build/laravel-ready.phar -V | tr -d '\r' | head -n 1)"
+          echo "expected=${expected}"
+          echo "actual=${actual}"
+          test "$actual" = "$expected"
 
       - name: Upload PHAR artifact
         uses: actions/upload-artifact@v7
@@ -72,8 +88,14 @@ jobs:
         run: copy /b build\micro.sfx + build\laravel-ready.phar build\laravel-ready.exe
 
       - name: Smoke test binary
-        shell: cmd
-        run: build\laravel-ready.exe
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          expected="laravel-ready ${version}"
+          actual="$(./build/laravel-ready.exe -V | tr -d '\r' | head -n 1)"
+          echo "expected=${expected}"
+          echo "actual=${actual}"
+          test "$actual" = "$expected"
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v3
