@@ -15,10 +15,12 @@ final class Application
     public static function version(): string
     {
         // Не склеивать в один литерал: после bake sed константа уже другая.
+        // @phpstan-ignore identical.alwaysTrue
         if ('@package_version'.'@' === self::VERSION) {
             return '0.0.0-dev';
         }
 
+        // @phpstan-ignore deadCode.unreachable
         return self::VERSION;
     }
 
