@@ -15,7 +15,7 @@ final class Application
     public static function version(): string
     {
         // Не склеивать в один литерал: после bake sed константа уже другая.
-        if (self::VERSION === '@package_version'.'@') {
+        if ('@package_version'.'@' === self::VERSION) {
             return '0.0.0-dev';
         }
 
