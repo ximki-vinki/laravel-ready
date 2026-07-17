@@ -84,6 +84,8 @@ Exit code, наличие findings и «успех для hook'а» — **три
 
 ## Контракт exit code
 
+Public promise for beta consumers: `CLI_CONTRACT_0x.md`. The table below is the internal spec (must match the contract).
+
 | Ситуация | Exit |
 |----------|------|
 | Файл без метки или с несколькими метками | `1` |

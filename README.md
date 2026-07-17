@@ -41,5 +41,7 @@ Exit `0` — ок для хука/CI, `1` — guard провален (или н�
 | `@allows` | Модификатор для `@legacy-adapter`: `$_COOKIE`, `setcookie`, … |
 | `@skipCheck` | Модификатор: при blockers не валить guard (exit `0`, findings видны); на файл без/с несколькими метками не действует |
 
+Public CLI contract (hooks/CI): `CLI_CONTRACT_0x.md`.
+
 Архитектура и модель: `ARCHITECTURE.md`, `READINESS_MODEL.md`, `RESOLUTION_AND_OUTPUT.md`, `MANIFEST.md`.
 

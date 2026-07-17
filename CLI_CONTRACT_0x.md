@@ -1,0 +1,198 @@
+# Public CLI contract 0.x (beta)
+
+This document is the **compatibility promise for beta consumers**: what is safe
+to rely on in git hooks and CI, and what remains an internal implementation
+detail.
+
+Internal architecture lives in `ARCHITECTURE.md`, `READINESS_MODEL.md`, and
+`RESOLUTION_AND_OUTPUT.md`.
+
+**Versioning:** before `1.0.0`, semver may include breaking changes, but items
+marked **stable** below are the intended compatibility floor for beta. Changes
+to the stable surface require an entry in `CHANGELOG.md`.
+
+---
+
+## Command (stable)
+
+```text
+laravel-ready [--app-root=PATH] <path> [<path>...]
+```
+
+| Element               | Contract                                                                              |
+|-----------------------|---------------------------------------------------------------------------------------|
+| Binary / command name | `laravel-ready`                                                                       |
+| `--app-root`          | Required when analysing files; application code root (e.g. `project/app` in KDL.Site) |
+| `<path>`              | One or more paths to a `.php` file or directory                                       |
+| No arguments          | Command help, exit `0`                                                                |
+
+**Beta delivery:** binaries for Windows, Linux, and macOS (see Releases).
+Running from source via `php bin/laravel-ready` is for package development, not
+the primary install path for consumers.
+
+---
+
+## Project configuration (stable, beta)
+
+Before beta, class resolution and project paths are configured via an **explicit
+JSON file** in the analysed repository root, not hard-coded prefixes inside the
+package.
+
+**File:** `laravel-ready.json` (name and location are stable for 0.x beta).
+
+Minimal shape (extends as implementation lands):
+
+```json
+{
+  "vendor-dir": "libs",
+  "resolvers": [
+    {
+      "prefix": "App\\",
+      "path": "project/app/",
+      "extensions": [
+        ".php",
+        ".class.php"
+      ]
+    },
+    {
+      "prefix": "Wf\\",
+      "type": "wf-pear",
+      "libs-path": "libs/",
+      "project-map": {
+        "Wf/Tools": "project/tools"
+      }
+    }
+  ]
+}
+```
+
+The CLI walks up from the analysed file (from `--app-root` or the given path
+root) to find the config. Missing config when resolution is required is a CLI
+error (exit `≠ 0`).
+
+---
+
+## PHPDoc tags and modifiers (stable)
+
+Tag names are **exact matches**, not prefix matches.
+
+### Readiness tags (exactly one per file)
+
+| Tag                | Meaning                                                       |
+|--------------------|---------------------------------------------------------------|
+| `@laravel-ready`   | File guarded in the Laravel contour                           |
+| `@laravel-adapter` | Bridge to legacy for the Laravel contour                      |
+| `@legacy-adapter`  | Bridge only inside legacy; AST limited by `@allows` whitelist |
+| `@legacy-perfect`  | Cleaned up, still in the legacy contour                       |
+| `@legacy-code`     | Explicit legacy; findings do not fail the guard               |
+
+### Modifiers
+
+| Tag          | Meaning                                                                   |
+|--------------|---------------------------------------------------------------------------|
+| `@allows`    | AST whitelist for `@legacy-adapter` (comma-separated tokens)              |
+| `@skipCheck` | With blockers on a readiness-tagged file — exit `0`, findings still shown |
+
+Full semantics: `READINESS_MODEL.md`.
+
+---
+
+## Exit codes (stable)
+
+Hooks and CI must rely on the **exit code**. Semantics:
+
+| Situation                                                                       | Exit                  |
+|---------------------------------------------------------------------------------|-----------------------|
+| File with no tag or multiple tags                                               | `1`                   |
+| `@legacy-code` (with or without findings)                                       | `0`                   |
+| `@legacy-adapter` without blockers                                              | `0`                   |
+| `@legacy-adapter` with blockers                                                 | `1`                   |
+| `@legacy-perfect` without blockers                                              | `0`                   |
+| `@legacy-perfect` with blockers                                                 | `1`                   |
+| `@laravel-ready` / `@laravel-adapter` without blockers                          | `0`                   |
+| `@laravel-ready` / `@laravel-adapter` with blockers                             | `1`                   |
+| Readiness tag + blockers + `@skipCheck`                                         | `0`                   |
+| `@skipCheck` on `Untagged` / `MultiTag`                                         | `1` (does not rescue) |
+| CLI error (missing `--app-root`, file not found, not `.php`, missing config, …) | `≠ 0`                 |
+
+When analyzing multiple files: **any** exit `1` (or CLI error) → overall exit
+`≠ 0`.
+
+---
+
+## Stable output strings (stable)
+
+Besides the exit code, 0.x beta **does not change without a changelog** the
+exact footer literals (ANSI codes stripped):
+
+| String                                                                    | When                                      |
+|---------------------------------------------------------------------------|-------------------------------------------|
+| `Guard failed: @laravel-ready file must stay LaravelReady.`               | blockers on `@laravel-ready`              |
+| `Guard failed: @laravel-adapter file must stay LaravelAdapter.`           | blockers on `@laravel-adapter`            |
+| `Guard failed: @legacy-adapter file must stay in legacy contour.`         | blockers on `@legacy-adapter`             |
+| `Guard failed: @legacy-perfect file must stay cleaned in legacy contour.` | blockers on `@legacy-perfect`             |
+| `MultiTag failed: file must have only one tag.`                           | multiple readiness tags                   |
+| `Not guarded: file has no tag.`                                           | no readiness tag                          |
+| `Skipped: @skipCheck.`                                                    | blockers + `@skipCheck` on a guarded file |
+
+Wrapping footers in terminal colour markup is allowed; the **literal text** in
+the table is part of the contract.
+
+**Unstable** (may improve without a breaking change): finding lines (`var:`,
+`func:`, `use:`, `tag:`), finding order, indentation, header `{path} : {Level}`,
+colors, `--verbose`.
+
+---
+
+## Dependency guard (stable — boundary)
+
+For guarded files, only **direct imports** from the AST are checked:
+
+- `use`
+- `group use`
+
+**Out of 0.x contract** (not a beta priority):
+
+- `extends`, `implements`, `new`, `instanceof`
+- `require` / `include`
+- indirect dependencies via calls
+
+A depended-on class must be tagged `@laravel-ready` or `@laravel-adapter` (or
+follow the level policy for legacy tags — see `READINESS_MODEL.md`).
+
+---
+
+## Not part of the public API
+
+| Area                                         | Note                                       |
+|----------------------------------------------|--------------------------------------------|
+| PHP namespace `LaravelReady\*`               | Internal implementation; not a library API |
+| Finding format and order                     | May change                                 |
+| `--verbose` flag                             | Planned; not part of the beta contract     |
+| Exact stdout layout beyond the footers above | Not contracted                             |
+| Smoke/fixtures in this repository            | For package development, not consumers     |
+
+---
+
+## Recommended CI / pre-commit integration
+
+```bash
+laravel-ready --app-root="$APP_ROOT" "$file"
+code=$?
+if [ "$code" -ne 0 ]; then
+  exit "$code"
+fi
+```
+
+Optionally search for a footer in the log (not required if exit is checked):
+
+```bash
+laravel-ready ... 2>&1 | grep -F 'Guard failed:'
+```
+
+---
+
+## Related documents
+
+- `README.md` — quickstart
+- `RELEASE_TIERS.md` — beta / release criteria
