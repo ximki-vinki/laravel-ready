@@ -56,6 +56,9 @@ jobs:
           echo "output=${out}"
           echo "$out" | grep -F "${version}" >/dev/null
 
+      - name: Smoke PHAR on fixtures
+        run: bash scripts/smoke-fixtures.sh php build/laravel-ready.phar
+
       - name: Upload PHAR artifact
         uses: actions/upload-artifact@v7
         with:
@@ -69,6 +72,9 @@ jobs:
     needs: build-phar
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
       - name: Download PHAR artifact
         uses: actions/download-artifact@v8
         with:
@@ -85,15 +91,18 @@ jobs:
         shell: cmd
         run: copy /b build\micro.sfx + build\laravel-ready.phar build\laravel-ready.exe
 
-      - name: Smoke test binary
+      - name: Smoke test binary -V
         shell: bash
         run: |
           version="${GITHUB_REF_NAME#v}"
-          # Слабая проверка: exe стартует, в -V есть имя и номер тега.
           out="$(./build/laravel-ready.exe -V --no-ansi 2>&1 | tr -d '\r' | head -n 1 || true)"
           echo "output=${out}"
           echo "$out" | grep -F "laravel-ready" >/dev/null
           echo "$out" | grep -F "${version}" >/dev/null
+
+      - name: Smoke test binary on fixtures
+        shell: bash
+        run: bash scripts/smoke-fixtures.sh ./build/laravel-ready.exe
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v3
