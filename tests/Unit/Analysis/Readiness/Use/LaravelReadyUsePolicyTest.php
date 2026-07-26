@@ -15,7 +15,7 @@ it('denies wf import', function (): void {
         new UseImportFinding('Wf\Legacy\OldRepo', 5),
     ]));
 
-    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))
+    expect(new LaravelReadyUsePolicy(appLocator())->violations($result))
         ->toContainEqual(new UseFinding('Wf\Legacy\OldRepo', 5));
 });
 
@@ -25,7 +25,7 @@ it('denies multiple wf imports', function (): void {
         new UseImportFinding('Wf\Legacy\AnotherRepo', 7),
     ]));
 
-    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))
+    expect(new LaravelReadyUsePolicy(appLocator())->violations($result))
         ->toContainEqual(new UseFinding('Wf\Legacy\OldRepo', 5))
         ->toContainEqual(new UseFinding('Wf\Legacy\AnotherRepo', 7));
 });
@@ -35,7 +35,7 @@ it('allows laravel-ready app import', function (): void {
         new UseImportFinding('App\Domain\Invoice', 5),
     ]));
 
-    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))->toBeEmpty();
+    expect(new LaravelReadyUsePolicy(appLocator())->violations($result))->toBeEmpty();
 });
 
 it('allows vendor import', function (): void {
@@ -43,7 +43,7 @@ it('allows vendor import', function (): void {
         new UseImportFinding(Collection::class, 5),
     ]));
 
-    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))->toBeEmpty();
+    expect(new LaravelReadyUsePolicy(appLocator())->violations($result))->toBeEmpty();
 });
 
 it('denies untagged app import', function (): void {
@@ -51,7 +51,7 @@ it('denies untagged app import', function (): void {
         new UseImportFinding('App\Domain\UntaggedService', 5),
     ]));
 
-    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))
+    expect(new LaravelReadyUsePolicy(appLocator())->violations($result))
         ->toContainEqual(new UseFinding('App\Domain\UntaggedService', 5));
 });
 
@@ -60,7 +60,7 @@ it('allows unresolvable app import', function (): void {
         new UseImportFinding('App\Domain\NonExistent', 5),
     ]));
 
-    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))->toBeEmpty();
+    expect(new LaravelReadyUsePolicy(appLocator())->violations($result))->toBeEmpty();
 });
 
 it('denies multitagged app import', function (): void {
@@ -68,7 +68,7 @@ it('denies multitagged app import', function (): void {
         new UseImportFinding('App\Domain\MultiTaggedService', 5),
     ]));
 
-    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))
+    expect(new LaravelReadyUsePolicy(appLocator())->violations($result))
         ->toContainEqual(new UseFinding('App\Domain\MultiTaggedService', 5));
 });
 
@@ -77,7 +77,7 @@ it('allows tagged laravel-ready app import', function (): void {
         new UseImportFinding('App\Domain\TaggedService', 5),
     ]));
 
-    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))->toBeEmpty();
+    expect(new LaravelReadyUsePolicy(appLocator())->violations($result))->toBeEmpty();
 });
 
 it('allows another laravel-ready app import', function (): void {
@@ -85,7 +85,7 @@ it('allows another laravel-ready app import', function (): void {
         new UseImportFinding('App\Domain\ReadyService', 5),
     ]));
 
-    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))->toBeEmpty();
+    expect(new LaravelReadyUsePolicy(appLocator())->violations($result))->toBeEmpty();
 });
 
 it('denies class php app import', function (): void {
@@ -93,7 +93,7 @@ it('denies class php app import', function (): void {
         new UseImportFinding('App\Domain\LegacyDto', 5),
     ]));
 
-    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))
+    expect(new LaravelReadyUsePolicy(appLocator())->violations($result))
         ->toContainEqual(new UseFinding('App\Domain\LegacyDto', 5));
 });
 
@@ -102,5 +102,5 @@ it('allows laravel-adapter app import', function (): void {
         new UseImportFinding('App\Adapter\WfGateway', 5),
     ]));
 
-    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))->toBeEmpty();
+    expect(new LaravelReadyUsePolicy(appLocator())->violations($result))->toBeEmpty();
 });

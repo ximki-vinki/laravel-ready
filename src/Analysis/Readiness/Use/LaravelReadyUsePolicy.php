@@ -9,7 +9,6 @@ use LaravelReady\Analysis\Readiness\Use\Rule\DenyAppImportByLevelRule;
 use LaravelReady\Analysis\Readiness\Use\Rule\DenyClassPhpImportRule;
 use LaravelReady\Analysis\Readiness\Use\Rule\DenyWfNamespaceRule;
 use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
-use LaravelReady\Project\NamespaceResolver;
 
 final readonly class LaravelReadyUsePolicy extends UsePolicy
 {
@@ -18,19 +17,15 @@ final readonly class LaravelReadyUsePolicy extends UsePolicy
         ReadinessLevel::LaravelAdapter, // @pest-mutate-ignore: RemoveArrayItem
     ];
 
-    public function __construct(private string $appRoot) {}
+    public function __construct(private Psr4ClassLocator $locator) {}
 
     protected function rules(): array
     {
-        $locator = new Psr4ClassLocator(collect([
-            new NamespaceResolver('App\\', $this->appRoot),
-        ]));
-
         return [
             new DenyWfNamespaceRule,
-            new DenyClassPhpImportRule($locator),
+            new DenyClassPhpImportRule($this->locator),
             new DenyAppImportByLevelRule(
-                $locator,
+                $this->locator,
                 self::ALLOWED_DEPENDENCY_LEVELS,
             ),
         ];

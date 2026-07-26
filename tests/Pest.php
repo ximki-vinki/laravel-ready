@@ -1,5 +1,7 @@
 <?php
 
+use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
+use LaravelReady\Project\NamespaceResolver;
 use PHPUnit\Framework\TestCase;
 
 /*
@@ -25,4 +27,11 @@ function projectRoot(): string
 function appRoot(): string
 {
     return projectRoot().'/tests/Fixtures/Use/project/app';
+}
+
+function appLocator(): Psr4ClassLocator
+{
+    return new Psr4ClassLocator(collect([
+        new NamespaceResolver('App\\', appRoot()),
+    ]));
 }

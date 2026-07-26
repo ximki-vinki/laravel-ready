@@ -7,7 +7,6 @@ namespace LaravelReady\Analysis\Readiness\Use;
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
 use LaravelReady\Analysis\Readiness\Use\Rule\DenyAppImportByLevelRule;
 use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
-use LaravelReady\Project\NamespaceResolver;
 
 final readonly class LaravelAdapterUsePolicy extends UsePolicy
 {
@@ -15,15 +14,13 @@ final readonly class LaravelAdapterUsePolicy extends UsePolicy
         ReadinessLevel::LaravelAdapter, // @pest-mutate-ignore: RemoveArrayItem
     ];
 
-    public function __construct(private string $appRoot) {}
+    public function __construct(private Psr4ClassLocator $locator) {}
 
     protected function rules(): array
     {
         return [
             new DenyAppImportByLevelRule(
-                new Psr4ClassLocator(collect([
-                    new NamespaceResolver('App\\', $this->appRoot),
-                ])),
+                $this->locator,
                 self::ALLOWED_DEPENDENCY_LEVELS,
             ),
         ];
