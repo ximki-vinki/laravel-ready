@@ -6,6 +6,8 @@ namespace LaravelReady\Analysis\Readiness\Use;
 
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
 use LaravelReady\Analysis\Readiness\Use\Rule\DenyAppImportByLevelRule;
+use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
+use LaravelReady\Project\NamespaceResolver;
 
 final readonly class LegacyPerfectUsePolicy extends UsePolicy
 {
@@ -20,7 +22,9 @@ final readonly class LegacyPerfectUsePolicy extends UsePolicy
     {
         return [
             new DenyAppImportByLevelRule(
-                $this->appRoot,
+                new Psr4ClassLocator(collect([
+                    new NamespaceResolver('App\\', $this->appRoot),
+                ])),
                 self::ALLOWED_DEPENDENCY_LEVELS,
             ),
         ];

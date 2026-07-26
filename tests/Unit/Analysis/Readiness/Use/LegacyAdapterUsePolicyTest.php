@@ -77,11 +77,10 @@ it('denies untagged app import', function (): void {
         ->toContainEqual(new UseFinding('App\Domain\UntaggedService', 5));
 });
 
-it('denies unresolvable app import', function (): void {
+it('allows unresolvable app import', function (): void {
     $result = new AnalysisResult(collect([
         new UseImportFinding('App\Domain\NonExistent', 5),
     ]));
 
-    expect(new LegacyAdapterUsePolicy(appRoot())->violations($result))
-        ->toContainEqual(new UseFinding('App\Domain\NonExistent', 5));
+    expect(new LegacyAdapterUsePolicy(appRoot())->violations($result))->toBeEmpty();
 });

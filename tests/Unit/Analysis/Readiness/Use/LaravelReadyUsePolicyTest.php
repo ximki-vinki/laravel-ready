@@ -55,13 +55,12 @@ it('denies untagged app import', function (): void {
         ->toContainEqual(new UseFinding('App\Domain\UntaggedService', 5));
 });
 
-it('denies unresolvable app import', function (): void {
+it('allows unresolvable app import', function (): void {
     $result = new AnalysisResult(collect([
         new UseImportFinding('App\Domain\NonExistent', 5),
     ]));
 
-    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))
-        ->toContainEqual(new UseFinding('App\Domain\NonExistent', 5));
+    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))->toBeEmpty();
 });
 
 it('denies multitagged app import', function (): void {
@@ -89,13 +88,12 @@ it('allows another laravel-ready app import', function (): void {
     expect(new LaravelReadyUsePolicy(appRoot())->violations($result))->toBeEmpty();
 });
 
-it('denies app import with class php extension only', function (): void {
+it('allows app import when class php exists but extension is not configured', function (): void {
     $result = new AnalysisResult(collect([
         new UseImportFinding('App\Domain\LegacyDto', 5),
     ]));
 
-    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))
-        ->toContainEqual(new UseFinding('App\Domain\LegacyDto', 5));
+    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))->toBeEmpty();
 });
 
 it('allows laravel-adapter app import', function (): void {

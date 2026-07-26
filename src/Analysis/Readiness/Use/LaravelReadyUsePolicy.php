@@ -7,6 +7,8 @@ namespace LaravelReady\Analysis\Readiness\Use;
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
 use LaravelReady\Analysis\Readiness\Use\Rule\DenyAppImportByLevelRule;
 use LaravelReady\Analysis\Readiness\Use\Rule\DenyWfNamespaceRule;
+use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
+use LaravelReady\Project\NamespaceResolver;
 
 final readonly class LaravelReadyUsePolicy extends UsePolicy
 {
@@ -22,7 +24,9 @@ final readonly class LaravelReadyUsePolicy extends UsePolicy
         return [
             new DenyWfNamespaceRule,
             new DenyAppImportByLevelRule(
-                $this->appRoot,
+                new Psr4ClassLocator(collect([
+                    new NamespaceResolver('App\\', $this->appRoot),
+                ])),
                 self::ALLOWED_DEPENDENCY_LEVELS,
             ),
         ];

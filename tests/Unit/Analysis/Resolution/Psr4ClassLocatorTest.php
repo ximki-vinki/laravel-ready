@@ -48,11 +48,11 @@ it('locates classes under two different prefixes', function (): void {
         ->toBe($root.'/project/domain/Bar.php');
 });
 
-it('locates class php when the extension is configured', function (): void {
+it('locates class php by default', function (): void {
     $resolvers = collect([
         new NamespaceResolver('App\\', appRoot()),
     ]);
 
-    expect((new Psr4ClassLocator($resolvers, ['.class.php']))->locate('App\Domain\LegacyDto'))
+    expect((new Psr4ClassLocator($resolvers))->locate('App\Domain\LegacyDto'))
         ->toBe(appRoot().'/Domain/LegacyDto.class.php');
 });

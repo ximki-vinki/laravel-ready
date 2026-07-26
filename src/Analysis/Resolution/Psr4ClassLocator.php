@@ -11,6 +11,7 @@ final readonly class Psr4ClassLocator
 {
     private const array DEFAULT_FILE_EXTENSIONS = [
         '.php', // @pest-mutate-ignore: RemoveArrayItem
+        '.class.php', // @pest-mutate-ignore: RemoveArrayItem
     ];
 
     /**
