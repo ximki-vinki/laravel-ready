@@ -9,10 +9,18 @@ use LaravelReady\Project\NamespaceResolver;
 
 final readonly class Psr4ClassLocator
 {
+    private const array DEFAULT_FILE_EXTENSIONS = [
+        '.php', // @pest-mutate-ignore: RemoveArrayItem
+    ];
+
     /**
      * @param  Collection<int, NamespaceResolver>  $resolvers
+     * @param  list<string>  $additionalFileExtensions
      */
-    public function __construct(private Collection $resolvers) {}
+    public function __construct(
+        private Collection $resolvers,
+        private array $additionalFileExtensions = [],
+    ) {}
 
     public function locate(string $fqcn): ?string
     {
@@ -25,13 +33,24 @@ final readonly class Psr4ClassLocator
                     |> strlen(...)
                     |> (fn ($x) => substr($fqcn, $x))
                     |> (fn ($x) => str_replace('\\', '/', $x));
-            $path = $resolver->path.'/'.$relative.'.php';
 
-            if (is_file($path)) {
-                return $path;
+            foreach ($this->fileExtensions() as $extension) {
+                $path = $resolver->path.'/'.$relative.$extension;
+
+                if (is_file($path)) {
+                    return $path;
+                }
             }
         }
 
         return null;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function fileExtensions(): array
+    {
+        return array_merge(self::DEFAULT_FILE_EXTENSIONS, $this->additionalFileExtensions);
     }
 }

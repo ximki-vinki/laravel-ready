@@ -1,0 +1,12 @@
+{
+  "resolvers": [
+    {
+      "prefix": "App\\",
+      "path": "project/app/"
+    },
+    {
+      "prefix": "Domain\\",
+      "path": "project/domain/"
+    }
+  ]
+}

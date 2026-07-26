@@ -1,0 +1,8 @@
+{
+  "resolvers": [
+    {
+      "prefix": "",
+      "path": "project/app/"
+    }
+  ]
+}
