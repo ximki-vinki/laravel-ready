@@ -15,10 +15,6 @@ final readonly class LaravelAdapterUsePolicy extends UsePolicy
         ReadinessLevel::LaravelAdapter, // @pest-mutate-ignore: RemoveArrayItem
     ];
 
-    private const array ADDITIONAL_FILE_EXTENSIONS = [
-        '.class.php', // @pest-mutate-ignore: RemoveArrayItem
-    ];
-
     public function __construct(private string $appRoot) {}
 
     protected function rules(): array
@@ -27,7 +23,7 @@ final readonly class LaravelAdapterUsePolicy extends UsePolicy
             new DenyAppImportByLevelRule(
                 new Psr4ClassLocator(collect([
                     new NamespaceResolver('App\\', $this->appRoot),
-                ]), self::ADDITIONAL_FILE_EXTENSIONS),
+                ])),
                 self::ALLOWED_DEPENDENCY_LEVELS,
             ),
         ];

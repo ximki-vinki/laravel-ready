@@ -55,18 +55,18 @@ it('allows laravel-adapter app import with class php extension', function (): vo
     $import = new UseImportFinding('App\Domain\LegacyDto', 5);
     $locator = new Psr4ClassLocator(collect([
         new NamespaceResolver('App\\', appRoot()),
-    ]), ['.class.php']);
+    ]));
     $rule = new DenyAppImportByLevelRule($locator, [ReadinessLevel::LaravelAdapter])->isDenied($import);
 
     expect($rule)->toBeFalse();
 });
 
-it('allows app import when class php exists but extension is not configured', function (): void {
+it('denies class php import when dependency level is not allowed', function (): void {
     $import = new UseImportFinding('App\Domain\LegacyDto', 5);
     $locator = new Psr4ClassLocator(collect([
         new NamespaceResolver('App\\', appRoot()),
     ]));
     $rule = new DenyAppImportByLevelRule($locator, [ReadinessLevel::LaravelReady])->isDenied($import);
 
-    expect($rule)->toBeFalse();
+    expect($rule)->toBeTrue();
 });

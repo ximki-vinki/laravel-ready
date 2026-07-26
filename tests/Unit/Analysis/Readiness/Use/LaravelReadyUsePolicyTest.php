@@ -88,12 +88,13 @@ it('allows another laravel-ready app import', function (): void {
     expect(new LaravelReadyUsePolicy(appRoot())->violations($result))->toBeEmpty();
 });
 
-it('allows app import when class php exists but extension is not configured', function (): void {
+it('denies class php app import', function (): void {
     $result = new AnalysisResult(collect([
         new UseImportFinding('App\Domain\LegacyDto', 5),
     ]));
 
-    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))->toBeEmpty();
+    expect(new LaravelReadyUsePolicy(appRoot())->violations($result))
+        ->toContainEqual(new UseFinding('App\Domain\LegacyDto', 5));
 });
 
 it('allows laravel-adapter app import', function (): void {

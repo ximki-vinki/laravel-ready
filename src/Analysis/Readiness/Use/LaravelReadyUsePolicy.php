@@ -6,6 +6,7 @@ namespace LaravelReady\Analysis\Readiness\Use;
 
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
 use LaravelReady\Analysis\Readiness\Use\Rule\DenyAppImportByLevelRule;
+use LaravelReady\Analysis\Readiness\Use\Rule\DenyClassPhpImportRule;
 use LaravelReady\Analysis\Readiness\Use\Rule\DenyWfNamespaceRule;
 use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
 use LaravelReady\Project\NamespaceResolver;
@@ -21,12 +22,15 @@ final readonly class LaravelReadyUsePolicy extends UsePolicy
 
     protected function rules(): array
     {
+        $locator = new Psr4ClassLocator(collect([
+            new NamespaceResolver('App\\', $this->appRoot),
+        ]));
+
         return [
             new DenyWfNamespaceRule,
+            new DenyClassPhpImportRule($locator),
             new DenyAppImportByLevelRule(
-                new Psr4ClassLocator(collect([
-                    new NamespaceResolver('App\\', $this->appRoot),
-                ])),
+                $locator,
                 self::ALLOWED_DEPENDENCY_LEVELS,
             ),
         ];
