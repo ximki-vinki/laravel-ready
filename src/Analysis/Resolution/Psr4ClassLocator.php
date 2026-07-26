@@ -28,8 +28,8 @@ final readonly class Psr4ClassLocator
 
             $relative = $resolver->prefix
                     |> strlen(...)
-                    |> (fn ($x) => substr($fqcn, $x))
-                    |> (fn ($x) => str_replace('\\', '/', $x));
+                    |> (fn ($x): string => substr($fqcn, $x))
+                    |> (fn ($x): string => str_replace('\\', '/', $x));
 
             foreach (self::FILE_EXTENSIONS as $extension) {
                 $path = $resolver->path.'/'.$relative.$extension;

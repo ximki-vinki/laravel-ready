@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Collection;
 use LaravelReady\Analysis\Findings\UseImportFinding;
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
 use LaravelReady\Analysis\Readiness\Use\Rule\DenyAppImportByLevelRule;
@@ -12,7 +11,7 @@ use LaravelReady\Project\NamespaceResolver;
 covers(DenyAppImportByLevelRule::class);
 
 it('allows vendor import', function (): void {
-    $import = new UseImportFinding(Collection::class, 5);
+    $import = new UseImportFinding('Vendor\Package\Service', 5);
     $locator = new Psr4ClassLocator(collect([
         new NamespaceResolver('App\\', appRoot()),
     ]));

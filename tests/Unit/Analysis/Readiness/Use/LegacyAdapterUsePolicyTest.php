@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Collection;
 use LaravelReady\Analysis\AnalysisResult;
 use LaravelReady\Analysis\Findings\UseFinding;
 use LaravelReady\Analysis\Findings\UseImportFinding;
@@ -44,7 +43,7 @@ it('allows legacy-perfect app import', function (): void {
 
 it('allows vendor import', function (): void {
     $result = new AnalysisResult(collect([
-        new UseImportFinding(Collection::class, 5),
+        new UseImportFinding('Vendor\Package\Service', 5),
     ]));
 
     expect(new LegacyAdapterUsePolicy(appLocator())->violations($result))->toBeEmpty();

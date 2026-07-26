@@ -6,12 +6,19 @@ use LaravelReady\Console\Commands\AnalyseCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
+beforeEach(function (): void {
+    chdir(projectRoot().'/tests/Fixtures/Use');
+});
+
+afterEach(function (): void {
+    chdir(projectRoot());
+});
+
 it('prints superglobals in var group', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Superglobals/bare.php')],
-        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)
@@ -26,7 +33,6 @@ it('prints global variables in global group', function (): void {
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Global/bare.php')],
-        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)
@@ -42,7 +48,6 @@ it('prints blocked functions in func group', function (): void {
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Functions/bare.php')],
-        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)
@@ -57,7 +62,6 @@ it('prints grouped legacy findings for mixed fixture', function (): void {
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Mixed/rules.php')],
-        '--app-root' => appRoot(),
     ]);
 
     expect($code)->toBe(Command::FAILURE)

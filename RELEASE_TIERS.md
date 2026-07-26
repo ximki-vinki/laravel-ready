@@ -134,7 +134,8 @@ laravel-ready/
 5. На Windows (без отдельно установленного PHP 8.5):
    ```cmd
    laravel-ready.exe
-   laravel-ready.exe --app-root=C:\path\to\app C:\path\to\file.php
+   cd C:\path\to\project
+   laravel-ready.exe path\to\file.php
    ```
 
 Если workflow красный — открыть упавший step в Actions и смотреть лог (часто: нет прав `contents: write`, ошибка упаковки приложения, неверный URL micro.sfx).
@@ -147,7 +148,7 @@ laravel-ready/
 - GitHub Actions: `tag push` → сборка exe → артефакт в Release.
 - Плагин / post-install в `cli`: скачивание exe по версии пакета.
 - Packagist: оба пакета, webhook на теги.
-- README: `composer require-dev laravel-readiness/cli`, пример с `--app-root`, fallback «скачать `.exe` вручную с Releases».
+- README: `composer require-dev laravel-readiness/cli`, пример запуска из корня проекта, fallback «скачать `.exe` вручную с Releases».
 
 ### Критерий готовности Minimum
 

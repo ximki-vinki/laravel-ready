@@ -9,43 +9,28 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 covers(CliValidationPresenter::class);
 
-it('returns success for valid app root', function (): void {
+it('returns failure when project config is missing', function (): void {
     $output = new BufferedOutput;
 
-    $exitCode = new CliValidationPresenter($output)->presentAppRoot(appRoot(), new Filesystem);
+    $exitCode = new CliValidationPresenter($output)->presentProjectConfig(
+        '/tmp/laravel-ready-missing-config-'.uniqid().'.json',
+        new Filesystem,
+    );
+
+    expect($exitCode)->toBe(Command::FAILURE)
+        ->and($output->fetch())->toContain('Project config not found: laravel-ready.json');
+});
+
+it('returns success when project config exists', function (): void {
+    $output = new BufferedOutput;
+
+    $exitCode = new CliValidationPresenter($output)->presentProjectConfig(
+        fixture('Use/laravel-ready.json'),
+        new Filesystem,
+    );
 
     expect($exitCode)->toBe(Command::SUCCESS)
         ->and($output->fetch())->toBe('');
-});
-
-it('returns failure when app root is missing', function (): void {
-    $output = new BufferedOutput;
-
-    $exitCode = new CliValidationPresenter($output)->presentAppRoot(null, new Filesystem);
-
-    expect($exitCode)->toBe(Command::FAILURE)
-        ->and($output->fetch())->toContain('App root is required. Pass --app-root=/path/to/project/app')
-        ->not->toContain('App root not found:');
-});
-
-it('returns failure when app root is empty string', function (): void {
-    $output = new BufferedOutput;
-
-    $exitCode = new CliValidationPresenter($output)->presentAppRoot('', new Filesystem);
-
-    expect($exitCode)->toBe(Command::FAILURE)
-        ->and($output->fetch())->toContain('App root is required. Pass --app-root=/path/to/project/app')
-        ->not->toContain('App root not found:');
-});
-
-it('returns failure when app root directory is missing', function (): void {
-    $output = new BufferedOutput;
-    $missing = '/tmp/laravel-ready-missing-root-'.uniqid();
-
-    $exitCode = new CliValidationPresenter($output)->presentAppRoot($missing, new Filesystem);
-
-    expect($exitCode)->toBe(Command::FAILURE)
-        ->and($output->fetch())->toContain('App root not found: '.$missing);
 });
 
 it('returns success for existing php file path', function (): void {

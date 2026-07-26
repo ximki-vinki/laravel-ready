@@ -264,16 +264,16 @@ class OfficeListService {
 
 ```bash
 # локально (PHP 8.5+)
-laravel-ready --app-root=/path/to/KDL.Site/project/app \
-  /path/to/KDL.Site/project/app/Domain/Service/Office/OfficeListService.php
+cd /path/to/KDL.Site
+laravel-ready project/app/Domain/Service/Office/OfficeListService.php
 
 # Docker — обязательно -e FORCE_COLOR=1, иначе вывод без цветов
 docker run --rm \
   -e FORCE_COLOR=1 \
   -v /path/to/KDL.Site:/project \
+  -w /project \
   laravel-ready \
-  --app-root=/project/project/app \
-  /project/project/app/Domain/Service/Office/OfficeListService.php
+  project/app/Domain/Service/Office/OfficeListService.php
 ```
 
 На Windows (PowerShell / CMD): `-v "C:\Users\...\KDL.Site:/project"`.

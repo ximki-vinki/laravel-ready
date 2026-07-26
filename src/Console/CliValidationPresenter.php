@@ -15,16 +15,10 @@ final readonly class CliValidationPresenter
         private OutputInterface $output,
     ) {}
 
-    public function presentAppRoot(mixed $appRoot, Filesystem $filesystem): int
+    public function presentProjectConfig(string $configPath, Filesystem $filesystem): int
     {
-        if (! is_string($appRoot) || $appRoot === '') {
-            $this->writeError('App root is required. Pass --app-root=/path/to/project/app');
-
-            return Command::FAILURE;
-        }
-
-        if (! $filesystem->isDirectory($appRoot)) {
-            $this->writeError(sprintf('App root not found: %s', $appRoot));
+        if ($filesystem->missing($configPath)) {
+            $this->writeError('Project config not found: laravel-ready.json');
 
             return Command::FAILURE;
         }

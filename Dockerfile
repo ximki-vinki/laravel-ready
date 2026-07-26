@@ -11,4 +11,4 @@ COPY composer.json composer.lock ./
 COPY bin ./bin
 COPY src ./src
 RUN chmod +x bin/laravel-ready
-ENTRYPOINT ["php", "bin/laravel-ready"]
+ENTRYPOINT ["php", "/app/bin/laravel-ready"]

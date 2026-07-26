@@ -53,9 +53,9 @@ docker build -t laravel-ready .
 docker run --rm \
   -e FORCE_COLOR=1 \
   -v /path/to/KDL.Site:/project \
+  -w /project \
   laravel-ready \
-  --app-root=/project/project/app \
-  /project/project/app/Infrastructure/Cache
+  project/app/Infrastructure/Cache
 ```
 
 Без `-e FORCE_COLOR=1` stdout в контейнере не TTY — Symfony Console отключает ANSI, вывод без цветов. Для логов без escape-кодов: `-e NO_COLOR=1` или `--no-ansi`.

@@ -9,15 +9,16 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use LaravelReady\Analysis\Detector;
 use LaravelReady\Analysis\Readiness\ReadinessResolver;
+use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
 use LaravelReady\Console\AnalysableFile;
 use LaravelReady\Console\CliValidationPresenter;
 use LaravelReady\Console\ReadinessPresenter;
+use LaravelReady\Project\ProjectConfigLoader;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -33,13 +34,7 @@ final class AnalyseCommand extends Command
             ->addArgument(
                 'path',
                 InputArgument::IS_ARRAY | InputArgument::OPTIONAL,
-                'Path to analyse')
-            ->addOption(
-                'app-root',
-                null,
-                InputOption::VALUE_REQUIRED,
-                'Root directory of App\\ code (e.g. project/app in KDL.Site)',
-            );
+                'Path to analyse');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -56,13 +51,15 @@ final class AnalyseCommand extends Command
         $filesystem = new Filesystem;
         $cliValidation = new CliValidationPresenter($output);
 
-        /** @var string $appRoot */
-        $appRoot = $input->getOption('app-root');
-        $exitCode = $cliValidation->presentAppRoot($appRoot, $filesystem);
+        $configPath = getcwd().'/laravel-ready.json';
+        $exitCode = $cliValidation->presentProjectConfig($configPath, $filesystem);
 
         if ($exitCode !== Command::SUCCESS) {
             return $exitCode;
         }
+
+        $config = (new ProjectConfigLoader)->load($configPath);
+        $locator = new Psr4ClassLocator($config->resolvers);
 
         $files = collect();
 
@@ -82,12 +79,12 @@ final class AnalyseCommand extends Command
             return $exitCode;
         }
 
-        $files->values()->each(function (AnalysableFile $file) use ($output, $appRoot, &$exitCode): void {
+        $files->values()->each(function (AnalysableFile $file) use ($output, $locator, &$exitCode): void {
             $output->writeln('');
 
             $result = (new Detector)->analyse($file->absolutePath);
 
-            $readiness = (new ReadinessResolver)->resolve($result, $appRoot);
+            $readiness = (new ReadinessResolver)->resolve($result, $locator);
 
             $fileExitCode = (new ReadinessPresenter)->present($readiness, $file->relativePath, $output);
             if ($fileExitCode !== Command::SUCCESS) {

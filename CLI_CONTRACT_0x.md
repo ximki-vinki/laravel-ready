@@ -16,15 +16,15 @@ to the stable surface require an entry in `CHANGELOG.md`.
 ## Command (stable)
 
 ```text
-laravel-ready [--app-root=PATH] <path> [<path>...]
+laravel-ready <path> [<path>...]
 ```
 
-| Element               | Contract                                                                              |
-|-----------------------|---------------------------------------------------------------------------------------|
-| Binary / command name | `laravel-ready`                                                                       |
-| `--app-root`          | Required when analysing files; application code root (e.g. `project/app` in KDL.Site) |
-| `<path>`              | One or more paths to a `.php` file or directory                                       |
-| No arguments          | Command help, exit `0`                                                                |
+| Element               | Contract                                                |
+|-----------------------|---------------------------------------------------------|
+| Binary / command name | `laravel-ready`                                         |
+| Working directory     | Repository root containing `laravel-ready.json`         |
+| `<path>`              | One or more paths to a `.php` file or directory         |
+| No arguments          | Command help, exit `0`                                  |
 
 **Beta delivery:** binaries for Windows, Linux, and macOS (see Releases).
 Running from source via `php bin/laravel-ready` is for package development, not
@@ -38,7 +38,8 @@ Before beta, class resolution and project paths are configured via an **explicit
 JSON file** in the analysed repository root, not hard-coded prefixes inside the
 package.
 
-**File:** `laravel-ready.json` (name and location are stable for 0.x beta).
+**File:** `laravel-ready.json` in the current working directory (name and
+location are stable for 0.x beta). Resolver paths are relative to this file.
 
 Minimal shape (extends as implementation lands):
 
@@ -66,9 +67,8 @@ Minimal shape (extends as implementation lands):
 }
 ```
 
-The CLI walks up from the analysed file (from `--app-root` or the given path
-root) to find the config. Missing config when resolution is required is a CLI
-error (exit `≠ 0`).
+The CLI does not walk parent directories. Missing config in the current working
+directory is a CLI error (exit `≠ 0`).
 
 ---
 
@@ -113,7 +113,7 @@ Hooks and CI must rely on the **exit code**. Semantics:
 | `@laravel-ready` / `@laravel-adapter` with blockers                             | `1`                   |
 | Readiness tag + blockers + `@skipCheck`                                         | `0`                   |
 | `@skipCheck` on `Untagged` / `MultiTag`                                         | `1` (does not rescue) |
-| CLI error (missing `--app-root`, file not found, not `.php`, missing config, …) | `≠ 0`                 |
+| CLI error (file not found, not `.php`, missing config, …)                      | `≠ 0`                 |
 
 When analyzing multiple files: **any** exit `1` (or CLI error) → overall exit
 `≠ 0`.
@@ -177,7 +177,8 @@ follow the level policy for legacy tags — see `READINESS_MODEL.md`).
 ## Recommended CI / pre-commit integration
 
 ```bash
-laravel-ready --app-root="$APP_ROOT" "$file"
+cd "$PROJECT_ROOT"
+laravel-ready "$file"
 code=$?
 if [ "$code" -ne 0 ]; then
   exit "$code"

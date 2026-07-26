@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use LaravelReady\Project\NamespaceResolver;
+use LaravelReady\Project\ProjectConfig;
 use LaravelReady\Project\ProjectConfigLoader;
 
 covers(ProjectConfigLoader::class);
@@ -31,13 +32,13 @@ it('loads multiple resolvers from json', function (): void {
 it('rejects an empty prefix', function (): void {
     $path = projectRoot().'/tests/Fixtures/Config/empty-prefix/laravel-ready.json';
 
-    expect(fn () => (new ProjectConfigLoader)->load($path))
+    expect(fn (): ProjectConfig => (new ProjectConfigLoader)->load($path))
         ->toThrow(InvalidArgumentException::class);
 });
 
 it('rejects an empty path', function (): void {
     $path = projectRoot().'/tests/Fixtures/Config/empty-path/laravel-ready.json';
 
-    expect(fn () => (new ProjectConfigLoader)->load($path))
+    expect(fn (): ProjectConfig => (new ProjectConfigLoader)->load($path))
         ->toThrow(InvalidArgumentException::class);
 });

@@ -23,7 +23,7 @@ it('returns null for an unknown prefix', function (): void {
         new NamespaceResolver('App\\', $root.'/project/app'),
     ]));
 
-    expect($locator->locate('Illuminate\Support\Str'))->toBeNull();
+    expect($locator->locate('Vendor\Package\Service'))->toBeNull();
 });
 
 it('returns null when prefix matches but file is missing', function (): void {
@@ -53,6 +53,6 @@ it('locates class php by default', function (): void {
         new NamespaceResolver('App\\', appRoot()),
     ]);
 
-    expect((new Psr4ClassLocator($resolvers))->locate('App\Domain\LegacyDto'))
+    expect(new Psr4ClassLocator($resolvers)->locate('App\Domain\LegacyDto'))
         ->toBe(appRoot().'/Domain/LegacyDto.class.php');
 });

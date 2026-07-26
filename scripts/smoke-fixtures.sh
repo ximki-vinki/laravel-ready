@@ -6,8 +6,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-APP_ROOT="$ROOT/tests/Fixtures/Use/project/app"
 FX="$ROOT/tests/Fixtures"
+CONFIG_ROOT="$FX/Use"
 
 if [[ $# -lt 1 ]]; then
   echo "usage: $0 <binary> [args...]" >&2
@@ -16,13 +16,18 @@ if [[ $# -lt 1 ]]; then
 fi
 
 BIN=("$@")
+for i in "${!BIN[@]}"; do
+  if [[ "${BIN[$i]}" == */* && "${BIN[$i]}" != /* ]]; then
+    BIN[$i]="$ROOT/${BIN[$i]#./}"
+  fi
+done
 
 run_case() {
   local label="$1" expect="$2" needle="$3" file="$4"
   local out code
 
   set +e
-  out="$("${BIN[@]}" --app-root="$APP_ROOT" "$file" --no-ansi 2>&1)"
+  out="$(cd "$CONFIG_ROOT" && "${BIN[@]}" "$file" --no-ansi 2>&1)"
   code=$?
   set -e
 

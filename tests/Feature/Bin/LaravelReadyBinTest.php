@@ -9,10 +9,10 @@ function runLaravelReadyBin(string ...$args): int
 {
     $process = new Process(
         array_merge(
-            [PHP_BINARY, 'bin/laravel-ready', '--app-root='.appRoot()],
+            [PHP_BINARY, projectRoot().'/bin/laravel-ready'],
             $args,
         ),
-        projectRoot(),
+        projectRoot().'/tests/Fixtures/Use',
     );
     $process->run();
 
@@ -23,17 +23,18 @@ it('exits success when run without arguments', function (): void {
     expect(runLaravelReadyBin())->toBe(Command::SUCCESS);
 });
 
-it('exits failure when app root is missing', function (): void {
+it('exits failure when project config is missing', function (): void {
     $file = fixture('Legacy/Superglobals/bare.php');
 
     $process = new Process(
-        [PHP_BINARY, 'bin/laravel-ready', $file],
+        [PHP_BINARY, projectRoot().'/bin/laravel-ready', $file],
         projectRoot(),
     );
     $process->run();
 
     expect($process->getExitCode())->toBe(Command::FAILURE)
-        ->and($process->getOutput().$process->getErrorOutput())->toContain('App root is required');
+        ->and($process->getOutput().$process->getErrorOutput())
+        ->toContain('Project config not found: laravel-ready.json');
 });
 
 it('exits failure when path does not exist', function (): void {

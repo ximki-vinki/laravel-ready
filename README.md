@@ -7,13 +7,29 @@ CLI для охраны PHP-файлов при миграции в Laravel: п�
 ```bash
 # PHP 8.5+
 composer install
-php bin/laravel-ready --app-root=/path/to/app path/to/File.php
+cd /path/to/project
+vendor/bin/laravel-ready path/to/File.php
 ```
 
 **Windows:** скачать `laravel-ready.exe` с [Releases](https://github.com/ximki-vinki/laravel-ready/releases) (PHP на машине не нужен).
 
 ```cmd
-laravel-ready.exe --app-root=C:\path\to\app C:\path\to\File.php
+cd C:\path\to\project
+laravel-ready.exe path\to\File.php
+```
+
+В текущей рабочей директории должен находиться `laravel-ready.json`. Пути
+резолверов задаются относительно этого файла:
+
+```json
+{
+  "resolvers": [
+    {
+      "prefix": "App\\",
+      "path": "app/"
+    }
+  ]
+}
 ```
 
 **Docker:**
@@ -22,9 +38,9 @@ laravel-ready.exe --app-root=C:\path\to\app C:\path\to\File.php
 docker build -t laravel-ready .
 docker run --rm -e FORCE_COLOR=1 \
   -v /path/to/project:/project \
+  -w /project \
   laravel-ready \
-  --app-root=/project/project/app \
-  /project/project/app/SomeFile.php
+  app/SomeFile.php
 ```
 
 Exit `0` — ок для хука/CI, `1` — guard провален (или нет/несколько меток).
