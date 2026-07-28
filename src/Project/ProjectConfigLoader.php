@@ -4,32 +4,37 @@ declare(strict_types=1);
 
 namespace LaravelReady\Project;
 
-use InvalidArgumentException;
+use JsonException;
 
 final readonly class ProjectConfigLoader
 {
-    public function load(string $path): ProjectConfig
+    public function load(string $path): ProjectConfigLoadResult
     {
-        /** @var array{resolvers: list<array{prefix: string, path: string}>} $data */
-        $data = json_decode((string) file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
+        try {
+            /** @var array{resolvers: list<array{prefix: string, path: string}>} $data */
+            $data = json_decode((string) file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            return new ProjectConfigLoadResult(null, 'Invalid laravel-ready.json.');
+        }
+
         $configDir = dirname($path);
+        $resolvers = collect();
 
-        $resolvers = collect($data['resolvers'])
-            ->map(function (array $resolver) use ($configDir): NamespaceResolver {
-                if ($resolver['prefix'] === '') {
-                    throw new InvalidArgumentException('Resolver prefix must not be empty.');
-                }
+        foreach ($data['resolvers'] as $resolver) {
+            if ($resolver['prefix'] === '') {
+                return new ProjectConfigLoadResult(null, 'Resolver prefix must not be empty.');
+            }
 
-                if ($resolver['path'] === '') {
-                    throw new InvalidArgumentException('Resolver path must not be empty.');
-                }
+            if ($resolver['path'] === '') {
+                return new ProjectConfigLoadResult(null, 'Resolver path must not be empty.');
+            }
 
-                return new NamespaceResolver(
-                    $resolver['prefix'],
-                    $configDir.'/'.trim($resolver['path'], '/'),
-                );
-            });
+            $resolvers->push(new NamespaceResolver(
+                $resolver['prefix'],
+                $configDir.'/'.trim($resolver['path'], '/'),
+            ));
+        }
 
-        return new ProjectConfig($resolvers);
+        return new ProjectConfigLoadResult(new ProjectConfig($resolvers), null);
     }
 }

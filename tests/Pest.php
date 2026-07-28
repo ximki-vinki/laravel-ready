@@ -1,7 +1,10 @@
 <?php
 
+use LaravelReady\Analysis\Readiness\ReadinessResolver;
+use LaravelReady\Analysis\Readiness\UseDependencyChecker;
 use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
 use LaravelReady\Project\NamespaceResolver;
+use LaravelReady\Project\ProjectConfig;
 use PHPUnit\Framework\TestCase;
 
 /*
@@ -29,9 +32,19 @@ function appRoot(): string
     return projectRoot().'/tests/Fixtures/Use/project/app';
 }
 
-function appLocator(): Psr4ClassLocator
+function appConfig(): ProjectConfig
 {
-    return new Psr4ClassLocator(collect([
+    return new ProjectConfig(collect([
         new NamespaceResolver('App\\', appRoot()),
     ]));
+}
+
+function appLocator(): Psr4ClassLocator
+{
+    return new Psr4ClassLocator(appConfig());
+}
+
+function readinessResolver(): ReadinessResolver
+{
+    return new ReadinessResolver(new UseDependencyChecker(appLocator()));
 }

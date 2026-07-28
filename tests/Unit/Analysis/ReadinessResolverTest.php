@@ -20,7 +20,7 @@ covers(ReadinessResolver::class);
 it('resolves untagged for clean analysis result without tag', function (): void {
     $result = new AnalysisResult(collect());
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::Untagged)
         ->and($readiness->findings)->toBeEmpty()
@@ -30,7 +30,7 @@ it('resolves untagged for clean analysis result without tag', function (): void 
 it('resolves laravel ready for laravel-ready tag without blockers', function (): void {
     $result = new AnalysisResult(collect([new TagFinding(Tag::LaravelReady, 3)]));
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::LaravelReady)
         ->and($readiness->hasBlockers)->toBeFalse();
@@ -39,7 +39,7 @@ it('resolves laravel ready for laravel-ready tag without blockers', function ():
 it('resolves laravel adapter for laravel-adapter tag without blockers', function (): void {
     $result = new AnalysisResult(collect([new TagFinding(Tag::LaravelAdapter, 3)]));
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::LaravelAdapter)
         ->and($readiness->hasBlockers)->toBeFalse()
@@ -52,7 +52,7 @@ it('propagates skipCheck from analysis result', function (): void {
         skipCheck: true,
     );
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->skipCheck)->toBeTrue()
         ->and($readiness->actual)->toBe(ReadinessLevel::LaravelAdapter);
@@ -62,7 +62,7 @@ it('resolves untagged when analysis result has only legacy finding', function ()
     $findings = collect([new SuperglobalFinding(SuperglobalName::Get, 3)]);
     $result = new AnalysisResult($findings);
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::Untagged)
         ->and($readiness->findings)->toBe($findings)
@@ -72,7 +72,7 @@ it('resolves untagged when analysis result has only legacy finding', function ()
 it('resolves legacy when analysis result has legacy-code tag', function (): void {
     $result = new AnalysisResult(collect([new TagFinding(Tag::Legacy, 4)]));
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::Legacy)
         ->and($readiness->hasBlockers)->toBeFalse();
@@ -87,7 +87,7 @@ it('resolves legacy adapter for legacy-adapter tag without blockers', function (
         allows: collect([SuperglobalName::Get]),
     );
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::LegacyAdapter)
         ->and($readiness->hasBlockers)->toBeFalse();
@@ -98,7 +98,7 @@ it('resolves clean legacy-adapter without allows as no blockers', function (): v
         new TagFinding(Tag::LegacyAdapter, 3),
     ]));
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::LegacyAdapter)
         ->and($readiness->hasBlockers)->toBeFalse();
@@ -110,7 +110,7 @@ it('detects blockers when legacy-adapter has finding and no allows', function ()
         new TagFinding(Tag::LegacyAdapter, 3),
     ]));
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::LegacyAdapter)
         ->and($readiness->hasBlockers)->toBeTrue();
@@ -125,7 +125,7 @@ it('detects blockers when legacy-adapter finding is not allowed', function (): v
         allows: collect([SuperglobalName::Cookie]),
     );
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::LegacyAdapter)
         ->and($readiness->hasBlockers)->toBeTrue();
@@ -137,7 +137,7 @@ it('detects blockers when legacy-adapter imports laravel-ready', function (): vo
         new UseImportFinding('App\Domain\TaggedService', 5),
     ]));
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::LegacyAdapter)
         ->and($readiness->hasBlockers)->toBeTrue()
@@ -150,7 +150,7 @@ it('resolves multitag when analysis result has multiple tags', function (): void
         new TagFinding(Tag::Legacy, 10),
     ]));
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::MultiTag)
         ->and($readiness->hasBlockers)->toBeTrue();
@@ -162,7 +162,7 @@ it('detects blockers when laravel-ready tag is paired with legacy finding', func
         new TagFinding(Tag::LaravelReady, 3),
     ]));
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::LaravelReady)
         ->and($readiness->hasBlockers)->toBeTrue();
@@ -174,7 +174,7 @@ it('does not block legacy-code tag with legacy finding', function (): void {
         new TagFinding(Tag::Legacy, 4),
     ]));
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::Legacy)
         ->and($readiness->hasBlockers)->toBeFalse();
@@ -186,7 +186,7 @@ it('detects blockers when laravel-adapter tag is paired with legacy finding', fu
         new TagFinding(Tag::LaravelAdapter, 3),
     ]));
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::LaravelAdapter)
         ->and($readiness->hasBlockers)->toBeTrue();
@@ -198,7 +198,7 @@ it('does not block laravel-adapter tag with use finding only', function (): void
         new UseFinding('Wf\Legacy\OldRepo', 5),
     ]));
 
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->actual)->toBe(ReadinessLevel::LaravelAdapter)
         ->and($readiness->hasBlockers)->toBeFalse();
@@ -208,7 +208,7 @@ it('detects blockers when guarded file imports wf namespace', function (): void 
     $path = fixture('Use/project/app/Domain/Invoice.php');
 
     $result = (new Detector)->analyse($path);
-    $readiness = (new ReadinessResolver)->resolve($result, appLocator());
+    $readiness = readinessResolver()->resolve($result);
 
     expect($readiness->hasBlockers)->toBeTrue()
         ->and($readiness->findings)->toContainEqual(new UseFinding('Wf\Legacy\OldRepo', 5));

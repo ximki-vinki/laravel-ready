@@ -4,33 +4,65 @@ declare(strict_types=1);
 
 use Illuminate\Filesystem\Filesystem;
 use LaravelReady\Console\CliValidationPresenter;
+use LaravelReady\Project\NamespaceResolver;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 covers(CliValidationPresenter::class);
 
-it('returns failure when project config is missing', function (): void {
+it('returns null when project config is missing', function (): void {
     $output = new BufferedOutput;
 
-    $exitCode = new CliValidationPresenter($output)->presentProjectConfig(
+    $config = new CliValidationPresenter($output)->presentProjectConfigLoad(
         '/tmp/laravel-ready-missing-config-'.uniqid().'.json',
         new Filesystem,
     );
 
-    expect($exitCode)->toBe(Command::FAILURE)
+    expect($config)->toBeNull()
         ->and($output->fetch())->toContain('Project config not found: laravel-ready.json');
 });
 
-it('returns success when project config exists', function (): void {
+it('returns project config when file is valid', function (): void {
     $output = new BufferedOutput;
+    $configPath = fixture('Use/laravel-ready.json');
+    $configDir = dirname($configPath);
 
-    $exitCode = new CliValidationPresenter($output)->presentProjectConfig(
-        fixture('Use/laravel-ready.json'),
+    $config = new CliValidationPresenter($output)->presentProjectConfigLoad(
+        $configPath,
         new Filesystem,
     );
 
-    expect($exitCode)->toBe(Command::SUCCESS)
+    expect($config)->not->toBeNull()
+        ->and($config->resolvers->all())->toEqual([
+            new NamespaceResolver('App\\', $configDir.'/project/app'),
+        ])
         ->and($output->fetch())->toBe('');
+});
+
+it('returns null when project config has an empty prefix', function (): void {
+    $output = new BufferedOutput;
+    $configPath = projectRoot().'/tests/Fixtures/Config/empty-prefix/laravel-ready.json';
+
+    $config = new CliValidationPresenter($output)->presentProjectConfigLoad(
+        $configPath,
+        new Filesystem,
+    );
+
+    expect($config)->toBeNull()
+        ->and($output->fetch())->toContain('Resolver prefix must not be empty.');
+});
+
+it('returns null when project config has invalid json', function (): void {
+    $output = new BufferedOutput;
+    $configPath = projectRoot().'/tests/Fixtures/Config/invalid-json/laravel-ready.json';
+
+    $config = new CliValidationPresenter($output)->presentProjectConfigLoad(
+        $configPath,
+        new Filesystem,
+    );
+
+    expect($config)->toBeNull()
+        ->and($output->fetch())->toContain('Invalid laravel-ready.json.');
 });
 
 it('returns success for existing php file path', function (): void {

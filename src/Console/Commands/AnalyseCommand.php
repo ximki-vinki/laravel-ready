@@ -9,11 +9,12 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use LaravelReady\Analysis\Detector;
 use LaravelReady\Analysis\Readiness\ReadinessResolver;
+use LaravelReady\Analysis\Readiness\UseDependencyChecker;
 use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
 use LaravelReady\Console\AnalysableFile;
 use LaravelReady\Console\CliValidationPresenter;
 use LaravelReady\Console\ReadinessPresenter;
-use LaravelReady\Project\ProjectConfigLoader;
+use LaravelReady\Project\ProjectConfig;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\DescriptorHelper;
@@ -52,14 +53,11 @@ final class AnalyseCommand extends Command
         $cliValidation = new CliValidationPresenter($output);
 
         $configPath = getcwd().'/laravel-ready.json';
-        $exitCode = $cliValidation->presentProjectConfig($configPath, $filesystem);
+        $config = $cliValidation->presentProjectConfigLoad($configPath, $filesystem);
 
-        if ($exitCode !== Command::SUCCESS) {
-            return $exitCode;
+        if (! $config instanceof ProjectConfig) {
+            return Command::FAILURE;
         }
-
-        $config = (new ProjectConfigLoader)->load($configPath);
-        $locator = new Psr4ClassLocator($config->resolvers);
 
         $files = collect();
 
@@ -79,12 +77,16 @@ final class AnalyseCommand extends Command
             return $exitCode;
         }
 
-        $files->values()->each(function (AnalysableFile $file) use ($output, $locator, &$exitCode): void {
+        $readinessResolver = new ReadinessResolver(
+            new UseDependencyChecker(new Psr4ClassLocator($config)),
+        );
+
+        $files->values()->each(function (AnalysableFile $file) use ($output, $readinessResolver, &$exitCode): void {
             $output->writeln('');
 
             $result = (new Detector)->analyse($file->absolutePath);
 
-            $readiness = (new ReadinessResolver)->resolve($result, $locator);
+            $readiness = $readinessResolver->resolve($result);
 
             $fileExitCode = (new ReadinessPresenter)->present($readiness, $file->relativePath, $output);
             if ($fileExitCode !== Command::SUCCESS) {

@@ -37,6 +37,30 @@ it('fails when project config cannot be found', function (): void {
         ->and($tester->getDisplay())->toContain('Project config not found: laravel-ready.json');
 });
 
+it('fails when project config has an empty prefix', function (): void {
+    chdir(projectRoot().'/tests/Fixtures/Config/empty-prefix');
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [fixture('Legacy/Clean/empty.php')],
+    ]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('Resolver prefix must not be empty.');
+});
+
+it('fails when project config has invalid json', function (): void {
+    chdir(projectRoot().'/tests/Fixtures/Config/invalid-json');
+    $tester = new CommandTester(new AnalyseCommand);
+
+    $code = $tester->execute([
+        'path' => [fixture('Legacy/Clean/empty.php')],
+    ]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('Invalid laravel-ready.json.');
+});
+
 it('fails when path does not exist', function (): void {
     $tester = new CommandTester(new AnalyseCommand);
     $code = $tester->execute([
