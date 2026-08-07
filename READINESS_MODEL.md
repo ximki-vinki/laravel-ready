@@ -67,6 +67,8 @@ Legacy ──┤               → LaravelAdapter
 
 Метки в PHPDoc: `@laravel-ready`, `@legacy-code`, и т.д.
 
+**Планируется изменение контракта:** возможно разрешить `@legacy-adapter` зависеть от `@laravel-adapter` (как shared/bridge-adapter), но оставить запрет на зависимость от `@laravel-ready`.
+
 ### Модификатор `@allows`
 
 Не уровень: контракт для `@legacy-adapter` — какие AST-примитивы разрешены.

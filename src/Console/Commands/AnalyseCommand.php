@@ -7,10 +7,7 @@ namespace LaravelReady\Console\Commands;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use LaravelReady\Analysis\Detector;
-use LaravelReady\Analysis\Readiness\ReadinessResolver;
-use LaravelReady\Analysis\Readiness\UseDependencyChecker;
-use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
+use LaravelReady\Analysis\AnalyseRunnerFactory;
 use LaravelReady\Console\AnalysableFile;
 use LaravelReady\Console\CliValidationPresenter;
 use LaravelReady\Console\ReadinessPresenter;
@@ -29,6 +26,11 @@ use Symfony\Component\Finder\SplFileInfo;
 )]
 final class AnalyseCommand extends Command
 {
+    public function __construct(private AnalyseRunnerFactory $runnerFactory)
+    {
+        parent::__construct();
+    }
+
     protected function configure(): void
     {
         $this
@@ -77,18 +79,15 @@ final class AnalyseCommand extends Command
             return $exitCode;
         }
 
-        $readinessResolver = new ReadinessResolver(
-            new UseDependencyChecker(new Psr4ClassLocator($config)),
-        );
+        $runner = $this->runnerFactory->create($config);
+        $presenter = new ReadinessPresenter;
 
-        $files->values()->each(function (AnalysableFile $file) use ($output, $readinessResolver, &$exitCode): void {
+        $files->values()->each(function (AnalysableFile $file) use ($output, $runner, $presenter, &$exitCode): void {
             $output->writeln('');
 
-            $result = (new Detector)->analyse($file->absolutePath);
+            $readiness = $runner->analyse($file->absolutePath);
 
-            $readiness = $readinessResolver->resolve($result);
-
-            $fileExitCode = (new ReadinessPresenter)->present($readiness, $file->relativePath, $output);
+            $fileExitCode = $presenter->present($readiness, $file->relativePath, $output);
             if ($fileExitCode !== Command::SUCCESS) {
                 $exitCode = $fileExitCode;
             }

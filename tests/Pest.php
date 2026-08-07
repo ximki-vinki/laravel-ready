@@ -1,8 +1,11 @@
 <?php
 
+use LaravelReady\Analysis\AnalyseRunnerFactory;
 use LaravelReady\Analysis\Readiness\ReadinessResolver;
 use LaravelReady\Analysis\Readiness\UseDependencyChecker;
 use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
+use LaravelReady\Console\Commands\AnalyseCommand;
+use LaravelReady\ContainerFactory;
 use LaravelReady\Project\NamespaceResolver;
 use LaravelReady\Project\ProjectConfig;
 use PHPUnit\Framework\TestCase;
@@ -47,4 +50,9 @@ function appLocator(): Psr4ClassLocator
 function readinessResolver(): ReadinessResolver
 {
     return new ReadinessResolver(new UseDependencyChecker(appLocator()));
+}
+
+function analyseCommand(): AnalyseCommand
+{
+    return new AnalyseCommand(new AnalyseRunnerFactory(new ContainerFactory));
 }
