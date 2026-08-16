@@ -6,6 +6,8 @@ namespace LaravelReady\Console;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
+use LaravelReady\Project\ProjectConfig;
+use LaravelReady\Project\ProjectConfigLoader;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -15,15 +17,25 @@ final readonly class CliValidationPresenter
         private OutputInterface $output,
     ) {}
 
-    public function presentProjectConfig(string $configPath, Filesystem $filesystem): int
-    {
+    public function presentProjectConfigLoad(
+        string $configPath,
+        Filesystem $filesystem,
+    ): ?ProjectConfig {
         if ($filesystem->missing($configPath)) {
             $this->writeError('Project config not found: laravel-ready.json');
 
-            return Command::FAILURE;
+            return null;
         }
 
-        return Command::SUCCESS;
+        $result = (new ProjectConfigLoader)->load($configPath);
+
+        if ($result->error !== null) {
+            $this->writeError($result->error);
+
+            return null;
+        }
+
+        return $result->config;
     }
 
     public function presentPath(string $path, Filesystem $filesystem): int

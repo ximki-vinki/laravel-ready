@@ -1,9 +1,11 @@
 <?php
 
+use LaravelReady\Analysis\AnalyseRunnerFactory;
 use LaravelReady\Analysis\Readiness\ReadinessResolver;
-use LaravelReady\Analysis\Readiness\ReadinessResolverFactory;
-use LaravelReady\Analysis\Readiness\Use\UsePolicyFactory;
+use LaravelReady\Analysis\Readiness\UseDependencyChecker;
 use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
+use LaravelReady\Console\Commands\AnalyseCommand;
+use LaravelReady\ContainerFactory;
 use LaravelReady\Project\NamespaceResolver;
 use LaravelReady\Project\ProjectConfig;
 use PHPUnit\Framework\TestCase;
@@ -33,26 +35,24 @@ function appRoot(): string
     return projectRoot().'/tests/Fixtures/Use/project/app';
 }
 
-function appLocator(): Psr4ClassLocator
-{
-    return new Psr4ClassLocator(collect([
-        new NamespaceResolver('App\\', appRoot()),
-    ]));
-}
-
-function appProjectConfig(): ProjectConfig
+function appConfig(): ProjectConfig
 {
     return new ProjectConfig(collect([
         new NamespaceResolver('App\\', appRoot()),
     ]));
 }
 
-function appUsePolicyFactory(): UsePolicyFactory
+function appLocator(): Psr4ClassLocator
 {
-    return new UsePolicyFactory(appLocator());
+    return new Psr4ClassLocator(appConfig());
 }
 
-function appReadinessResolver(): ReadinessResolver
+function readinessResolver(): ReadinessResolver
 {
-    return new ReadinessResolverFactory()->create(appProjectConfig());
+    return new ReadinessResolver(new UseDependencyChecker(appLocator()));
+}
+
+function analyseCommand(): AnalyseCommand
+{
+    return new AnalyseCommand(new AnalyseRunnerFactory(new ContainerFactory));
 }

@@ -9,14 +9,12 @@ use LaravelReady\Analysis\Readiness\Guard\GuardEvaluator;
 
 final readonly class ReadinessResolver
 {
-    public function __construct(
-        private UseDependencyChecker $dependencyChecker,
-    ) {}
+    public function __construct(private UseDependencyChecker $useDependencyChecker) {}
 
     public function resolve(AnalysisResult $result): ReadinessResult
     {
         $actual = new ReadinessLevelResolver()->fromResult($result);
-        $result = $this->dependencyChecker->check($result, $actual);
+        $result = $this->useDependencyChecker->check($result, $actual);
 
         return new ReadinessResult(
             actual: $actual,

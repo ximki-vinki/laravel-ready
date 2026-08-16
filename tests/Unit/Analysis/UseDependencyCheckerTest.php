@@ -17,7 +17,7 @@ it('does not add use finding for wf import in unguarded file', function (): void
         new UseImportFinding('Wf\Legacy\OldRepo', 5),
     ]));
 
-    $checked = new UseDependencyChecker(appUsePolicyFactory())->check($result, ReadinessLevel::Untagged);
+    $checked = new UseDependencyChecker(appLocator())->check($result, ReadinessLevel::Untagged);
 
     expect($checked)->toBe($result)
         ->and($checked->findings->filter(
@@ -31,7 +31,7 @@ it('does not add use finding when legacy-code imports laravel-ready', function (
         new UseImportFinding('App\Domain\TaggedService', 5),
     ]));
 
-    $checked = new UseDependencyChecker(appUsePolicyFactory())->check($result, ReadinessLevel::Legacy);
+    $checked = new UseDependencyChecker(appLocator())->check($result, ReadinessLevel::Legacy);
 
     expect($checked)->toBe($result)
         ->and($checked->findings->filter(
@@ -44,7 +44,7 @@ it('returns same result for guarded file without imports', function (): void {
         new TagFinding(Tag::LaravelReady, 3),
     ]));
 
-    $checked = new UseDependencyChecker(appUsePolicyFactory())->check($result, ReadinessLevel::LaravelReady);
+    $checked = new UseDependencyChecker(appLocator())->check($result, ReadinessLevel::LaravelReady);
 
     expect($checked)->toBe($result);
 });
@@ -55,7 +55,7 @@ it('adds use finding when legacy-adapter imports laravel-ready', function (): vo
         new UseImportFinding('App\Domain\TaggedService', 5),
     ]));
 
-    $checked = new UseDependencyChecker(appUsePolicyFactory())->check($result, ReadinessLevel::LegacyAdapter);
+    $checked = new UseDependencyChecker(appLocator())->check($result, ReadinessLevel::LegacyAdapter);
 
     expect($checked->findings)->toContainEqual(new UseFinding('App\Domain\TaggedService', 5));
 });
@@ -66,7 +66,7 @@ it('adds use finding when legacy-perfect imports laravel-ready', function (): vo
         new UseImportFinding('App\Domain\TaggedService', 5),
     ]));
 
-    $checked = new UseDependencyChecker(appUsePolicyFactory())->check($result, ReadinessLevel::LegacyPerfect);
+    $checked = new UseDependencyChecker(appLocator())->check($result, ReadinessLevel::LegacyPerfect);
 
     expect($checked->findings)->toContainEqual(new UseFinding('App\Domain\TaggedService', 5));
 });
@@ -77,7 +77,7 @@ it('adds use finding when legacy-perfect imports legacy-code', function (): void
         new UseImportFinding('App\Domain\LegacyService', 5),
     ]));
 
-    $checked = new UseDependencyChecker(appUsePolicyFactory())->check($result, ReadinessLevel::LegacyPerfect);
+    $checked = new UseDependencyChecker(appLocator())->check($result, ReadinessLevel::LegacyPerfect);
 
     expect($checked->findings)->toContainEqual(new UseFinding('App\Domain\LegacyService', 5));
 });
@@ -87,7 +87,7 @@ it('preserves original findings when adding use finding', function (): void {
     $tag = new TagFinding(Tag::LaravelReady, 3);
     $result = new AnalysisResult(collect([$tag, $import]));
 
-    $checked = new UseDependencyChecker(appUsePolicyFactory())->check($result, ReadinessLevel::LaravelReady);
+    $checked = new UseDependencyChecker(appLocator())->check($result, ReadinessLevel::LaravelReady);
 
     expect($checked->findings)->toContainEqual($tag)
         ->and($checked->findings)->toContainEqual($import)

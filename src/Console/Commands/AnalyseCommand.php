@@ -7,12 +7,11 @@ namespace LaravelReady\Console\Commands;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use LaravelReady\Analysis\Detector;
-use LaravelReady\Analysis\Readiness\ReadinessResolverFactory;
+use LaravelReady\Analysis\AnalyseRunnerFactory;
 use LaravelReady\Console\AnalysableFile;
 use LaravelReady\Console\CliValidationPresenter;
 use LaravelReady\Console\ReadinessPresenter;
-use LaravelReady\Project\ProjectConfigLoader;
+use LaravelReady\Project\ProjectConfig;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\DescriptorHelper;
@@ -27,6 +26,11 @@ use Symfony\Component\Finder\SplFileInfo;
 )]
 final class AnalyseCommand extends Command
 {
+    public function __construct(private readonly AnalyseRunnerFactory $runnerFactory)
+    {
+        parent::__construct();
+    }
+
     protected function configure(): void
     {
         $this
@@ -51,14 +55,11 @@ final class AnalyseCommand extends Command
         $cliValidation = new CliValidationPresenter($output);
 
         $configPath = getcwd().'/laravel-ready.json';
-        $exitCode = $cliValidation->presentProjectConfig($configPath, $filesystem);
+        $config = $cliValidation->presentProjectConfigLoad($configPath, $filesystem);
 
-        if ($exitCode !== Command::SUCCESS) {
-            return $exitCode;
+        if (! $config instanceof ProjectConfig) {
+            return Command::FAILURE;
         }
-
-        $config = (new ProjectConfigLoader)->load($configPath);
-        $readinessResolver = (new ReadinessResolverFactory)->create($config);
 
         $files = collect();
 
@@ -74,14 +75,19 @@ final class AnalyseCommand extends Command
 
         $exitCode = $cliValidation->presentPhpFilesFound($files->isNotEmpty());
 
-        $files->values()->each(function (AnalysableFile $file) use ($output, $readinessResolver, &$exitCode): void {
+        if ($exitCode !== Command::SUCCESS) {
+            return $exitCode;
+        }
+
+        $runner = $this->runnerFactory->create($config);
+        $presenter = new ReadinessPresenter;
+
+        $files->values()->each(function (AnalysableFile $file) use ($output, $runner, $presenter, &$exitCode): void {
             $output->writeln('');
 
-            $result = (new Detector)->analyse($file->absolutePath);
+            $readiness = $runner->analyse($file->absolutePath);
 
-            $readiness = $readinessResolver->resolve($result);
-
-            $fileExitCode = (new ReadinessPresenter)->present($readiness, $file->relativePath, $output);
+            $fileExitCode = $presenter->present($readiness, $file->relativePath, $output);
             if ($fileExitCode !== Command::SUCCESS) {
                 $exitCode = $fileExitCode;
             }

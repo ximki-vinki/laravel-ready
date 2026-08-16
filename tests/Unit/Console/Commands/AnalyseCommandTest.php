@@ -17,7 +17,7 @@ afterEach(function (): void {
 });
 
 it('returns success when run without path', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([]);
 
@@ -27,7 +27,7 @@ it('returns success when run without path', function (): void {
 
 it('fails when project config cannot be found', function (): void {
     chdir(projectRoot().'/tests/Fixtures/Locator/project/app');
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Clean/empty.php')],
@@ -37,8 +37,32 @@ it('fails when project config cannot be found', function (): void {
         ->and($tester->getDisplay())->toContain('Project config not found: laravel-ready.json');
 });
 
+it('fails when project config has an empty prefix', function (): void {
+    chdir(projectRoot().'/tests/Fixtures/Config/empty-prefix');
+    $tester = new CommandTester(analyseCommand());
+
+    $code = $tester->execute([
+        'path' => [fixture('Legacy/Clean/empty.php')],
+    ]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('Resolver prefix must not be empty.');
+});
+
+it('fails when project config has invalid json', function (): void {
+    chdir(projectRoot().'/tests/Fixtures/Config/invalid-json');
+    $tester = new CommandTester(analyseCommand());
+
+    $code = $tester->execute([
+        'path' => [fixture('Legacy/Clean/empty.php')],
+    ]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('Invalid laravel-ready.json.');
+});
+
 it('fails when path does not exist', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
     $code = $tester->execute([
         'path' => ['/tmp/laravel-ready-missing-'.uniqid().'.php'],
     ]);
@@ -47,7 +71,7 @@ it('fails when path does not exist', function (): void {
 });
 
 it('returns invalid when path is not a php file', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('not-php.txt')],
@@ -58,7 +82,7 @@ it('returns invalid when path is not a php file', function (): void {
 });
 
 it('returns success for laravel-ready fixture without blockers', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Tags/laravel-ready/class.php')],
@@ -69,7 +93,7 @@ it('returns success for laravel-ready fixture without blockers', function (): vo
 });
 
 it('returns success for laravel-adapter fixture without blockers', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Tags/laravel-adapter/class.php')],
@@ -80,7 +104,7 @@ it('returns success for laravel-adapter fixture without blockers', function (): 
 });
 
 it('returns success for legacy-adapter fixture with allowed legacy usage', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Tags/legacy-adapter/with-allows.php')],
@@ -92,7 +116,7 @@ it('returns success for legacy-adapter fixture with allowed legacy usage', funct
 });
 
 it('returns failure for legacy-adapter fixture with legacy finding and no allows', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Tags/legacy-adapter/with-blocker.php')],
@@ -105,7 +129,7 @@ it('returns failure for legacy-adapter fixture with legacy finding and no allows
 });
 
 it('returns failure when legacy-adapter uses unpermitted legacy', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Tags/legacy-adapter/with-allows-unpermitted.php')],
@@ -118,7 +142,7 @@ it('returns failure when legacy-adapter uses unpermitted legacy', function (): v
 });
 
 it('returns success for legacy-perfect fixture', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Tags/legacy-perfect/class.php')],
@@ -129,7 +153,7 @@ it('returns success for legacy-perfect fixture', function (): void {
 });
 
 it('returns failure when legacy-perfect has ast blocker', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Tags/legacy-perfect/with-blocker.php')],
@@ -142,7 +166,7 @@ it('returns failure when legacy-perfect has ast blocker', function (): void {
 });
 
 it('returns failure when legacy-perfect imports laravel-ready', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Use/project/app/Domain/PerfectUsesReady.php')],
@@ -154,7 +178,7 @@ it('returns failure when legacy-perfect imports laravel-ready', function (): voi
 });
 
 it('returns failure when legacy-adapter imports laravel-ready', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Use/project/app/Adapter/UsesReady.php')],
@@ -166,7 +190,7 @@ it('returns failure when legacy-adapter imports laravel-ready', function (): voi
 });
 
 it('returns success for legacy-code fixture with legacy finding', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Tags/Mixed/tag-and-blocker.php')],
@@ -177,7 +201,7 @@ it('returns success for legacy-code fixture with legacy finding', function (): v
 });
 
 it('returns failure when laravel-ready fixture has legacy blocker', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Tags/laravel-ready/with-blocker.php')],
@@ -188,7 +212,7 @@ it('returns failure when laravel-ready fixture has legacy blocker', function ():
 });
 
 it('returns failure when laravel-adapter fixture has legacy blocker', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Tags/laravel-adapter/with-blocker.php')],
@@ -199,7 +223,7 @@ it('returns failure when laravel-adapter fixture has legacy blocker', function (
 });
 
 it('returns success when laravel-adapter has blockers but skipCheck', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Tags/laravel-adapter/skip-check-with-blocker.php')],
@@ -211,7 +235,7 @@ it('returns success when laravel-adapter has blockers but skipCheck', function (
 });
 
 it('returns failure for file with multiple tags', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Tags/Mixed/multi-tag.php')],
@@ -222,7 +246,7 @@ it('returns failure for file with multiple tags', function (): void {
 });
 
 it('returns failure for untagged file', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Clean/empty.php')],
@@ -233,7 +257,7 @@ it('returns failure for untagged file', function (): void {
 });
 
 it('prints denied use import for guarded file', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Use/project/app/Domain/Invoice.php')],
@@ -244,7 +268,7 @@ it('prints denied use import for guarded file', function (): void {
 });
 
 it('prints denied group use import for guarded file', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Use/project/app/Domain/GroupUseInvoice.php')],
@@ -255,7 +279,7 @@ it('prints denied group use import for guarded file', function (): void {
 });
 
 it('prints denied use import for untagged app class', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Use/project/app/Consumer/UsesUntagged.php')],
@@ -269,7 +293,7 @@ it('fails when directory contains no php files', function (): void {
     $emptyDir = sys_get_temp_dir().'/laravel-ready-empty-'.uniqid();
     mkdir($emptyDir);
 
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [$emptyDir],
@@ -285,7 +309,7 @@ it('ignores empty directory when other php paths are present', function (): void
     $emptyDir = sys_get_temp_dir().'/laravel-ready-empty-'.uniqid();
     mkdir($emptyDir);
 
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [
@@ -302,7 +326,7 @@ it('ignores empty directory when other php paths are present', function (): void
 });
 
 it('analyses php files in subdirectories', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Legacy')],
@@ -314,7 +338,7 @@ it('analyses php files in subdirectories', function (): void {
 });
 
 it('analyses multiple file paths passed as separate arguments', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [
@@ -328,7 +352,7 @@ it('analyses multiple file paths passed as separate arguments', function (): voi
 });
 
 it('returns failure when an earlier file fails and a later file passes', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [

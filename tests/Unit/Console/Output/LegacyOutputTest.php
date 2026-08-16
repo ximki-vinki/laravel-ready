@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use LaravelReady\Console\Commands\AnalyseCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -15,7 +14,7 @@ afterEach(function (): void {
 });
 
 it('prints superglobals in var group', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Superglobals/bare.php')],
@@ -29,7 +28,7 @@ it('prints superglobals in var group', function (): void {
 });
 
 it('prints global variables in global group', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Global/bare.php')],
@@ -44,7 +43,7 @@ it('prints global variables in global group', function (): void {
 });
 
 it('prints blocked functions in func group', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Functions/bare.php')],
@@ -58,7 +57,7 @@ it('prints blocked functions in func group', function (): void {
 });
 
 it('prints grouped legacy findings for mixed fixture', function (): void {
-    $tester = new CommandTester(new AnalyseCommand);
+    $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
         'path' => [fixture('Legacy/Mixed/rules.php')],

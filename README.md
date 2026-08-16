@@ -55,7 +55,7 @@ Exit `0` — ок для хука/CI, `1` — guard провален (или н�
 | `@legacy-perfect` | Почищен, но остаётся в легаси-контуре |
 | `@legacy-code` | Явный легаси (findings не валят exit) |
 | `@allows` | Модификатор для `@legacy-adapter`: `$_COOKIE`, `setcookie`, … |
-| `@skipCheck` | Модификатор: при blockers не валить guard (exit `0`, findings видны); на файл без/с несколькими метками не действует |
+| `@skipCheck` | Модификатор: при blockers не валить guard (exit `0`, findings видны); на файл без/с несколькими метками не действует. С `until=YYYY-MM-DD` — временный скип с дедлайном: пакет материализует дату в файл (дефолт из `laravel-ready.json`), после дедлайна guard снова валит (exit `1`). Пакет пишет, хук читает |
 
 Public CLI contract (hooks/CI): `CLI_CONTRACT_0x.md`.
 

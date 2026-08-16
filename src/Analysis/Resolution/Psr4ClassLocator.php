@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelReady\Analysis\Resolution;
 
-use Illuminate\Support\Collection;
-use LaravelReady\Project\NamespaceResolver;
+use LaravelReady\Project\ProjectConfig;
 
 final readonly class Psr4ClassLocator
 {
@@ -14,14 +13,11 @@ final readonly class Psr4ClassLocator
         '.class.php', // @pest-mutate-ignore: RemoveArrayItem
     ];
 
-    /**
-     * @param  Collection<int, NamespaceResolver>  $resolvers
-     */
-    public function __construct(private Collection $resolvers) {}
+    public function __construct(private ProjectConfig $config) {}
 
     public function locate(string $fqcn): ?string
     {
-        foreach ($this->resolvers as $resolver) {
+        foreach ($this->config->resolvers as $resolver) {
             if (! str_starts_with($fqcn, $resolver->prefix)) {
                 continue;
             }
