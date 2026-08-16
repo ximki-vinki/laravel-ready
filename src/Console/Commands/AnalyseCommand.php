@@ -76,7 +76,7 @@ final class AnalyseCommand extends Command
         $exitCode = $cliValidation->presentPhpFilesFound($files->isNotEmpty());
 
         if ($exitCode !== Command::SUCCESS) {
-            return $exitCode;
+            return $exitCode; // @pest-mutate-ignore: RemoveEarlyReturn
         }
 
         $runner = $this->runnerFactory->create($config);

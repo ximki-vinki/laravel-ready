@@ -31,8 +31,6 @@ final readonly class CliValidationPresenter
 
         if ($result->error !== null) {
             $this->writeError($result->error);
-
-            return null;
         }
 
         return $result->config;

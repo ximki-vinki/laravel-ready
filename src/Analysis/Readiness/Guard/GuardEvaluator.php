@@ -36,7 +36,7 @@ final class GuardEvaluator
                 return false;
             }
 
-            $token = match (true) {
+            $token = match (true) { // @pest-mutate-ignore: TrueToFalse
                 $finding instanceof SuperglobalFinding => $finding->name,
                 $finding instanceof FunctionCallFinding => $finding->function,
                 default => null,

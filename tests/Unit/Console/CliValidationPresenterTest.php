@@ -18,8 +18,12 @@ it('returns null when project config is missing', function (): void {
         new Filesystem,
     );
 
+    $display = $output->fetch();
+
     expect($config)->toBeNull()
-        ->and($output->fetch())->toContain('Project config not found: laravel-ready.json');
+        ->and($display)->toContain('Project config not found: laravel-ready.json')
+        ->and($display)->not->toContain('Project config cannot be read.')
+        ->and($display)->not->toContain('Invalid laravel-ready.json.');
 });
 
 it('returns project config when file is valid', function (): void {
