@@ -6,14 +6,17 @@ namespace LaravelReady\Analysis\Readiness;
 
 use LaravelReady\Analysis\AnalysisResult;
 use LaravelReady\Analysis\Readiness\Guard\GuardEvaluator;
-use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
 
 final readonly class ReadinessResolver
 {
-    public function resolve(AnalysisResult $result, Psr4ClassLocator $locator): ReadinessResult
+    public function __construct(
+        private UseDependencyChecker $dependencyChecker,
+    ) {}
+
+    public function resolve(AnalysisResult $result): ReadinessResult
     {
         $actual = new ReadinessLevelResolver()->fromResult($result);
-        $result = new UseDependencyChecker($locator)->check($result, $actual);
+        $result = $this->dependencyChecker->check($result, $actual);
 
         return new ReadinessResult(
             actual: $actual,

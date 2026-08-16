@@ -5,28 +5,20 @@ declare(strict_types=1);
 namespace LaravelReady\Analysis\Readiness;
 
 use LaravelReady\Analysis\AnalysisResult;
-use LaravelReady\Analysis\Readiness\Use\LaravelAdapterUsePolicy;
-use LaravelReady\Analysis\Readiness\Use\LaravelReadyUsePolicy;
-use LaravelReady\Analysis\Readiness\Use\LegacyAdapterUsePolicy;
-use LaravelReady\Analysis\Readiness\Use\LegacyPerfectUsePolicy;
-use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
+use LaravelReady\Analysis\Readiness\Use\UsePolicy;
+use LaravelReady\Analysis\Readiness\Use\UsePolicyFactory;
 
 final readonly class UseDependencyChecker
 {
-    public function __construct(private Psr4ClassLocator $locator) {}
+    public function __construct(
+        private UsePolicyFactory $policyFactory,
+    ) {}
 
     public function check(AnalysisResult $result, ReadinessLevel $actual): AnalysisResult
     {
-        $policy = match ($actual) {
-            ReadinessLevel::LaravelReady => new LaravelReadyUsePolicy($this->locator),
-            ReadinessLevel::LaravelAdapter => new LaravelAdapterUsePolicy($this->locator),
-            ReadinessLevel::LegacyAdapter => new LegacyAdapterUsePolicy($this->locator),
-            ReadinessLevel::LegacyPerfect => new LegacyPerfectUsePolicy($this->locator),
-            // ReadinessLevel::Legacy as default
-            default => null,
-        };
+        $policy = $this->policyFactory->create($actual);
 
-        if ($policy === null) {
+        if (! $policy instanceof UsePolicy) {
             return $result;
         }
 

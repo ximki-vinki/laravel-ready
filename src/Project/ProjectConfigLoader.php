@@ -5,13 +5,24 @@ declare(strict_types=1);
 namespace LaravelReady\Project;
 
 use InvalidArgumentException;
+use RuntimeException;
 
 final readonly class ProjectConfigLoader
 {
     public function load(string $path): ProjectConfig
     {
+        if (! is_readable($path)) {
+            throw new RuntimeException(sprintf('Project config cannot be read: %s', $path));
+        }
+
+        $json = file_get_contents($path);
+
+        if ($json === false) { // @pest-mutate-ignore: FalseToTrue
+            throw new RuntimeException(sprintf('Project config cannot be read: %s', $path));
+        }
+
         /** @var array{resolvers: list<array{prefix: string, path: string}>} $data */
-        $data = json_decode((string) file_get_contents($path), true, flags: JSON_THROW_ON_ERROR);
+        $data = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
         $configDir = dirname($path);
 
         $resolvers = collect($data['resolvers'])

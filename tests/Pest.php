@@ -1,7 +1,11 @@
 <?php
 
+use LaravelReady\Analysis\Readiness\ReadinessResolver;
+use LaravelReady\Analysis\Readiness\ReadinessResolverFactory;
+use LaravelReady\Analysis\Readiness\Use\UsePolicyFactory;
 use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
 use LaravelReady\Project\NamespaceResolver;
+use LaravelReady\Project\ProjectConfig;
 use PHPUnit\Framework\TestCase;
 
 /*
@@ -34,4 +38,21 @@ function appLocator(): Psr4ClassLocator
     return new Psr4ClassLocator(collect([
         new NamespaceResolver('App\\', appRoot()),
     ]));
+}
+
+function appProjectConfig(): ProjectConfig
+{
+    return new ProjectConfig(collect([
+        new NamespaceResolver('App\\', appRoot()),
+    ]));
+}
+
+function appUsePolicyFactory(): UsePolicyFactory
+{
+    return new UsePolicyFactory(appLocator());
+}
+
+function appReadinessResolver(): ReadinessResolver
+{
+    return new ReadinessResolverFactory()->create(appProjectConfig());
 }

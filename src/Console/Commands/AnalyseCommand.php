@@ -8,8 +8,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use LaravelReady\Analysis\Detector;
-use LaravelReady\Analysis\Readiness\ReadinessResolver;
-use LaravelReady\Analysis\Resolution\Psr4ClassLocator;
+use LaravelReady\Analysis\Readiness\ReadinessResolverFactory;
 use LaravelReady\Console\AnalysableFile;
 use LaravelReady\Console\CliValidationPresenter;
 use LaravelReady\Console\ReadinessPresenter;
@@ -59,7 +58,7 @@ final class AnalyseCommand extends Command
         }
 
         $config = (new ProjectConfigLoader)->load($configPath);
-        $locator = new Psr4ClassLocator($config->resolvers);
+        $readinessResolver = (new ReadinessResolverFactory)->create($config);
 
         $files = collect();
 
@@ -75,16 +74,12 @@ final class AnalyseCommand extends Command
 
         $exitCode = $cliValidation->presentPhpFilesFound($files->isNotEmpty());
 
-        if ($exitCode !== Command::SUCCESS) {
-            return $exitCode;
-        }
-
-        $files->values()->each(function (AnalysableFile $file) use ($output, $locator, &$exitCode): void {
+        $files->values()->each(function (AnalysableFile $file) use ($output, $readinessResolver, &$exitCode): void {
             $output->writeln('');
 
             $result = (new Detector)->analyse($file->absolutePath);
 
-            $readiness = (new ReadinessResolver)->resolve($result, $locator);
+            $readiness = $readinessResolver->resolve($result);
 
             $fileExitCode = (new ReadinessPresenter)->present($readiness, $file->relativePath, $output);
             if ($fileExitCode !== Command::SUCCESS) {

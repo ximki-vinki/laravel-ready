@@ -29,6 +29,13 @@ it('loads multiple resolvers from json', function (): void {
     ]);
 });
 
+it('rejects an unreadable config', function (): void {
+    $path = sys_get_temp_dir().'/laravel-ready-missing-'.uniqid().'.json';
+
+    expect(fn (): ProjectConfig => (new ProjectConfigLoader)->load($path))
+        ->toThrow(RuntimeException::class, sprintf('Project config cannot be read: %s', $path));
+});
+
 it('rejects an empty prefix', function (): void {
     $path = projectRoot().'/tests/Fixtures/Config/empty-prefix/laravel-ready.json';
 
