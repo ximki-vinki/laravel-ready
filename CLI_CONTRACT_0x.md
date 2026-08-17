@@ -91,7 +91,7 @@ Tag names are **exact matches**, not prefix matches.
 | Tag          | Meaning                                                                   |
 |--------------|---------------------------------------------------------------------------|
 | `@allows`    | AST whitelist for `@legacy-adapter` (comma-separated tokens)              |
-| `@skipCheck` | With blockers on a readiness-tagged file — exit `0`, findings still shown |
+| `@skipCheck` | With blockers on a readiness-tagged file — exit `0`, findings still shown. `until=YYYY-MM-DD` — temporary skip with a deadline: the package materializes the date into the file (default from config), after the deadline guard fails again (exit `1`). Package writes, hook reads |
 
 Full semantics: `READINESS_MODEL.md`.
 
@@ -113,6 +113,7 @@ Hooks and CI must rely on the **exit code**. Semantics:
 | `@laravel-ready` / `@laravel-adapter` with blockers                             | `1`                   |
 | Readiness tag + blockers + `@skipCheck`                                         | `0`                   |
 | `@skipCheck` on `Untagged` / `MultiTag`                                         | `1` (does not rescue) |
+| Readiness tag + blockers + `@skipCheck(until=...)` with deadline passed          | `1`                   |
 | CLI error (file not found, not `.php`, missing config, …)                      | `≠ 0`                 |
 
 When analyzing multiple files: **any** exit `1` (or CLI error) → overall exit
@@ -189,6 +190,45 @@ Optionally search for a footer in the log (not required if exit is checked):
 
 ```bash
 laravel-ready ... 2>&1 | grep -F 'Guard failed:'
+```
+
+### Tag-only diff (hook-level)
+
+**Tag-only** — the **only** change in a file is the tag itself (PHPDoc marker); no code touched:
+
+```diff
+  /**
+   * @laravel-ready
++  * @skipCheck(until=2025-06-01)
+   */
+```
+
+Tag-only is **hook logic**, not package logic: it is decided by the pre-commit / CI
+script (diff vs `merge-base`), and the package CLI stays **read-only** at commit
+time — it never rewrites files for the hook.
+
+| Diff in a file                          | Hook behaviour                                            |
+|-----------------------------------------|-----------------------------------------------------------|
+| Only tag lines changed                  | skip re-check (commit allowed; the file already passed)   |
+| Code changed (tag edited or not)        | full check, normal exit codes                             |
+| Cannot prove it is tag-only (ambiguous, rebase, whitespace besides tag) | re-check — conservative default |
+
+The purpose: adding a tag to a depended-on file must not trigger a re-check of
+that file (no cascade of forced tags). Deadlines (`until=`, `skip:set`) are
+**package** semantics — `READINESS_MODEL.md`; the hook only reads them.
+
+Reference detection (bash):
+
+```bash
+for file in "$@"; do
+  diff=$(git diff --cached -U0 -- "$file" | grep -E '^[+-]' | grep -vE '^(\+\+\+|---)')
+  total=$(printf '%s\n' "$diff" | grep -cE '^[+-]')
+  tags=$(printf '%s\n' "$diff" | grep -cE '^[+-]\s*\*\s*@(laravel-ready|laravel-adapter|legacy-adapter|legacy-perfect|legacy-code|allows|skipCheck)')
+  if [ "$total" -gt 0 ] && [ "$tags" -eq "$total" ]; then
+    continue # tag-only: nothing new to verify
+  fi
+  laravel-ready "$file"
+done
 ```
 
 ---
