@@ -62,7 +62,7 @@ final class Detector
         /** @var Collection<array-key, Finding> $findings */
         $findings = collect();
         $skipCheckVisitor = new SkipCheckVisitor;
-        $allowsVisitor = new AllowsVisitor($findings);
+        $allowsVisitor = new AllowsVisitor;
 
         if ($ast !== null) {
             $traverser = new NodeTraverser;

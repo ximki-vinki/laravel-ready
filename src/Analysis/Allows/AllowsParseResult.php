@@ -8,13 +8,12 @@ use Illuminate\Support\Collection;
 use LaravelReady\Analysis\Enums\AllowKeyword;
 use LaravelReady\Analysis\Enums\BlockedFunction;
 use LaravelReady\Analysis\Enums\SuperglobalName;
-use LaravelReady\Analysis\Findings\UnknownAllowTokenFinding;
 
 final readonly class AllowsParseResult
 {
     /**
      * @param  Collection<array-key, SuperglobalName|BlockedFunction|AllowKeyword>  $tokens
-     * @param  Collection<array-key, UnknownAllowTokenFinding>  $unknowns
+     * @param  Collection<array-key, UnknownAllowToken>  $unknowns
      */
     public function __construct(
         public Collection $tokens,
@@ -26,13 +25,21 @@ final readonly class AllowsParseResult
         return new self(collect(), collect());
     }
 
+    /**
+     * @param  Collection<array-key, SuperglobalName|BlockedFunction|AllowKeyword>  $tokens
+     */
+    public static function fromTokens(Collection $tokens): self
+    {
+        return new self($tokens, collect());
+    }
+
     public function withToken(SuperglobalName|BlockedFunction|AllowKeyword $token): self
     {
         return new self($this->tokens->concat([$token]), $this->unknowns);
     }
 
-    public function withUnknown(UnknownAllowTokenFinding $finding): self
+    public function withUnknown(UnknownAllowToken $unknown): self
     {
-        return new self($this->tokens, $this->unknowns->concat([$finding]));
+        return new self($this->tokens, $this->unknowns->concat([$unknown]));
     }
 }

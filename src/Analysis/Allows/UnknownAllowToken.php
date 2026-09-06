@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace LaravelReady\Analysis\Findings;
+namespace LaravelReady\Analysis\Allows;
 
-final readonly class UnknownAllowTokenFinding implements Finding
+use LaravelReady\Analysis\Displayable;
+
+final readonly class UnknownAllowToken implements Displayable
 {
     public function __construct(
         public string $token,

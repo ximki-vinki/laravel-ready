@@ -3,10 +3,10 @@
 declare(strict_types=1);
 
 use LaravelReady\Analysis\Allows\AllowsParser;
+use LaravelReady\Analysis\Allows\UnknownAllowToken;
 use LaravelReady\Analysis\Enums\AllowKeyword;
 use LaravelReady\Analysis\Enums\BlockedFunction;
 use LaravelReady\Analysis\Enums\SuperglobalName;
-use LaravelReady\Analysis\Findings\UnknownAllowTokenFinding;
 
 covers(AllowsParser::class);
 
@@ -50,7 +50,7 @@ it('collects unknown tokens with line numbers', function (): void {
     expect($result->tokens)->toEqual(collect([
         SuperglobalName::Cookie,
     ]))
-        ->and($result->unknowns)->toContainEqual(new UnknownAllowTokenFinding('not-a-thing', 3));
+        ->and($result->unknowns)->toContainEqual(new UnknownAllowToken('not-a-thing', 3));
 });
 
 it('parses a single line of tokens', function (): void {

@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use LaravelReady\Analysis\Allows\AllowsParseResult;
+use LaravelReady\Analysis\Allows\UnknownAllowToken;
 use LaravelReady\Analysis\Enums\BlockedFunction;
 use LaravelReady\Analysis\Enums\SuperglobalName;
 use LaravelReady\Analysis\Enums\Tag;
@@ -9,7 +11,6 @@ use LaravelReady\Analysis\Findings\FunctionCallFinding;
 use LaravelReady\Analysis\Findings\GlobalFinding;
 use LaravelReady\Analysis\Findings\SuperglobalFinding;
 use LaravelReady\Analysis\Findings\TagFinding;
-use LaravelReady\Analysis\Findings\UnknownAllowTokenFinding;
 use LaravelReady\Analysis\Findings\UseFinding;
 use LaravelReady\Console\Output\FindingSectionBuilder;
 use LaravelReady\Console\Output\FindingSectionLabel;
@@ -43,13 +44,17 @@ it('groups globals and functions into separate sections', function (): void {
 });
 
 it('orders sections as var global func use allows', function (): void {
-    $sections = (new FindingSectionBuilder)->build(collect([
-        new UnknownAllowTokenFinding('not-a-thing', 4),
-        new UseFinding('Wf\Legacy\OldRepo', 11),
-        new FunctionCallFinding(BlockedFunction::Define, 9),
-        new GlobalFinding('foo', 6),
-        new SuperglobalFinding(SuperglobalName::Get, 3),
-    ]));
+    $sections = (new FindingSectionBuilder)->build(
+        collect([
+            new UseFinding('Wf\Legacy\OldRepo', 11),
+            new FunctionCallFinding(BlockedFunction::Define, 9),
+            new GlobalFinding('foo', 6),
+            new SuperglobalFinding(SuperglobalName::Get, 3),
+        ]),
+        new AllowsParseResult(collect(), collect([
+            new UnknownAllowToken('not-a-thing', 4),
+        ])),
+    );
 
     expect($sections->map(fn ($section) => $section->label)->all())->toBe([
         FindingSectionLabel::Var,
@@ -71,9 +76,12 @@ it('groups use findings under use section', function (): void {
 });
 
 it('groups unknown allow tokens under allows section', function (): void {
-    $sections = (new FindingSectionBuilder)->build(collect([
-        new UnknownAllowTokenFinding('not-a-thing', 5),
-    ]));
+    $sections = (new FindingSectionBuilder)->build(
+        collect(),
+        new AllowsParseResult(collect(), collect([
+            new UnknownAllowToken('not-a-thing', 5),
+        ])),
+    );
 
     expect($sections)->toHaveCount(1)
         ->and($sections->first()->label)->toBe(FindingSectionLabel::Allows)

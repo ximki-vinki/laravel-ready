@@ -8,7 +8,6 @@ use LaravelReady\Analysis\Findings\Finding;
 use LaravelReady\Analysis\Findings\FunctionCallFinding;
 use LaravelReady\Analysis\Findings\GlobalFinding;
 use LaravelReady\Analysis\Findings\SuperglobalFinding;
-use LaravelReady\Analysis\Findings\UnknownAllowTokenFinding;
 use LaravelReady\Analysis\Findings\UseFinding;
 
 enum FindingSectionLabel: string
@@ -29,7 +28,7 @@ enum FindingSectionLabel: string
             self::Global => GlobalFinding::class,
             self::Func => FunctionCallFinding::class,
             self::Use => UseFinding::class,
-            self::Allows => UnknownAllowTokenFinding::class,
+            self::Allows => throw new \LogicException('Allows tokens are not findings.'),
         };
     }
 

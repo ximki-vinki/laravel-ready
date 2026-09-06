@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use LaravelReady\Analysis\Allows\AllowsParseResult;
 use LaravelReady\Analysis\AnalysisResult;
 use LaravelReady\Analysis\Detector;
 use LaravelReady\Analysis\DocModifiers;
@@ -85,7 +86,7 @@ it('resolves legacy adapter for legacy-adapter tag without blockers', function (
             new SuperglobalFinding(SuperglobalName::Get, 5),
             new TagFinding(Tag::LegacyAdapter, 3),
         ]),
-        modifiers: new DocModifiers(allows: collect([SuperglobalName::Get])),
+        modifiers: new DocModifiers(allows: AllowsParseResult::fromTokens(collect([SuperglobalName::Get]))),
     );
 
     $readiness = readinessResolver()->resolve($result);
@@ -123,7 +124,7 @@ it('detects blockers when legacy-adapter finding is not allowed', function (): v
             new SuperglobalFinding(SuperglobalName::Get, 5),
             new TagFinding(Tag::LegacyAdapter, 3),
         ]),
-        modifiers: new DocModifiers(allows: collect([SuperglobalName::Cookie])),
+        modifiers: new DocModifiers(allows: AllowsParseResult::fromTokens(collect([SuperglobalName::Cookie]))),
     );
 
     $readiness = readinessResolver()->resolve($result);

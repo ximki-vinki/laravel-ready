@@ -21,6 +21,7 @@ final readonly class ReadinessResolver
             hasBlockers: (new GuardEvaluator)->hasBlockers($result, $actual),
             findings: $result->findings,
             skipCheck: $result->modifiers->skipCheck,
+            allows: $result->modifiers->allows,
         );
     }
 }

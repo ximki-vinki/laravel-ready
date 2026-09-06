@@ -95,11 +95,10 @@ docker run --rm \
 | `FunctionCallFinding` | 0 | `define()`, `eval()`, … |
 | `TagFinding` | 1 | метка в PHPDoc |
 | `UseFinding` | 2 | недопустимый `use`; создаёт **UseDependencyChecker**, не Detector |
-| `UnknownAllowTokenFinding` | 3 | неизвестный токен в `@allows` |
 
 **`@skipCheck`** — не Finding: `SkipCheckVisitor` → bool `AnalysisResult::$skipCheck` → `ReadinessResult::$skipCheck`.
 
-**`@allows`** — не readiness-метка: `AllowsVisitor` → `AnalysisResult::$allows` (+ `UnknownAllowTokenFinding` при опечатке). Guard для `@legacy-adapter` сверяет `LegacyFinding` со списком.
+**`@allows`** — не readiness-метка и не Finding: `AllowsVisitor` → `DocModifiers::$allows` (`AllowsParseResult`: токены + `UnknownAllowToken` при опечатке). Вывод рисует unknown через `Displayable`. Guard для `@legacy-adapter` сверяет `LegacyFinding` со списком.
 
 ---
 

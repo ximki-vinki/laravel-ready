@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelReady\Analysis\Readiness\Guard;
 
+use LaravelReady\Analysis\Allows\AllowsParseResult;
 use LaravelReady\Analysis\AnalysisResult;
 use LaravelReady\Analysis\Findings\Finding;
 use LaravelReady\Analysis\Findings\FunctionCallFinding;
@@ -29,7 +30,9 @@ final class GuardEvaluator
 
     private function hasUnpermittedLegacyFinding(AnalysisResult $result): bool
     {
-        $allows = $result->modifiers->allows ?? collect();
+        $allows = $result->modifiers->allows instanceof AllowsParseResult
+            ? $result->modifiers->allows->tokens
+            : collect();
 
         return $result->findings->contains(function (Finding $finding) use ($allows): bool {
             if (! $finding instanceof LegacyFinding) {

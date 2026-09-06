@@ -9,7 +9,6 @@ use LaravelReady\Analysis\Enums\AllowKeyword;
 use LaravelReady\Analysis\Enums\BlockedFunction;
 use LaravelReady\Analysis\Enums\DocModifier;
 use LaravelReady\Analysis\Enums\SuperglobalName;
-use LaravelReady\Analysis\Findings\UnknownAllowTokenFinding;
 
 final class AllowsParser
 {
@@ -45,7 +44,7 @@ final class AllowsParser
                     $resolved = $this->resolveToken($token);
 
                     return $resolved === null
-                        ? $result->withUnknown(new UnknownAllowTokenFinding($token, $line))
+                        ? $result->withUnknown(new UnknownAllowToken($token, $line))
                         : $result->withToken($resolved);
                 },
                 AllowsParseResult::empty(),

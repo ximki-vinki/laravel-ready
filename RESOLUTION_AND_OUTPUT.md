@@ -26,7 +26,7 @@ Finding ≠ tag: метка файла не дублируется в каждо
 
 | Компонент | Ответственность | Не делает |
 |-----------|-----------------|-----------|
-| **Detector** | Факты AST (суперглобали, `global`, tag в PHPDoc, сырые `use`, флаг `@skipCheck`, `@allows` → `allows` / `UnknownAllowTokenFinding`) | Политику допустимости `use`, решение skip / guard |
+| **Detector** | Факты AST (суперглобали, `global`, tag в PHPDoc, сырые `use`, флаг `@skipCheck`, `@allows` → `AllowsParseResult`) | Политику допустимости `use`, решение skip / guard |
 | **UseDependencyChecker** | Политика `use` для guarded-файлов → `UseFinding` | Вывод в консоль |
 | **ReadinessResolver** | `actual` из меток; `hasBlockers` через GuardEvaluator; проброс `skipCheck` | Exit code, форматирование |
 | **PresentationPlanBuilder** | План вывода (в т.ч. skip при `skipCheck` + blockers) → formatters | Детект `@skipCheck` |
@@ -64,7 +64,7 @@ Finding ≠ tag: метка файла не дублируется в каждо
 | `LegacyFinding` ∈ списка `@allows` | нет |
 | `LegacyFinding` ∉ списка | да |
 | `global` и прочее без токена в allowlist | да |
-| неизвестный токен в `@allows` (`UnknownAllowTokenFinding`) | нет (finding информативен, exit не валит) |
+| неизвестный токен в `@allows` (`UnknownAllowToken`) | нет (информативен, exit не валит) |
 
 Токены — явные, 1:1 с детектором: `$_COOKIE`, `setcookie` (не пресеты вроде `cookie`).
 
