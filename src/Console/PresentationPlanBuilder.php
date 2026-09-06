@@ -6,11 +6,13 @@ namespace LaravelReady\Console;
 
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
 use LaravelReady\Analysis\Readiness\ReadinessResult;
-use LaravelReady\Analysis\SkipCheck\SkipCheckParseResult;
+use LaravelReady\Analysis\SkipCheck\SkipCheckEvaluator;
 use LaravelReady\Console\Output\ReadinessFooter;
 
-final class PresentationPlanBuilder
+final readonly class PresentationPlanBuilder
 {
+    public function __construct(private SkipCheckEvaluator $skipCheck = new SkipCheckEvaluator) {}
+
     public function build(ReadinessResult $readiness): PresentationPlan
     {
         if ($this->isSkipped($readiness)) {
@@ -98,13 +100,17 @@ final class PresentationPlanBuilder
 
     private function isSkipped(ReadinessResult $readiness): bool
     {
-        if (! $readiness->skipCheck instanceof SkipCheckParseResult || ! $readiness->hasBlockers) {
+        if (! $readiness->hasBlockers) {
             return false;
         }
 
-        return ! in_array($readiness->actual, [
+        if (in_array($readiness->actual, [
             ReadinessLevel::Untagged,
             ReadinessLevel::MultiTag,
-        ], true);
+        ], true)) {
+            return false;
+        }
+
+        return $this->skipCheck->applies($readiness->skipCheck);
     }
 }

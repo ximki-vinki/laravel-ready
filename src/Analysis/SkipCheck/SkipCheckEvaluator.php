@@ -7,10 +7,14 @@ namespace LaravelReady\Analysis\SkipCheck;
 use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Support\Carbon;
 
-final class SkipCheckEvaluator
+final readonly class SkipCheckEvaluator
 {
-    public function applies(?string $date, Carbon $today): bool
+    public function __construct(private Carbon $today = new Carbon) {}
+
+    public function applies(?SkipCheckParseResult $skipCheck): bool
     {
+        $date = $skipCheck?->date; // @pest-mutate-ignore: RemoveNullSafeOperator
+
         if ($date === null) {
             return false;
         }
@@ -21,6 +25,6 @@ final class SkipCheckEvaluator
             return false;
         }
 
-        return $expires->gte($today->copy()->startOfDay());
+        return $expires->gte($this->today->copy()->startOfDay());
     }
 }

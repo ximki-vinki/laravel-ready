@@ -29,7 +29,7 @@ it('detects skipCheck alongside blockers', function (): void {
 it('keeps the skipCheck date on the modifier', function (): void {
     $result = (new Detector)->analyse(fixture('Tags/laravel-adapter/skip-check-with-date.php'));
 
-    expect($result->modifiers->skipCheck)->toEqual(new SkipCheckParseResult('2026-03-15'));
+    expect($result->modifiers->skipCheck)->toEqual(new SkipCheckParseResult('2029-03-15'));
 });
 
 it('detects no skipCheck without @skipCheck', function (): void {

@@ -237,12 +237,23 @@ it('returns success when laravel-adapter has blockers but skipCheck', function (
     $tester = new CommandTester(analyseCommand());
 
     $code = $tester->execute([
-        'path' => [fixture('Tags/laravel-adapter/skip-check-with-blocker.php')],
+        'path' => [fixture('Tags/laravel-adapter/skip-check-dated-with-blocker.php')],
     ]);
 
     expect($code)->toBe(Command::SUCCESS)
         ->and($tester->getDisplay())->toContain('var: $_GET')
         ->and($tester->getDisplay())->toContain('Skipped: @skipCheck.');
+});
+
+it('returns failure when laravel-adapter has blockers and a bare skipCheck', function (): void {
+    $tester = new CommandTester(analyseCommand());
+
+    $code = $tester->execute([
+        'path' => [fixture('Tags/laravel-adapter/skip-check-with-blocker.php')],
+    ]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('Guard failed: @laravel-adapter file must stay LaravelAdapter.');
 });
 
 it('returns failure for file with multiple tags', function (): void {
