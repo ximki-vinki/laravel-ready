@@ -16,7 +16,7 @@ it('detects allows on legacy-adapter fixture', function (): void {
     $result = (new Detector)->analyse(fixture('Tags/legacy-adapter/with-allows.php'));
 
     expect($result->findings)->toContainEqual(new TagFinding(Tag::LegacyAdapter, 7))
-        ->and($result->allows)->toEqual(collect([
+        ->and($result->modifiers->allows)->toEqual(collect([
             SuperglobalName::Cookie,
             BlockedFunction::Setcookie,
         ]));
@@ -25,7 +25,7 @@ it('detects allows on legacy-adapter fixture', function (): void {
 it('detects global allow token on legacy-adapter fixture', function (): void {
     $result = (new Detector)->analyse(fixture('Tags/legacy-adapter/with-allows-global.php'));
 
-    expect($result->allows)->toEqual(collect([
+    expect($result->modifiers->allows)->toEqual(collect([
         SuperglobalName::Cookie,
         BlockedFunction::Setcookie,
         AllowKeyword::Global,
@@ -35,7 +35,7 @@ it('detects global allow token on legacy-adapter fixture', function (): void {
 it('detects unknown allow tokens as findings', function (): void {
     $result = (new Detector)->analyse(fixture('Tags/legacy-adapter/with-allows-unknown.php'));
 
-    expect($result->allows)->toEqual(collect([
+    expect($result->modifiers->allows)->toEqual(collect([
         SuperglobalName::Cookie,
     ]))
         ->and($result->findings)->toContainEqual(new UnknownAllowTokenFinding('not-a-thing', 5));
@@ -44,19 +44,19 @@ it('detects unknown allow tokens as findings', function (): void {
 it('detects empty allows', function (): void {
     $result = (new Detector)->analyse(fixture('Tags/legacy-adapter/with-allows-empty.php'));
 
-    expect($result->allows)->toEqual(collect());
+    expect($result->modifiers->allows)->toEqual(collect());
 });
 
 it('detects no allows without @allows', function (): void {
     $result = (new Detector)->analyse(fixture('Tags/legacy-adapter/class.php'));
 
-    expect($result->allows)->toBeNull();
+    expect($result->modifiers->allows)->toBeNull();
 });
 
 it('ignores a second @allows on a later node', function (): void {
     $result = (new Detector)->analyse(fixture('Tags/legacy-adapter/with-allows-second-ignored.php'));
 
-    expect($result->allows)->toEqual(collect([
+    expect($result->modifiers->allows)->toEqual(collect([
         SuperglobalName::Cookie,
     ]))
         ->and($result->findings)->not->toContainEqual(

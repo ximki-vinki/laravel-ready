@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use LaravelReady\Analysis\AnalysisResult;
+use LaravelReady\Analysis\DocModifiers;
 use LaravelReady\Analysis\Enums\BlockedFunction;
 use LaravelReady\Analysis\Enums\SuperglobalName;
 use LaravelReady\Analysis\Findings\FunctionCallFinding;
@@ -61,10 +62,10 @@ it('does not block legacy-adapter when finding is allowed', function (): void {
             new SuperglobalFinding(SuperglobalName::Cookie, 5),
             new FunctionCallFinding(BlockedFunction::Setcookie, 6),
         ]),
-        allows: collect([
+        modifiers: new DocModifiers(allows: collect([
             SuperglobalName::Cookie,
             BlockedFunction::Setcookie,
-        ]),
+        ])),
     );
     $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
 
@@ -76,9 +77,9 @@ it('blocks legacy-adapter when finding is not allowed', function (): void {
         findings: collect([
             new SuperglobalFinding(SuperglobalName::Get, 5),
         ]),
-        allows: collect([
+        modifiers: new DocModifiers(allows: collect([
             SuperglobalName::Cookie,
-        ]),
+        ])),
     );
     $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
 
@@ -90,9 +91,9 @@ it('blocks legacy-adapter on global finding even with allows', function (): void
         findings: collect([
             new GlobalFinding('foo', 5),
         ]),
-        allows: collect([
+        modifiers: new DocModifiers(allows: collect([
             SuperglobalName::Cookie,
-        ]),
+        ])),
     );
     $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
 
@@ -115,7 +116,7 @@ it('blocks legacy-adapter on non-function legacy findings even with a function-s
 
     $result = new AnalysisResult(
         findings: collect([$finding]),
-        allows: collect([BlockedFunction::Setcookie]),
+        modifiers: new DocModifiers(allows: collect([BlockedFunction::Setcookie])),
     );
     $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
 
@@ -127,9 +128,9 @@ it('blocks legacy-adapter when function call finding is not allowed', function (
         findings: collect([
             new FunctionCallFinding(BlockedFunction::Setcookie, 5),
         ]),
-        allows: collect([
+        modifiers: new DocModifiers(allows: collect([
             SuperglobalName::Cookie,
-        ]),
+        ])),
     );
     $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
 
@@ -141,9 +142,9 @@ it('does not block legacy-adapter on unknown allow token alone', function (): vo
         findings: collect([
             new UnknownAllowTokenFinding('not-a-thing', 4),
         ]),
-        allows: collect([
+        modifiers: new DocModifiers(allows: collect([
             SuperglobalName::Cookie,
-        ]),
+        ])),
     );
     $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
 

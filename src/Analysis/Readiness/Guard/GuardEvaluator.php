@@ -29,7 +29,7 @@ final class GuardEvaluator
 
     private function hasUnpermittedLegacyFinding(AnalysisResult $result): bool
     {
-        $allows = $result->allows ?? collect();
+        $allows = $result->modifiers->allows ?? collect();
 
         return $result->findings->contains(function (Finding $finding) use ($allows): bool {
             if (! $finding instanceof LegacyFinding) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use LaravelReady\Analysis\AnalysisResult;
 use LaravelReady\Analysis\Detector;
+use LaravelReady\Analysis\DocModifiers;
 use LaravelReady\Analysis\Enums\BlockedFunction;
 use LaravelReady\Analysis\Enums\SuperglobalName;
 use LaravelReady\Analysis\Enums\Tag;
@@ -49,7 +50,7 @@ it('resolves laravel adapter for laravel-adapter tag without blockers', function
 it('propagates skipCheck from analysis result', function (): void {
     $result = new AnalysisResult(
         findings: collect([new TagFinding(Tag::LaravelAdapter, 3)]),
-        skipCheck: true,
+        modifiers: new DocModifiers(skipCheck: true),
     );
 
     $readiness = readinessResolver()->resolve($result);
@@ -84,7 +85,7 @@ it('resolves legacy adapter for legacy-adapter tag without blockers', function (
             new SuperglobalFinding(SuperglobalName::Get, 5),
             new TagFinding(Tag::LegacyAdapter, 3),
         ]),
-        allows: collect([SuperglobalName::Get]),
+        modifiers: new DocModifiers(allows: collect([SuperglobalName::Get])),
     );
 
     $readiness = readinessResolver()->resolve($result);
@@ -122,7 +123,7 @@ it('detects blockers when legacy-adapter finding is not allowed', function (): v
             new SuperglobalFinding(SuperglobalName::Get, 5),
             new TagFinding(Tag::LegacyAdapter, 3),
         ]),
-        allows: collect([SuperglobalName::Cookie]),
+        modifiers: new DocModifiers(allows: collect([SuperglobalName::Cookie])),
     );
 
     $readiness = readinessResolver()->resolve($result);

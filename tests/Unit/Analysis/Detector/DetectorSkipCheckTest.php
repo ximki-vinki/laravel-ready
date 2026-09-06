@@ -13,14 +13,14 @@ covers(Detector::class);
 it('detects skipCheck on laravel-adapter fixture', function (): void {
     $result = (new Detector)->analyse(fixture('Tags/laravel-adapter/skip-check.php'));
 
-    expect($result->skipCheck)->toBeTrue()
+    expect($result->modifiers->skipCheck)->toBeTrue()
         ->and($result->findings)->toContainEqual(new TagFinding(Tag::LaravelAdapter, 4));
 });
 
 it('detects skipCheck alongside blockers', function (): void {
     $result = (new Detector)->analyse(fixture('Tags/laravel-adapter/skip-check-with-blocker.php'));
 
-    expect($result->skipCheck)->toBeTrue()
+    expect($result->modifiers->skipCheck)->toBeTrue()
         ->and($result->findings)->toContainEqual(new TagFinding(Tag::LaravelAdapter, 5))
         ->and($result->findings)->toContainEqual(new SuperglobalFinding(SuperglobalName::Get, 5));
 });
@@ -28,5 +28,5 @@ it('detects skipCheck alongside blockers', function (): void {
 it('detects no skipCheck without @skipCheck', function (): void {
     $result = (new Detector)->analyse(fixture('Tags/laravel-adapter/class.php'));
 
-    expect($result->skipCheck)->toBeFalse();
+    expect($result->modifiers->skipCheck)->toBeFalse();
 });

@@ -14,7 +14,7 @@ it('detects tag on clean fixture', function (Tag $expected, string $path, int $l
     $result = (new Detector)->analyse(fixture($path));
 
     expect($result->findings)->toContainEqual(new TagFinding($expected, $line))
-        ->and($result->skipCheck)->toBeFalse();
+        ->and($result->modifiers->skipCheck)->toBeFalse();
 })->with([
     'legacy-code on class' => [Tag::Legacy, 'Tags/legacy-code/class.php', 4],
     'legacy-code on function' => [Tag::Legacy, 'Tags/legacy-code/function.php', 4],
@@ -31,7 +31,7 @@ it('detects no tag in clean fixtures', function (string $fixture): void {
     expect($result->findings->filter(
         fn ($finding): bool => $finding instanceof TagFinding,
     ))->toBeEmpty()
-        ->and($result->skipCheck)->toBeFalse();
+        ->and($result->modifiers->skipCheck)->toBeFalse();
 })->with([
     'empty' => ['empty.php'],
     'no-tag' => ['no-tag.php'],
