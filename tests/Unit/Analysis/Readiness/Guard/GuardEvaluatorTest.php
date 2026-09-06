@@ -8,10 +8,12 @@ use LaravelReady\Analysis\AnalysisResult;
 use LaravelReady\Analysis\DocModifiers;
 use LaravelReady\Analysis\Enums\BlockedFunction;
 use LaravelReady\Analysis\Enums\SuperglobalName;
+use LaravelReady\Analysis\Enums\Tag;
 use LaravelReady\Analysis\Findings\FunctionCallFinding;
 use LaravelReady\Analysis\Findings\GlobalFinding;
 use LaravelReady\Analysis\Findings\LegacyFinding;
 use LaravelReady\Analysis\Findings\SuperglobalFinding;
+use LaravelReady\Analysis\Findings\TagFinding;
 use LaravelReady\Analysis\Findings\UseFinding;
 use LaravelReady\Analysis\Readiness\Guard\GuardEvaluator;
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
@@ -66,6 +68,21 @@ it('does not block legacy-adapter when finding is allowed', function (): void {
         modifiers: new DocModifiers(allows: AllowsParseResult::fromTokens(collect([
             SuperglobalName::Cookie,
             BlockedFunction::Setcookie,
+        ]))),
+    );
+    $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);
+
+    expect($guard)->toBeFalse();
+});
+
+it('does not treat a tag finding as an unpermitted legacy finding', function (): void {
+    $result = new AnalysisResult(
+        findings: collect([
+            new TagFinding(Tag::LegacyAdapter, 3),
+            new SuperglobalFinding(SuperglobalName::Cookie, 5),
+        ]),
+        modifiers: new DocModifiers(allows: AllowsParseResult::fromTokens(collect([
+            SuperglobalName::Cookie,
         ]))),
     );
     $guard = (new GuardEvaluator)->hasBlockers($result, ReadinessLevel::LegacyAdapter);

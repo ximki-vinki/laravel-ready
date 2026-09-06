@@ -6,6 +6,7 @@ namespace LaravelReady\Console;
 
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
 use LaravelReady\Analysis\Readiness\ReadinessResult;
+use LaravelReady\Analysis\SkipCheck\SkipCheckParseResult;
 use LaravelReady\Console\Output\ReadinessFooter;
 
 final class PresentationPlanBuilder
@@ -97,7 +98,7 @@ final class PresentationPlanBuilder
 
     private function isSkipped(ReadinessResult $readiness): bool
     {
-        if (! $readiness->skipCheck || ! $readiness->hasBlockers) {
+        if (! $readiness->skipCheck instanceof SkipCheckParseResult || ! $readiness->hasBlockers) {
             return false;
         }
 

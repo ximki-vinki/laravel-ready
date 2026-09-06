@@ -7,26 +7,33 @@ use LaravelReady\Analysis\Enums\SuperglobalName;
 use LaravelReady\Analysis\Enums\Tag;
 use LaravelReady\Analysis\Findings\SuperglobalFinding;
 use LaravelReady\Analysis\Findings\TagFinding;
+use LaravelReady\Analysis\SkipCheck\SkipCheckParseResult;
 
 covers(Detector::class);
 
 it('detects skipCheck on laravel-adapter fixture', function (): void {
     $result = (new Detector)->analyse(fixture('Tags/laravel-adapter/skip-check.php'));
 
-    expect($result->modifiers->skipCheck)->toBeTrue()
+    expect($result->modifiers->skipCheck)->toEqual(new SkipCheckParseResult(null))
         ->and($result->findings)->toContainEqual(new TagFinding(Tag::LaravelAdapter, 4));
 });
 
 it('detects skipCheck alongside blockers', function (): void {
     $result = (new Detector)->analyse(fixture('Tags/laravel-adapter/skip-check-with-blocker.php'));
 
-    expect($result->modifiers->skipCheck)->toBeTrue()
+    expect($result->modifiers->skipCheck)->toEqual(new SkipCheckParseResult(null))
         ->and($result->findings)->toContainEqual(new TagFinding(Tag::LaravelAdapter, 5))
         ->and($result->findings)->toContainEqual(new SuperglobalFinding(SuperglobalName::Get, 5));
+});
+
+it('keeps the skipCheck date on the modifier', function (): void {
+    $result = (new Detector)->analyse(fixture('Tags/laravel-adapter/skip-check-with-date.php'));
+
+    expect($result->modifiers->skipCheck)->toEqual(new SkipCheckParseResult('2026-03-15'));
 });
 
 it('detects no skipCheck without @skipCheck', function (): void {
     $result = (new Detector)->analyse(fixture('Tags/laravel-adapter/class.php'));
 
-    expect($result->modifiers->skipCheck)->toBeFalse();
+    expect($result->modifiers->skipCheck)->toBeNull();
 });

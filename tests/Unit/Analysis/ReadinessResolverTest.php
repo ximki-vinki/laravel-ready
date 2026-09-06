@@ -16,6 +16,7 @@ use LaravelReady\Analysis\Findings\UseFinding;
 use LaravelReady\Analysis\Findings\UseImportFinding;
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
 use LaravelReady\Analysis\Readiness\ReadinessResolver;
+use LaravelReady\Analysis\SkipCheck\SkipCheckParseResult;
 
 covers(ReadinessResolver::class);
 
@@ -45,18 +46,19 @@ it('resolves laravel adapter for laravel-adapter tag without blockers', function
 
     expect($readiness->actual)->toBe(ReadinessLevel::LaravelAdapter)
         ->and($readiness->hasBlockers)->toBeFalse()
-        ->and($readiness->skipCheck)->toBeFalse();
+        ->and($readiness->skipCheck)->toBeNull();
 });
 
 it('propagates skipCheck from analysis result', function (): void {
+    $skipCheck = new SkipCheckParseResult('2026-03-15');
     $result = new AnalysisResult(
         findings: collect([new TagFinding(Tag::LaravelAdapter, 3)]),
-        modifiers: new DocModifiers(skipCheck: true),
+        modifiers: new DocModifiers(skipCheck: $skipCheck),
     );
 
     $readiness = readinessResolver()->resolve($result);
 
-    expect($readiness->skipCheck)->toBeTrue()
+    expect($readiness->skipCheck)->toBe($skipCheck)
         ->and($readiness->actual)->toBe(ReadinessLevel::LaravelAdapter);
 });
 

@@ -7,6 +7,7 @@ namespace LaravelReady\Analysis\Readiness;
 use Illuminate\Support\Collection;
 use LaravelReady\Analysis\Allows\AllowsParseResult;
 use LaravelReady\Analysis\Findings\Finding;
+use LaravelReady\Analysis\SkipCheck\SkipCheckParseResult;
 
 final readonly class ReadinessResult
 {
@@ -17,7 +18,7 @@ final readonly class ReadinessResult
         public ReadinessLevel $actual,
         public bool $hasBlockers,
         public Collection $findings,
-        public bool $skipCheck = false,
+        public ?SkipCheckParseResult $skipCheck = null,
         public ?AllowsParseResult $allows = null,
     ) {}
 }

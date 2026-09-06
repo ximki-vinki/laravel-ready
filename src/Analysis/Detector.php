@@ -79,7 +79,7 @@ final class Detector
         return new AnalysisResult(
             findings: $findings,
             modifiers: new DocModifiers(
-                skipCheck: $skipCheckVisitor->detected,
+                skipCheck: $skipCheckVisitor->skipCheck,
                 allows: $allowsVisitor->allows,
             ),
         );

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use LaravelReady\Analysis\Readiness\ReadinessLevel;
 use LaravelReady\Analysis\Readiness\ReadinessResult;
+use LaravelReady\Analysis\SkipCheck\SkipCheckParseResult;
 use LaravelReady\Console\HeaderStyle;
 use LaravelReady\Console\Output\ReadinessFooter;
 use LaravelReady\Console\PresentationPlan;
@@ -123,7 +124,7 @@ it('builds adapter failed plan when laravel adapter has blockers', function (): 
 });
 
 it('builds skipped plan when tagged file has blockers and skipCheck', function (): void {
-    $readiness = new ReadinessResult(ReadinessLevel::LaravelAdapter, true, collect(), skipCheck: true);
+    $readiness = new ReadinessResult(ReadinessLevel::LaravelAdapter, true, collect(), skipCheck: new SkipCheckParseResult(null));
     $plan = (new PresentationPlanBuilder)->build($readiness);
 
     expect($plan->headerStyle)->toBe(HeaderStyle::Warning)
@@ -133,7 +134,7 @@ it('builds skipped plan when tagged file has blockers and skipCheck', function (
 });
 
 it('does not skip untagged file even with skipCheck', function (): void {
-    $readiness = new ReadinessResult(ReadinessLevel::Untagged, true, collect(), skipCheck: true);
+    $readiness = new ReadinessResult(ReadinessLevel::Untagged, true, collect(), skipCheck: new SkipCheckParseResult(null));
     $plan = (new PresentationPlanBuilder)->build($readiness);
 
     expect($plan->footer)->toBe(ReadinessFooter::NotGuarded)
@@ -141,7 +142,7 @@ it('does not skip untagged file even with skipCheck', function (): void {
 });
 
 it('does not skip multi-tag file even with skipCheck', function (): void {
-    $readiness = new ReadinessResult(ReadinessLevel::MultiTag, true, collect(), skipCheck: true);
+    $readiness = new ReadinessResult(ReadinessLevel::MultiTag, true, collect(), skipCheck: new SkipCheckParseResult(null));
     $plan = (new PresentationPlanBuilder)->build($readiness);
 
     expect($plan->footer)->toBe(ReadinessFooter::MultiTagFailed)
