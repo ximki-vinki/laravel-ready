@@ -141,6 +141,17 @@ it('returns failure when legacy-adapter uses unpermitted legacy', function (): v
         ->and($tester->getDisplay())->toContain('Guard failed: @legacy-adapter file must stay in legacy contour.');
 });
 
+it('prints unknown allow token in allows section', function (): void {
+    $tester = new CommandTester(analyseCommand());
+
+    $code = $tester->execute([
+        'path' => [fixture('Tags/legacy-adapter/with-allows-unknown-and-blocker.php')],
+    ]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('allows: not-a-thing (line 5)');
+});
+
 it('returns success for legacy-perfect fixture', function (): void {
     $tester = new CommandTester(analyseCommand());
 

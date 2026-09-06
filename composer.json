@@ -43,8 +43,7 @@
     ],
     "test": "pest",
     "test-cov": "docker run --rm -v .:/app -w /app laravel-ready-dev composer test -- --coverage-html build/coverage",
-    "test-mut": "docker run --rm -v .:/app -w /app laravel-ready-dev vendor/bin/pest --mutate --covered-only",
-    "test-mut-all": "docker run --rm -v .:/app -w /app laravel-ready-dev vendor/bin/pest --mutate"
+    "test-mut": "docker run --rm -v .:/app -w /app laravel-ready-dev vendor/bin/pest --mutate --parallel"
   },
   "config": {
     "allow-plugins": {
