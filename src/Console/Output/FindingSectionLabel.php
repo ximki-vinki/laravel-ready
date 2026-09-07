@@ -17,6 +17,7 @@ enum FindingSectionLabel: string
     case Func = 'func';
     case Use = 'use';
     case Allows = 'allows';
+    case Skip = 'skip';
 
     /**
      * @return class-string<Finding>
@@ -28,7 +29,7 @@ enum FindingSectionLabel: string
             self::Global => GlobalFinding::class,
             self::Func => FunctionCallFinding::class,
             self::Use => UseFinding::class,
-            self::Allows => throw new \LogicException('Allows tokens are not findings.'),
+            self::Allows, self::Skip => throw new \LogicException($this->name.' tokens are not findings.'),
         };
     }
 
@@ -43,6 +44,7 @@ enum FindingSectionLabel: string
             self::Func,
             self::Use,
             self::Allows,
+            self::Skip,
         ];
     }
 }

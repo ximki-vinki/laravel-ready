@@ -14,6 +14,7 @@ use LaravelReady\Analysis\Findings\TagFinding;
 use LaravelReady\Analysis\Findings\UseFinding;
 use LaravelReady\Console\Output\FindingSectionBuilder;
 use LaravelReady\Console\Output\FindingSectionLabel;
+use LaravelReady\Console\Output\SkipCheckNote;
 
 it('returns no sections for empty findings', function (): void {
     $sections = (new FindingSectionBuilder)->build(collect());
@@ -43,7 +44,7 @@ it('groups globals and functions into separate sections', function (): void {
         ->and($sections->get(1)->label)->toBe(FindingSectionLabel::Func);
 });
 
-it('orders sections as var global func use allows', function (): void {
+it('orders sections as var global func use allows skip', function (): void {
     $sections = (new FindingSectionBuilder)->build(
         collect([
             new UseFinding('Wf\Legacy\OldRepo', 11),
@@ -54,6 +55,7 @@ it('orders sections as var global func use allows', function (): void {
         new AllowsParseResult(collect(), collect([
             new UnknownAllowToken('not-a-thing', 4),
         ])),
+        SkipCheckNote::Expired,
     );
 
     expect($sections->map(fn ($section) => $section->label)->all())->toBe([
@@ -62,6 +64,7 @@ it('orders sections as var global func use allows', function (): void {
         FindingSectionLabel::Func,
         FindingSectionLabel::Use,
         FindingSectionLabel::Allows,
+        FindingSectionLabel::Skip,
     ]);
 });
 
@@ -73,6 +76,18 @@ it('groups use findings under use section', function (): void {
     expect($sections)->toHaveCount(1)
         ->and($sections->first()->label)->toBe(FindingSectionLabel::Use)
         ->and($sections->first()->findings)->toHaveCount(1);
+});
+
+it('groups a failed skipCheck under skip section', function (): void {
+    $sections = (new FindingSectionBuilder)->build(
+        collect(),
+        skipCheck: SkipCheckNote::Expired,
+    );
+
+    expect($sections)->toHaveCount(1)
+        ->and($sections->first()->label)->toBe(FindingSectionLabel::Skip)
+        ->and($sections->first()->findings)->toHaveCount(1)
+        ->and($sections->first()->findings->first())->toBe(SkipCheckNote::Expired);
 });
 
 it('groups unknown allow tokens under allows section', function (): void {

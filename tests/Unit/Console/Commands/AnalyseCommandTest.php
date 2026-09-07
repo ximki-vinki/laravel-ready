@@ -245,6 +245,19 @@ it('returns success when laravel-adapter has blockers but skipCheck', function (
         ->and($tester->getDisplay())->toContain('Skipped: @skipCheck.');
 });
 
+it('prints expired skipCheck in skip section', function (): void {
+    $tester = new CommandTester(analyseCommand());
+
+    $code = $tester->execute([
+        'path' => [fixture('Tags/laravel-adapter/skip-check-expired-with-blocker.php')],
+    ]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('var: $_GET')
+        ->and($tester->getDisplay())->toContain('skip: expired')
+        ->and($tester->getDisplay())->toContain('Guard failed: @laravel-adapter file must stay LaravelAdapter.');
+});
+
 it('returns failure when laravel-adapter has blockers and a bare skipCheck', function (): void {
     $tester = new CommandTester(analyseCommand());
 
@@ -253,6 +266,19 @@ it('returns failure when laravel-adapter has blockers and a bare skipCheck', fun
     ]);
 
     expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('skip: missing date')
+        ->and($tester->getDisplay())->toContain('Guard failed: @laravel-adapter file must stay LaravelAdapter.');
+});
+
+it('prints malformed skipCheck in skip section', function (): void {
+    $tester = new CommandTester(analyseCommand());
+
+    $code = $tester->execute([
+        'path' => [fixture('Tags/laravel-adapter/skip-check-malformed-with-blocker.php')],
+    ]);
+
+    expect($code)->toBe(Command::FAILURE)
+        ->and($tester->getDisplay())->toContain('skip: malformed')
         ->and($tester->getDisplay())->toContain('Guard failed: @laravel-adapter file must stay LaravelAdapter.');
 });
 

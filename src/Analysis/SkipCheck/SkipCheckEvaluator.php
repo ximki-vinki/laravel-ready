@@ -11,20 +11,29 @@ final readonly class SkipCheckEvaluator
 {
     public function __construct(private Carbon $today = new Carbon) {}
 
-    public function applies(?SkipCheckParseResult $skipCheck): bool
+    public function verdict(?SkipCheckParseResult $skipCheck): SkipCheckVerdict
     {
-        $date = $skipCheck?->date; // @pest-mutate-ignore: RemoveNullSafeOperator
+        if (! $skipCheck instanceof SkipCheckParseResult) {
+            return SkipCheckVerdict::Absent;
+        }
 
-        if ($date === null) {
-            return false;
+        if ($skipCheck->date === null) {
+            return SkipCheckVerdict::Bare;
         }
 
         try {
-            $expires = Carbon::parse($date);
+            $expires = Carbon::parse($skipCheck->date);
         } catch (InvalidFormatException) {
-            return false;
+            return SkipCheckVerdict::Malformed;
         }
 
-        return $expires->gte($this->today->copy()->startOfDay());
+        return $expires->gte($this->today->copy()->startOfDay())
+            ? SkipCheckVerdict::Active
+            : SkipCheckVerdict::Expired;
+    }
+
+    public function applies(?SkipCheckParseResult $skipCheck): bool
+    {
+        return $this->verdict($skipCheck) === SkipCheckVerdict::Active;
     }
 }
