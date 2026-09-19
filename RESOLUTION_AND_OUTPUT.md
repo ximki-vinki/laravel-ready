@@ -26,10 +26,12 @@ Finding ≠ tag: метка файла не дублируется в каждо
 
 | Компонент | Ответственность | Не делает |
 |-----------|-----------------|-----------|
-| **Detector** | Факты AST (суперглобали, `global`, tag в PHPDoc, сырые `use`, флаг `@skipCheck`, `@allows` → `AllowsParseResult`) | Политику допустимости `use`, решение skip / guard |
+| **Detector** | Факты AST (суперглобали, `global`, tag в PHPDoc, сырые `use`, `@skipCheck` → `SkipCheckParseResult`, `@allows` → `AllowsParseResult`) | Политику допустимости `use`, решение skip / guard |
 | **UseDependencyChecker** | Политика `use` для guarded-файлов → `UseFinding` | Вывод в консоль |
 | **ReadinessResolver** | `actual` из меток; `hasBlockers` через GuardEvaluator; проброс `skipCheck` | Exit code, форматирование |
-| **PresentationPlanBuilder** | План вывода (в т.ч. skip при `skipCheck` + blockers) → formatters | Детект `@skipCheck` |
+| **SkipCheckEvaluator** | `SkipCheckVerdict` из даты (`Absent` / `Active` / `Expired` / `Bare` / `Malformed`); `applies()` ≡ `Active` | Вывод в консоль |
+| **PresentationPlanBuilder** | План вывода (Active skip + blockers → footer SkipCheck, exit `0`) → formatters | Детект `@skipCheck`, текст секции `skip:` |
+| **FindingSectionBuilder** | Секции тела: findings + `allows.unknowns` + `SkipCheckNote` | Решение exit / footer |
 
 Детали — в коде и тестах (`ReadinessResolver`, `PresentationPlanBuilder`).
 
@@ -70,15 +72,31 @@ Finding ≠ tag: метка файла не дублируется в каждо
 
 Guard — не синоним «exit 1». Файл с `@legacy-code` и `$_GET` — `Legacy`, exit `0`: метка осознанная, не нарушение обещания.
 
-**`@skipCheck`** — отдельно от `hasBlockers`: флаг не меняет уровень и не убирает blockers, только план презентации. Если у файла с readiness-меткой есть blockers и `@skipCheck` → exit `0`, findings остаются, footer `Skipped: @skipCheck.`. На `Untagged` / `MultiTag` не действует.
+**`@skipCheck`** — отдельно от `hasBlockers`: не меняет уровень и не убирает blockers. Вердикт считает `SkipCheckEvaluator`.
+
+| Вердикт | Смысл | Exit при blockers на readiness-метке | Тело | Футер |
+|---------|-------|--------------------------------------|------|-------|
+| `Active` | дата ≥ сегодня | `0` | findings, **без** `skip:` | `Skipped: @skipCheck.` |
+| `Expired` | дата в прошлом | `1` | findings + `skip: expired` | обычный `Guard failed` |
+| `Bare` | `@skipCheck` без даты | `1` | findings + `skip: missing date` | обычный `Guard failed` |
+| `Malformed` | дата не парсится | `1` | findings + `skip: malformed` | обычный `Guard failed` |
+| `Absent` | тега нет | как без скипа | — | — |
+
+На `Untagged` / `MultiTag` скип не действует (exit `1`, footer про метку). `SkipCheckNote` — не Finding: рисуется через `Displayable` в секции `skip:`, по тому же принципу что `UnknownAllowToken` в `allows:`. В `GuardEvaluator` не участвует.
 
 Позже: `guardFailed = pledged !== null && actual хуже pledged` — общий механизм для всех меток с обещанием, не только `@laravel-ready`.
 
 ## Презентация
 
-Exit code, наличие findings и «успех для hook'а» — **три независимые оси**. Деление на `SuccessOutput` / `UnSuccessOutput` или `WithFindings` / `WithoutFindings` не работает: `Legacy` — exit `0` с findings; `Untagged` — exit `1` с footer про отсутствие метки; `@skipCheck` + blockers — exit `0` с findings и Warning.
+Exit code, наличие findings и «успех для hook'а» — **три независимые оси**. Деление на `SuccessOutput` / `UnSuccessOutput` или `WithFindings` / `WithoutFindings` не работает: `Legacy` — exit `0` с findings; `Untagged` — exit `1` с footer про отсутствие метки; Active `@skipCheck` + blockers — exit `0` с findings и Warning.
 
-План вывода строит `PresentationPlanBuilder` (в т.ч. ветка skip до `match` по уровню); formatters только рисуют переданные части — без бизнес-логики.
+Слои вывода:
+
+- **хедер** — путь и уровень;
+- **тело** — `var` / `global` / `func` / `use` / `allows` / `skip` (модификаторы — не Finding);
+- **футер** — один вердикт (`Guard failed`, `Skipped`, `Not guarded`, …).
+
+План (exit, footer, показывать ли findings) строит `PresentationPlanBuilder`; секции тела — `FindingSectionBuilder` / `FindingsOutput`. Formatters только рисуют — без бизнес-логики скипа (кроме вызова evaluator для `SkipCheckNote`).
 
 При успехе `@legacy-adapter` findings сейчас **скрыты** (в т.ч. разрешённый `$_COOKIE` и опечатки в `@allows`).
 
@@ -96,7 +114,8 @@ Public promise for beta consumers: `CLI_CONTRACT_0x.md`. The table below is the 
 | `@legacy-perfect` с AST или UseFinding | `1` |
 | `@laravel-ready` / `@laravel-adapter` без blockers | `0` |
 | `@laravel-ready` / `@laravel-adapter` с blockers | `1` |
-| readiness-метка + blockers + `@skipCheck` | `0` (footer SkipCheck; `Untagged`/`MultiTag` — нет) |
+| readiness-метка + blockers + Active `@skipCheck` | `0` (footer SkipCheck; `Untagged`/`MultiTag` — нет) |
+| readiness-метка + blockers + Expired / Bare / Malformed `@skipCheck` | `1` (секция `skip:`; футер Guard failed) |
 | Ошибка CLI (файл не найден, не `.php`) | `≠ 0` |
 
 ## Планируется
@@ -111,6 +130,8 @@ Public promise for beta consumers: `CLI_CONTRACT_0x.md`. The table below is the 
 |-----------|--------|
 | Tag в каждом finding | Метка файла ≠ факт в AST |
 | `@skipCheck` как `Tag` / поле на `TagFinding` | Модификатор политики презентации, не readiness-уровень |
+| `SkipCheckNote` / `UnknownAllowToken` в `findings` | Улика про модификатор; секция тела, не Finding и не blocker |
+| Второй красный футер для expired/bare | Футер — один вердикт; причина скипа — в `skip:` |
 | `ReadinessLevel` для guard-нарушения | Level — состояние; guard — нарушение обещания |
 | `kind` enum у finding | Дублирует смысл класса; лучше `LegacyFinding` |
 | Выбор вывода в `AnalyseCommand` | Разрастётся с новыми метками |

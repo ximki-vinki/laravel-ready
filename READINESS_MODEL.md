@@ -53,6 +53,10 @@ active again and fails exactly like any other failure. The user fixes it by
 hand: either updates the date (because the task is genuinely still open) or
 fixes the underlying issue.
 
+In CLI output the expired skip is **visible in the body** as `skip: expired`
+next to the findings it no longer hides; the footer stays the ordinary
+`Guard failed` (one verdict). See `RESOLUTION_AND_OUTPUT.md`.
+
 The analyser **never mutates source files**. It is strictly read-only. All
 date-writing is explicit and happens in a dedicated command (see §5).
 
@@ -62,8 +66,8 @@ date-writing is explicit and happens in a dedicated command (see §5).
 
 A `@skipCheck` without a date is a contract violation in the main flow:
 
-- reported as a red flag / violation;
-- the analysis run fails with a non-zero exit code;
+- reported in the body as `skip: missing date` (malformed date → `skip: malformed`);
+- the analysis run fails with a non-zero exit code and the usual `Guard failed` footer;
 - the user must either add a date by hand, or run `skips:fill`.
 
 Rationale: a yellow "warning" with virtual auto-fill would make the date roll
@@ -132,8 +136,9 @@ Deliberately not part of this iteration:
 | 1 | No infinite skips; expiry is mandatory.                        |
 | 2 | Absolute date only; no `until=`, no relative periods.          |
 | 3 | Bare `@skipCheck` = red flag / violation in the main flow.     |
-| 4 | Expired skip = variant A: silently stops applying, check fails again. |
+| 4 | Expired skip = variant A: stops applying; CLI shows `skip: expired`, then Guard failed. |
 | 5 | Default fill period from settings, built-in default 10 days.   |
 | 6 | `skips:fill` is a separate write command; `analyse` stays pure read-only. |
 | 7 | Analyser never mutates source files.                           |
 | 8 | No reason field.                                               |
+| 9 | Failed skip reasons live in body section `skip:` (like `allows:`), not a second footer. |

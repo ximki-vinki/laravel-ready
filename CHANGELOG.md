@@ -7,4 +7,11 @@ Changelog начинается с **0.5.0**. Более ранние релиз�
 
 ## [Unreleased]
 
-Изменения для будущего **0.5.0**.
+### Added
+
+- `@skipCheck(YYYY-MM-DD)` — временный пропуск guard с обязательной датой истечения.
+- Вердикты скипа: Active / Expired / Bare / Malformed; в теле секция `skip:`, при Active — footer `Skipped` и exit `0`.
+
+### Changed
+
+- Голый `@skipCheck` без даты больше не молчаливый пропуск: это нарушение (`skip: missing date`, exit `1`).

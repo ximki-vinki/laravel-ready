@@ -96,9 +96,9 @@ docker run --rm \
 | `TagFinding` | 1 | метка в PHPDoc |
 | `UseFinding` | 2 | недопустимый `use`; создаёт **UseDependencyChecker**, не Detector |
 
-**`@skipCheck`** — не Finding: `SkipCheckVisitor` → bool `AnalysisResult::$skipCheck` → `ReadinessResult::$skipCheck`.
+**`@skipCheck`** — не Finding: `SkipCheckVisitor` → `SkipCheckParseResult` в `DocModifiers` / `ReadinessResult`. `SkipCheckEvaluator` даёт `SkipCheckVerdict` (`Absent` / `Active` / `Expired` / `Bare` / `Malformed`). Активный скип → footer `Skipped`; провал скипа → секция `skip:` в теле (`SkipCheckNote` через `Displayable`), футер остаётся `Guard failed`. В `findings` и в `GuardEvaluator` не кладётся.
 
-**`@allows`** — не readiness-метка и не Finding: `AllowsVisitor` → `DocModifiers::$allows` (`AllowsParseResult`: токены + `UnknownAllowToken` при опечатке). Вывод рисует unknown через `Displayable`. Guard для `@legacy-adapter` сверяет `LegacyFinding` со списком.
+**`@allows`** — не readiness-метка и не Finding: `AllowsVisitor` → `DocModifiers::$allows` (`AllowsParseResult`: токены + `UnknownAllowToken` при опечатке). Вывод рисует unknown через `Displayable` в секции `allows:`. Guard для `@legacy-adapter` сверяет `LegacyFinding` со списком.
 
 ---
 
@@ -108,7 +108,8 @@ docker run --rm \
 |---------|------|
 | `@laravel-ready` / `@laravel-adapter` без blockers | `0` |
 | `@laravel-ready` / `@laravel-adapter` с blockers | `1` |
-| readiness-метка + blockers + `@skipCheck` | `0` (Skipped) |
+| readiness-метка + blockers + активный `@skipCheck(YYYY-MM-DD)` | `0` (Skipped) |
+| readiness-метка + blockers + bare / expired / malformed `@skipCheck` | `1` (+ секция `skip:`) |
 | `@legacy-code` | `0` |
 | без метки / несколько меток | `1` (даже с `@skipCheck`) |
 | файл не найден, не `.php` | `≠ 0` (ошибка CLI) |
@@ -159,6 +160,25 @@ src/Domain/Invoice.php : Legacy
   use: App\Legacy\OldRepo (not LaravelReady)
 ```
 
+Провал скипа (expired / bare / malformed) — exit 1; причина в теле, футер один:
+
+```
+src/Domain/Invoice.php : LaravelAdapter
+  var: $_GET (line 5)
+  skip: expired
+
+Guard failed: @laravel-adapter file must stay LaravelAdapter.
+```
+
+Активный скип — exit 0; секции `skip:` нет:
+
+```
+src/Domain/Invoice.php : LaravelAdapter
+  var: $_GET (line 5)
+
+Skipped: @skipCheck.
+```
+
 ### Не guarded — exit 0
 
 По умолчанию без вывода. С `--verbose` — уровень + `(not guarded)`.
@@ -190,7 +210,10 @@ ReadinessResolver.resolve(result)
     → ReadinessResult: actual, hasBlockers, skipCheck
 
 PresentationPlanBuilder.build(readiness)
-    → если skipCheck + blockers + не Untagged/MultiTag → exit 0, footer SkipCheck
+    → если Active skipCheck + blockers + не Untagged/MultiTag → exit 0, footer SkipCheck
+
+FindingsOutput / FindingSectionBuilder
+    → тело: var / global / func / use / allows / skip (SkipCheckNote при Expired|Bare|Malformed)
 ```
 
 Checker вызывается из resolver; политику `use` **не** кладём в Detector.

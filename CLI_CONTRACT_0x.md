@@ -111,9 +111,9 @@ Hooks and CI must rely on the **exit code**. Semantics:
 | `@legacy-perfect` with blockers                                                 | `1`                   |
 | `@laravel-ready` / `@laravel-adapter` without blockers                          | `0`                   |
 | `@laravel-ready` / `@laravel-adapter` with blockers                             | `1`                   |
-| Readiness tag + blockers + `@skipCheck`                                         | `0`                   |
+| Readiness tag + blockers + Active `@skipCheck(YYYY-MM-DD)`                      | `0`                   |
 | `@skipCheck` on `Untagged` / `MultiTag`                                         | `1` (does not rescue) |
-| Readiness tag + blockers + `@skipCheck(until=...)` with deadline passed          | `1`                   |
+| Readiness tag + blockers + bare / expired / malformed `@skipCheck`              | `1` (body `skip:`)    |
 | CLI error (file not found, not `.php`, missing config, …)                      | `≠ 0`                 |
 
 When analyzing multiple files: **any** exit `1` (or CLI error) → overall exit
@@ -134,14 +134,22 @@ exact footer literals (ANSI codes stripped):
 | `Guard failed: @legacy-perfect file must stay cleaned in legacy contour.` | blockers on `@legacy-perfect`             |
 | `MultiTag failed: file must have only one tag.`                           | multiple readiness tags                   |
 | `Not guarded: file has no tag.`                                           | no readiness tag                          |
-| `Skipped: @skipCheck.`                                                    | blockers + `@skipCheck` on a guarded file |
+| `Skipped: @skipCheck.`                                                    | blockers + **Active** `@skipCheck` on a guarded file |
 
 Wrapping footers in terminal colour markup is allowed; the **literal text** in
 the table is part of the contract.
 
-**Unstable** (may improve without a breaking change): finding lines (`var:`,
-`func:`, `use:`, `tag:`), finding order, indentation, header `{path} : {Level}`,
-colors, `--verbose`.
+**Unstable** (may improve without a breaking change): finding / body lines
+(`var:`, `func:`, `use:`, `tag:`, `allows:`, `skip:`), finding order,
+indentation, header `{path} : {Level}`, colors, `--verbose`.
+
+Body lines for a failed skip (not part of the footer contract):
+
+| Body line              | When                                      |
+|------------------------|-------------------------------------------|
+| `skip: expired`        | date in the past                          |
+| `skip: missing date`   | bare `@skipCheck`                         |
+| `skip: malformed`      | date does not parse                       |
 
 ---
 

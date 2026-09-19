@@ -26,8 +26,10 @@
 | 2 | `@laravel-ready`, `$_GET` | exit `1`, `Legacy` + причины |
 | 3 | без метки, `$_GET` | exit `0` (не guarded) |
 | 4 | `@laravel-ready`, `@legacy-code` | exit `1`, `tag: @legacy-code` |
-| 5 | `@laravel-adapter @skipCheck` + блокер | exit `0`, footer `Skipped: @skipCheck.` |
+| 5 | `@laravel-adapter @skipCheck(YYYY-MM-DD)` + блокер (дата активна) | exit `0`, footer `Skipped: @skipCheck.` |
 | 6 | без метки + `@skipCheck` + блокер | exit `1` (skip не спасает Untagged) |
+| 7 | `@laravel-adapter @skipCheck` без даты + блокер | exit `1`, тело `skip: missing date`, footer Guard failed |
+| 8 | `@laravel-adapter @skipCheck(past)` + блокер | exit `1`, тело `skip: expired`, footer Guard failed |
 
 ## Пример: `$GLOBALS`
 
