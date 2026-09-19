@@ -66,7 +66,7 @@ run_case "pass @legacy-code with findings" 0 "" \
 
 run_case "pass @skipCheck with blockers" 0 \
   "Skipped: @skipCheck." \
-  "$FX/Tags/laravel-adapter/skip-check-with-blocker.php"
+  "$FX/Tags/laravel-adapter/skip-check-dated-with-blocker.php"
 
 # Fail — stable Guard failed / MultiTag / Not guarded footers
 run_case "fail @laravel-ready blocker" 1 \
